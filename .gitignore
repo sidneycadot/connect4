@@ -1,0 +1,5 @@
+connect4
+*.o
+*.dat
+*.dat.xz
+*.log
