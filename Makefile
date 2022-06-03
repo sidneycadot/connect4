@@ -2,7 +2,7 @@
 # Note: the CC variable is used to select the linker.
 # We override it to make sure the linker knows how to deal with C++ object files.
 
-CXXFLAGS = -W -Wall -O3
+CXXFLAGS = -W -Wall -O3 -std=c++14
 CC=$(CXX)
 
 .PHONY : clean
