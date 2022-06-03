@@ -15,10 +15,13 @@ class BoardNormalizer
 {
     public:
 
+        // Instantiate BoardNormalizer, by enumerating all non-identity permutations.
         BoardNormalizer();
+
+        // Normalize a given Board.
         Board normalize(const Board & board);
 
-    private: // Instance member variables.
+    private: // Member variables.
 
         std::vector<Permutation> non_identity_permutations;
 };

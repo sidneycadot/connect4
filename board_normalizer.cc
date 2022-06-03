@@ -14,9 +14,13 @@ BoardNormalizer::BoardNormalizer()
     set<Permutation> permutations_found;
     vector<Permutation> to_be_processed;
 
+    // For connect-4, we only use the `mirror_horizontally` permutation.
+    
     vector<Permutation> basic_permutations;
     basic_permutations.push_back(Permutation::mirror_horizontally());
+
     //basic_permutations.push_back(Permutation::mirror_vertically());
+    //
     //if (H_SIZE == V_SIZE)
     //{
     //    basic_permutations.push_back(Permutation::transpose());
@@ -33,6 +37,7 @@ BoardNormalizer::BoardNormalizer()
 
         if (permutations_found.find(permutation) == permutations_found.end())
         {
+            // The permutation was not previously processed; process it now.
             permutations_found.insert(permutation);
             for (const Permutation & basic_permutation : basic_permutations)
             {
@@ -41,7 +46,9 @@ BoardNormalizer::BoardNormalizer()
         }
     }
 
-    // Copy all permutations found, except the identity permutation, into the 'permutations' vector.
+    // Copy all permutations found, except the identity permutation,
+    // into the `non_identity_permutations` vector.
+
     for (const Permutation & permutation_found: permutations_found)
     {
         if (permutation_found != identity_permutation)
@@ -57,10 +64,10 @@ Board BoardNormalizer::normalize(const Board & board)
 
     for (const Permutation & permutation: non_identity_permutations)
     {
-        const Board permuted = permutation.apply(board);
-        if (permuted < normalized_board)
+        const Board permuted_board = permutation.apply(board);
+        if (permuted_board < normalized_board)
         {
-            normalized_board = permuted;
+            normalized_board = permuted_board;
         }
     }
     return normalized_board;

@@ -10,7 +10,7 @@
 using namespace std;
 
 InputFile::InputFile(const string & filename) :
-    input_file(filename == stdin_name ? nullptr : make_unique<ifstream>(ifstream(filename)))
+    input_file(filename == stdin_name ? nullptr : make_unique<ifstream>(filename))
 {
     // Empty body.
 }
@@ -21,7 +21,7 @@ istream & InputFile::get_istream_reference() const
 }
 
 OutputFile::OutputFile(const string & filename) :
-    output_file(filename == stdout_name ? nullptr : make_unique<ofstream>(ofstream(filename)))
+    output_file(filename == stdout_name ? nullptr : make_unique<ofstream>(filename))
 {
     // Empty body.
 }

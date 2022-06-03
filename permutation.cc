@@ -32,19 +32,19 @@ Permutation Permutation::apply(const Permutation & permutation) const
 // static method
 Permutation Permutation::identity()
 {
-    Permutation permuted;
+    Permutation permutation;
 
     for (int i = 0; i < V_SIZE * H_SIZE; ++i)
     {
-        permuted.entries[i] = i;
+        permutation.entries[i] = i;
     }
-    return permuted;
+    return permutation;
 }
 
 // static method
 Permutation Permutation::mirror_horizontally()
 {
-    Permutation permuted;
+    Permutation permutation;
 
     for (int i = 0; i < V_SIZE * H_SIZE; ++i)
     {
@@ -55,16 +55,16 @@ Permutation Permutation::mirror_horizontally()
         int vv = v;
         int ii = vv * H_SIZE + hh;
 
-        permuted.entries[i] = ii;
+        permutation.entries[i] = ii;
     }
 
-    return permuted;
+    return permutation;
 }
 
 // static method
 Permutation Permutation::mirror_vertically()
 {
-    Permutation permuted;
+    Permutation permutation;
 
     for (int i = 0; i < V_SIZE * H_SIZE; ++i)
     {
@@ -75,9 +75,9 @@ Permutation Permutation::mirror_vertically()
         int vv = (V_SIZE - 1) - v;
         int ii = vv * H_SIZE + hh;
 
-        permuted.entries[i] = ii;
+        permutation.entries[i] = ii;
     }
-    return permuted;
+    return permutation;
 }
 
 // static method
@@ -88,7 +88,7 @@ Permutation Permutation::transpose()
         throw runtime_error("Permutation::transpose: bad transpose");
     }
 
-    Permutation permuted;
+    Permutation permutation;
 
     for (int i = 0; i < V_SIZE * H_SIZE; ++i)
     {
@@ -99,10 +99,10 @@ Permutation Permutation::transpose()
         int vv = h;
         int ii = vv * H_SIZE + hh;
 
-        permuted.entries[i] = ii;
+        permutation.entries[i] = ii;
     }
 
-    return permuted;
+    return permutation;
 }
 
 bool operator < (const Permutation & lhs, const Permutation & rhs)
@@ -118,7 +118,7 @@ bool operator < (const Permutation & lhs, const Permutation & rhs)
             return false;
         }
     }
-    // Boards are identical, so (lhs < rhs) is false.
+    // Permutations are identical, so (lhs < rhs) is false.
     return false;
 }
 

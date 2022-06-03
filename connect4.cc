@@ -3,6 +3,7 @@
 // connect4.cc //
 /////////////////
 
+#include <string>
 #include <vector>
 #include <set>
 #include <stdexcept>
@@ -10,6 +11,8 @@
 #include <iomanip>
 
 #include "base62.h"
+#include "player.h"
+#include "constants.h"
 #include "board.h"
 #include "unique_boards.h"
 #include "files.h"
@@ -130,11 +133,11 @@ static void make_edges_with_score(const string & in_edges_filename,
     Player score_winner;
     char   score_winply_encoded;
 
-    while (in_edges >> setw(NUM_DIGITS) >> edge_dst >> setw(NUM_DIGITS) >> edge_src)
+    while (in_edges >> setw(NUM_BASE62_DIGITS) >> edge_dst >> setw(NUM_BASE62_DIGITS) >> edge_src)
     {
         if (edge_dst != score_board)
         {
-            in_nodes_with_score >> setw(NUM_DIGITS) >> score_board >> score_winner >> score_winply_encoded;
+            in_nodes_with_score >> setw(NUM_BASE62_DIGITS) >> score_board >> score_winner >> score_winply_encoded;
             if (!in_nodes_with_score)
             {
                 throw runtime_error("bad read.");
@@ -173,9 +176,9 @@ static void make_nodes_with_score(const string & in_nodes_filename,
     Player edge_score_winner;
     char   edge_score_winply_encoded;
 
-    while (in_nodes >> setw(NUM_DIGITS) >> node_board_encoded >> node_winner >> node_winply_encoded)
+    while (in_nodes >> setw(NUM_BASE62_DIGITS) >> node_board_encoded >> node_winner >> node_winply_encoded)
     {
-        if (node_winner != EMPTY)
+        if (node_winner != Player::EMPTY)
         {
             // The node has a trivial winner. No outgoing edges need to be checked, we can just write the result.
             out_nodes_with_score << node_board_encoded << node_winner << node_winply_encoded << '\n';
@@ -193,14 +196,14 @@ static void make_nodes_with_score(const string & in_nodes_filename,
             bool node_mover_has_win  = false;
             bool node_mover_has_loss = false;
 
-            unsigned  node_mover_min_win  = 0;
-            unsigned  node_mover_max_loss = 0;
+            unsigned node_mover_min_win  = 0;
+            unsigned node_mover_max_loss = 0;
 
             while (true)
             {
                 if (!edge_score_valid)
                 {
-                    if (in_edges_with_score >> setw(NUM_DIGITS) >> edge_score_board_encoded >> edge_score_winner >> edge_score_winply_encoded)
+                    if (in_edges_with_score >> setw(NUM_BASE62_DIGITS) >> edge_score_board_encoded >> edge_score_winner >> edge_score_winply_encoded)
                     {
                         edge_score_valid = true;
                     }
@@ -213,7 +216,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                     // We have a valid edge score, and it does contain information relevant to the current board (node).
                     // Update the 'node_mover_*' variables with the new information provided by this edge.
 
-                    if (edge_score_winner == EMPTY)
+                    if (edge_score_winner == Player::EMPTY)
                     {
                         node_mover_has_draw = true;
                     }
@@ -267,12 +270,12 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                     else if (node_mover_has_draw || !node_mover_has_loss)
                     {
                         // We have a draw, or nothing.
-                        out_nodes_with_score << node_board_encoded << EMPTY << "0\n";
+                        out_nodes_with_score << node_board_encoded << Player::EMPTY << "0\n";
                     }
                     else
                     {
                         // We have only losing moves (at least 1).
-                        const Player node_other_player = (node_mover == PLAYER_A) ? PLAYER_B : PLAYER_A;
+                        const Player node_other_player = (node_mover == Player::A) ? Player::B : Player::A;
                         out_nodes_with_score << node_board_encoded << node_other_player << to_base62_digit(node_mover_max_loss) << '\n';
                     }
 

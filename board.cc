@@ -4,121 +4,15 @@
 //////////////
 
 #include <iomanip>
-#include <vector>
 #include <stdexcept>
-#include <algorithm>
 
 #include "board.h"
 #include "base62.h"
 
 using namespace std;
 
-class ColumnEncoder
-{
-    public:
-
-        ColumnEncoder()
-        {
-            using column = vector<unsigned>;
-
-            vector<column> to_be_processed;
-            to_be_processed.push_back(column());
-            
-            while (!to_be_processed.empty())
-            {
-                column col = to_be_processed.back();
-                to_be_processed.pop_back();
-
-                // Calculate column as unsigned value, and put it into 'column_index_to_column' vector.
-                unsigned col_as_unsigned = 0;
-                for (int i = col.size() -1; i >= 0; --i)
-                {
-                    col_as_unsigned *= 3;
-                    if (col[i] == PLAYER_A)
-                    {
-                        col_as_unsigned += 1;
-                    }
-                    else if (col[i] == PLAYER_B)
-                    {
-                        col_as_unsigned += 2;
-                    }                    
-                }
-
-                column_index_to_column.push_back(col_as_unsigned);
-                
-                // Check if we can put another one on top.
-
-                if (col.size() < V_SIZE)
-                {
-                    bool has_winner = false;
-
-                    if (col.size() >= Q)
-                    {
-                        has_winner = true;
-
-                        for (int i = 1; i < Q; ++i)
-                        {
-                            if (col[col.size() - 1] != col[col.size() - 1 - i])
-                            {
-                                has_winner = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!has_winner)
-                    {
-                        col.push_back(PLAYER_A);
-                        to_be_processed.push_back(col);
-                        col.pop_back();
-                        col.push_back(PLAYER_B);
-                        to_be_processed.push_back(col);
-                        col.pop_back();
-                    }
-                }
-            }
-
-            sort(column_index_to_column.begin(), column_index_to_column.end());
-            
-            const unsigned max_col_as_unsigned = column_index_to_column.back();
-
-            column_to_column_index.resize(max_col_as_unsigned + 1);
-            for (unsigned i = 1; i < column_index_to_column.size(); ++i)
-            {
-                column_to_column_index[column_index_to_column[i]] = i;
-            }
-        }
-
-        unsigned num_entries()
-        {
-            return column_index_to_column.size();
-        }
-
-        unsigned encode(unsigned column) const
-        {
-            if (column >= column_to_column_index.size())
-            {
-                throw runtime_error("bad column encode");
-            }
-            return column_to_column_index[column];
-        }
-
-        unsigned decode(unsigned column_index) const
-        {
-            if (column_index >= column_index_to_column.size())
-            {
-                throw runtime_error("bad column decode");
-            }
-            return column_index_to_column[column_index];
-        }
-
-    private:
-
-        vector<unsigned> column_index_to_column;
-        vector<unsigned> column_to_column_index;
-};
-
-static ColumnEncoder column_encoder;
+// Definition of the column encoder.
+ColumnEncoder Board::column_encoder;
 
 // static method
 Board Board::empty()
@@ -127,7 +21,7 @@ Board Board::empty()
 
     for (int i = 0; i < V_SIZE * H_SIZE; ++i)
     {
-        board.entries[i] = EMPTY;
+        board.entries[i] = Player::EMPTY;
     }
     return board;
 }
@@ -141,11 +35,11 @@ uint64_t Board::to_uint64() const
         for (int y = 0; y < V_SIZE; ++y)
         {
             column *= 3;
-            if (entries[y * H_SIZE + x] == PLAYER_A)
+            if (entries[y * H_SIZE + x] == Player::A)
             {
                 column += 1;
             }
-            else if (entries[y * H_SIZE + x] == PLAYER_B)
+            else if (entries[y * H_SIZE + x] == Player::B)
             {
                 column += 2;
             }
@@ -176,7 +70,7 @@ Board Board::from_uint64(uint64_t n)
         for (int  y = V_SIZE - 1; y >= 0; --y)
         {
             const unsigned digit = (column % 3);
-            board.entries[y * H_SIZE + x] = (digit == 0) ? EMPTY : (digit == 1) ? PLAYER_A : PLAYER_B;
+            board.entries[y * H_SIZE + x] = (digit == 0) ? Player::EMPTY : (digit == 1) ? Player::A : Player::B;
             column /= 3;
         }
     }
@@ -196,15 +90,15 @@ Player Board::mover() const
     for (int i = 0; i < V_SIZE * H_SIZE; ++i)
     {
         const Player entry = entries[i];
-        a_min_b += ((entry == PLAYER_A) - (entry == PLAYER_B));
+        a_min_b += ((entry == Player::A) - (entry == Player::B));
     }
     if (a_min_b == 0)
     {
-        return PLAYER_A;
+        return Player::A;
     }
     else if (a_min_b == 1)
     {
-        return PLAYER_B;
+        return Player::B;
     }
     else
     {
@@ -229,7 +123,7 @@ Player Board::winner() const
         {
             const Player player = entries[y * H_SIZE + x];
 
-            if (player != EMPTY)
+            if (player != Player::EMPTY)
             {
                 const int directions[4][2] = {{0, 1}, {1, 0}, {1, 1}, {1, -1}};
 
@@ -251,11 +145,11 @@ Player Board::winner() const
                         if (found_win)
                         {
                             // Found a winning stretch!
-                            if (player == PLAYER_A)
+                            if (player == Player::A)
                             {
                                 player_a_wins = true;
                             }
-                            else if (player == PLAYER_B)
+                            else if (player == Player::B)
                             {
                                 player_b_wins = true;
                             }
@@ -275,17 +169,7 @@ Player Board::winner() const
         throw runtime_error("Board::winner: multiple winners");
     }
 
-    if (player_a_wins)
-    {
-        return PLAYER_A;
-    }
-
-    if (player_b_wins)
-    {
-        return PLAYER_B;
-    }
-
-    return EMPTY;
+    return player_a_wins ? Player::A : player_b_wins ? Player::B : Player::EMPTY;
 }
 
 vector<Board> Board::generate_boards() const
@@ -299,7 +183,7 @@ vector<Board> Board::generate_boards() const
 
     vector<Board> next_boards;
 
-    if (winner() == EMPTY)
+    if (winner() == Player::EMPTY)
     {
         const Player player = mover();
         for (int x = 0; x < H_SIZE; ++x)
@@ -308,7 +192,7 @@ vector<Board> Board::generate_boards() const
             {
                 const int i = y * H_SIZE + x;
 
-                if (entries[i] == EMPTY)
+                if (entries[i] == Player::EMPTY)
                 {
                     Board next_board(*this);
                     next_board.entries[i] = player;
@@ -341,14 +225,14 @@ bool operator < (const Board & lhs, const Board & rhs)
 
 ostream & operator << (ostream & out, const Board & board)
 {
-    out << board.to_string(NUM_DIGITS);
+    out << board.to_string(NUM_BASE62_DIGITS);
     return out;
 }
 
 istream & operator >> (istream & in, Board & board)
 {
     string s;
-    in >> setw(NUM_DIGITS) >> s;
+    in >> setw(NUM_BASE62_DIGITS) >> s;
     board = Board::from_string(s);
     return in;
 }

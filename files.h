@@ -10,6 +10,8 @@
 #include <fstream>
 #include <memory>
 
+// Class `InputFile` represents an input stream that is either a file or the `cin` stream.
+
 class InputFile
 {
     public:
@@ -24,6 +26,8 @@ class InputFile
 
         std::unique_ptr<std::ifstream> input_file;
 };
+
+// Class `OutputFile` represents an output stream that is either a file or the `cout` stream.
 
 class OutputFile
 {

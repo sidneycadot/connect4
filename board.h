@@ -12,17 +12,9 @@
 #include <istream>
 #include <ostream>
 
-const int V_SIZE = 6; // vertical board size
-const int H_SIZE = 7; // horizontal board size
-const int Q      = 4; // number of consecutive horizontal/diagonal/vertical cells required to win.
-
-const unsigned NUM_DIGITS = 8; // We need 8 base-62 characters to encode a single board state: ceiling(log(111**7) / log(62))
-
-using Player = char;
-
-const Player EMPTY    = '.';
-const Player PLAYER_A = 'A';
-const Player PLAYER_B = 'B';
+#include "column_encoder.h"
+#include "player.h"
+#include "constants.h"
 
 class Board
 {
@@ -58,6 +50,8 @@ class Board
         static Board from_uint64(uint64_t n);
 
     private: // Member variables.
+
+        static ColumnEncoder column_encoder;
 
         Player entries[V_SIZE * H_SIZE];
 

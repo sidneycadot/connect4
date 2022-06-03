@@ -60,7 +60,7 @@ string uint64_to_base62_string(uint64_t n, unsigned num_digits)
 
     if (n != 0)
     {
-        throw runtime_error("number_to_base62_string: number too large");
+        throw runtime_error("uint64_to_base62_string: number too large");
     }
 
     return string(encoded_number);
@@ -69,6 +69,7 @@ string uint64_to_base62_string(uint64_t n, unsigned num_digits)
 uint64_t base62_string_to_uint64(const string & s)
 {
     // Parse a big-endian base-62 string to an uint64_t.
+    // Note: this function does not guard against overflow.
     uint64_t n = 0;
     for (int i = 0; s[i] != '\0'; ++i)
     {
