@@ -11,17 +11,19 @@ using namespace std;
 
 istream & operator >> (istream & in, Player & player)
 {
-    char c;
-    in >> c;
-
-    switch (c)
+    if (in)
     {
-        case 'A' : player = Player::A; break;
-        case 'B' : player = Player::B; break;
-        case '.' : player = Player::EMPTY; break;
-        default : throw runtime_error("bad character for Player from input stream");
+        char c;
+        in >> c;
+
+        switch (c)
+        {
+            case 'A' : player = Player::A; break;
+            case 'B' : player = Player::B; break;
+            case '.' : player = Player::EMPTY; break;
+            default : throw runtime_error("bad character for Player from input stream");
+        }
     }
-    
     return in;
 }
 
