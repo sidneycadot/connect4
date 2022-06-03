@@ -166,7 +166,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
     istream & in_nodes             = in_nodes_file.get_istream_reference();
     istream & in_edges_with_score  = in_edges_with_score_file.get_istream_reference();
     ostream & out_nodes_with_score = out_nodes_with_score_file.get_ostream_reference();
-    
+
     string node_board_encoded;
     Player node_winner;
     char   node_winply_encoded;
@@ -210,7 +210,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                 }
 
                 // If 'edge_score_valid' is false here, we have reached the end of the 'in_edges_with_score' input stream.
-                
+
                 if (edge_score_valid && edge_score_board_encoded == node_board_encoded)
                 {
                     // We have a valid edge score, and it does contain information relevant to the current board (node).

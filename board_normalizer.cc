@@ -15,7 +15,7 @@ BoardNormalizer::BoardNormalizer()
     vector<Permutation> to_be_processed;
 
     // For connect-4, we only use the `mirror_horizontally` permutation.
-    
+
     vector<Permutation> basic_permutations;
     basic_permutations.push_back(Permutation::mirror_horizontally());
 

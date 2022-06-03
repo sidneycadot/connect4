@@ -36,6 +36,6 @@ ostream & operator << (ostream & out, const Player & player)
         case Player::NONE : out << '.'; break;
         default : throw runtime_error("bad Player for output stream");
     }
-    
+
     return out;
 }

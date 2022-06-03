@@ -15,7 +15,7 @@ class BoardNormalizer
 {
     public:
 
-        // Instantiate BoardNormalizer, by enumerating all non-identity permutations.
+        // Instantiate BoardNormalizer by enumerating all non-identity permutations.
         BoardNormalizer();
 
         // Normalize a given Board.

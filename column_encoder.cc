@@ -18,15 +18,16 @@ ColumnEncoder::ColumnEncoder()
 
     vector<column> to_be_processed;
     to_be_processed.push_back(column());
-    
+
     while (!to_be_processed.empty())
     {
         column col = to_be_processed.back();
         to_be_processed.pop_back();
 
-        // Calculate column as unsigned value, and put it into 'column_index_to_column' vector.
+        // Calculate column value as a base-3 unsigned value
+        // and put it into 'column_index_to_column' vector.
         unsigned col_as_unsigned = 0;
-        for (int i = col.size() -1; i >= 0; --i)
+        for (int i = col.size() - 1; i >= 0; --i)
         {
             col_as_unsigned *= 3;
             if (col[i] == Player::A)
@@ -36,12 +37,12 @@ ColumnEncoder::ColumnEncoder()
             else if (col[i] == Player::B)
             {
                 col_as_unsigned += 2;
-            }                    
+            }
         }
 
         column_index_to_column.push_back(col_as_unsigned);
-        
-        // Check if we can put another one on top.
+
+        // Check if we can put another chip on top.
 
         if (col.size() < V_SIZE)
         {
@@ -74,7 +75,7 @@ ColumnEncoder::ColumnEncoder()
     }
 
     sort(column_index_to_column.begin(), column_index_to_column.end());
-    
+
     const unsigned max_col_as_unsigned = column_index_to_column.back();
 
     column_to_column_index.resize(max_col_as_unsigned + 1);

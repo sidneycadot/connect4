@@ -59,7 +59,6 @@ string Board::to_string(unsigned num_digits) const
 // static method
 Board Board::from_uint64(uint64_t n)
 {
-    // Decode board.
     Board board;
 
     for (int x = H_SIZE - 1; x >= 0; --x)
@@ -174,8 +173,6 @@ Player Board::winner() const
 
 vector<Board> Board::generate_boards() const
 {
-    // *** TO BE RE-IMPLEMENTED **
-
     // Return a vector of boards that can be reached from the
     // current board state by making a single move.
     //
@@ -219,7 +216,7 @@ bool operator < (const Board & lhs, const Board & rhs)
         }
     }
 
-    // Boards are identical, so (lhs < rhs) is false.
+    // The boards are identical, so (lhs < rhs) is false.
     return false;
 }
 

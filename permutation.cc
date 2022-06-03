@@ -118,7 +118,7 @@ bool operator < (const Permutation & lhs, const Permutation & rhs)
             return false;
         }
     }
-    // Permutations are identical, so (lhs < rhs) is false.
+    // The permutations are identical, so (lhs < rhs) is false.
     return false;
 }
 

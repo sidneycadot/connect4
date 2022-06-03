@@ -22,7 +22,7 @@ class ColumnEncoder
 
         unsigned decode(unsigned column_index) const;
 
-    private:// Member variables.
+    private: // Member variables.
 
         std::vector<unsigned> column_index_to_column;
         std::vector<unsigned> column_to_column_index;
