@@ -21,7 +21,7 @@ Board Board::empty()
 
     for (int i = 0; i < V_SIZE * H_SIZE; ++i)
     {
-        board.entries[i] = Player::EMPTY;
+        board.entries[i] = Player::NONE;
     }
     return board;
 }
@@ -70,7 +70,7 @@ Board Board::from_uint64(uint64_t n)
         for (int  y = V_SIZE - 1; y >= 0; --y)
         {
             const unsigned digit = (column % 3);
-            board.entries[y * H_SIZE + x] = (digit == 0) ? Player::EMPTY : (digit == 1) ? Player::A : Player::B;
+            board.entries[y * H_SIZE + x] = (digit == 0) ? Player::NONE : (digit == 1) ? Player::A : Player::B;
             column /= 3;
         }
     }
@@ -123,7 +123,7 @@ Player Board::winner() const
         {
             const Player player = entries[y * H_SIZE + x];
 
-            if (player != Player::EMPTY)
+            if (player != Player::NONE)
             {
                 const int directions[4][2] = {{0, 1}, {1, 0}, {1, 1}, {1, -1}};
 
@@ -169,7 +169,7 @@ Player Board::winner() const
         throw runtime_error("Board::winner: multiple winners");
     }
 
-    return player_a_wins ? Player::A : player_b_wins ? Player::B : Player::EMPTY;
+    return player_a_wins ? Player::A : player_b_wins ? Player::B : Player::NONE;
 }
 
 vector<Board> Board::generate_boards() const
@@ -183,7 +183,7 @@ vector<Board> Board::generate_boards() const
 
     vector<Board> next_boards;
 
-    if (winner() == Player::EMPTY)
+    if (winner() == Player::NONE)
     {
         const Player player = mover();
         for (int x = 0; x < H_SIZE; ++x)
@@ -192,7 +192,7 @@ vector<Board> Board::generate_boards() const
             {
                 const int i = y * H_SIZE + x;
 
-                if (entries[i] == Player::EMPTY)
+                if (entries[i] == Player::NONE)
                 {
                     Board next_board(*this);
                     next_board.entries[i] = player;

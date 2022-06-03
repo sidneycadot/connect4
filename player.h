@@ -10,7 +10,7 @@
 #include <ostream>
 
 enum class Player : char {
-    EMPTY,
+    NONE,
     A,
     B
 };

@@ -22,7 +22,7 @@ using namespace std;
 static void write_node_with_trivial_evaluation(ostream & out_stream, const Board & board)
 {
     // During the inital and forward steps, we mark boards as won-in-0
-    // (i.e., PLAYER_A/0 or PLAYER_B/0) or "unknown" which is marked as EMPTY/0.
+    // (i.e., PLAYER_A/0 or PLAYER_B/0) or "unknown" which is marked as NONE/0.
     out_stream << board << board.winner() << "0\n";
 }
 
@@ -178,7 +178,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
 
     while (in_nodes >> setw(NUM_BASE62_DIGITS) >> node_board_encoded >> node_winner >> node_winply_encoded)
     {
-        if (node_winner != Player::EMPTY)
+        if (node_winner != Player::NONE)
         {
             // The node has a trivial winner. No outgoing edges need to be checked, we can just write the result.
             out_nodes_with_score << node_board_encoded << node_winner << node_winply_encoded << '\n';
@@ -216,7 +216,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                     // We have a valid edge score, and it does contain information relevant to the current board (node).
                     // Update the 'node_mover_*' variables with the new information provided by this edge.
 
-                    if (edge_score_winner == Player::EMPTY)
+                    if (edge_score_winner == Player::NONE)
                     {
                         node_mover_has_draw = true;
                     }
@@ -270,7 +270,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                     else if (node_mover_has_draw || !node_mover_has_loss)
                     {
                         // We have a draw, or nothing.
-                        out_nodes_with_score << node_board_encoded << Player::EMPTY << "0\n";
+                        out_nodes_with_score << node_board_encoded << Player::NONE << "0\n";
                     }
                     else
                     {
