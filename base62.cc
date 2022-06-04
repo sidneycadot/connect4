@@ -46,7 +46,7 @@ unsigned from_base62_digit(char c)
 string uint64_to_base62_string(uint64_t n, unsigned num_digits)
 {
     // Encode 'n' as a base-62 number.
-    // Digit order is big-endian (i.e., most significant digit comes first).
+    // Digit order is big-endian (i.e., the most significant digit comes first).
 
     char encoded_number[num_digits + 1];
 

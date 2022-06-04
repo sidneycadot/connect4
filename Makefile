@@ -8,7 +8,7 @@ CC=$(CXX)
 .PHONY : clean
 
 TARGET = connect4
-OBJECTS = connect4.o base62.o board.o player.o column_encoder.o unique_boards.o board_normalizer.o permutation.o files.o
+OBJECTS = connect4.o base62.o board.o player.o column_encoder.o unique_boards.o board_normalizer.o permutation.o
 
 $(TARGET) : $(OBJECTS)
 
@@ -20,7 +20,6 @@ unique_boards.o    : unique_boards.cc unique_boards.h board.h
 board_normalizer.o : board_normalizer.cc board_normalizer.h permutation.h
 permutation.o      : permutation.cc permutation.h board.h
 player.o           : player.cc player.h
-files.o            : files.cc files.h
 
 clean :
 	$(RM) $(TARGET) $(OBJECTS) *~ *.dat

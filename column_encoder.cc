@@ -3,7 +3,6 @@
 // column_encoder.cc //
 ///////////////////////
 
-#include <stdexcept>
 #include <algorithm>
 
 #include "constants.h"
@@ -26,21 +25,21 @@ ColumnEncoder::ColumnEncoder()
 
         // Calculate column value as a base-3 unsigned value
         // and put it into 'column_index_to_column' vector.
-        unsigned col_as_unsigned = 0;
+        unsigned col_encoded = 0;
         for (int i = col.size() - 1; i >= 0; --i)
         {
-            col_as_unsigned *= 3;
+            col_encoded *= 3;
             if (col[i] == Player::A)
             {
-                col_as_unsigned += 1;
+                col_encoded += 1;
             }
             else if (col[i] == Player::B)
             {
-                col_as_unsigned += 2;
+                col_encoded += 2;
             }
         }
 
-        column_index_to_column.push_back(col_as_unsigned);
+        column_encoded_to_column_ternary.push_back(col_encoded);
 
         // Check if we can put another chip on top.
 
@@ -74,36 +73,15 @@ ColumnEncoder::ColumnEncoder()
         }
     }
 
-    sort(column_index_to_column.begin(), column_index_to_column.end());
+    // Sort all possible encoded columns.
+    sort(column_encoded_to_column_ternary.begin(), column_encoded_to_column_ternary.end());
 
-    const unsigned max_col_as_unsigned = column_index_to_column.back();
+    // The highest possible ternary number we can encounter.
+    const unsigned max_column_ternary = column_encoded_to_column_ternary.back();
 
-    column_to_column_index.resize(max_col_as_unsigned + 1);
-    for (unsigned i = 1; i < column_index_to_column.size(); ++i)
+    column_ternary_to_column_encoded.resize(max_column_ternary + 1);
+    for (unsigned i = 0; i < column_encoded_to_column_ternary.size(); ++i)
     {
-        column_to_column_index[column_index_to_column[i]] = i;
+        column_ternary_to_column_encoded[column_encoded_to_column_ternary[i]] = i;
     }
-}
-
-unsigned ColumnEncoder::num_entries() const
-{
-    return column_index_to_column.size();
-}
-
-unsigned ColumnEncoder::encode(unsigned column) const
-{
-    if (column >= column_to_column_index.size())
-    {
-        throw runtime_error("ColumnEncoder::encode -- bad column");
-    }
-    return column_to_column_index[column];
-}
-
-unsigned ColumnEncoder::decode(unsigned column_index) const
-{
-    if (column_index >= column_index_to_column.size())
-    {
-        throw runtime_error("ColumnEncoder::decode -- bad column_index");
-    }
-    return column_index_to_column[column_index];
 }

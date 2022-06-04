@@ -9,6 +9,9 @@
 #include <cstdint>
 #include <string>
 
+// Encode and decode 64-bit unsigned integers as base-62 strings.
+// Base-62 strings use the characters 0..9, A..Z, and a..z as digits.
+
 char to_base62_digit(unsigned n);
 
 unsigned from_base62_digit(char c);

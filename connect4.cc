@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <set>
-#include <stdexcept>
+//#include <stdexcept>
 #include <iostream>
 #include <iomanip>
 
@@ -21,21 +21,22 @@ using namespace std;
 
 static void write_node_with_trivial_evaluation(ostream & out_stream, const Board & board)
 {
-    // During the inital and forward steps, we mark boards as won-in-0
-    // (i.e., PLAYER_A/0 or PLAYER_B/0) or "unknown" which is marked as NONE/0.
+    // During the inital and forward steps, we mark boards that we can determine by immediate
+    // inspection as won-in-0 (i.e., one of the players has a four-in-a-row): "A0" or "B0".
+    // If we cannot determine the node evaluation, we write "unknown" which is marked as ".0".
     out_stream << board << board.winner() << "0\n";
 }
 
-static void make_initial_node(const string & out_nodes_filename)
+static void make_initial_node(const string & out_filename)
 {
-    // Write a file with the single initial board state (empty).
+    // Write a file with the single initial empty board state.
 
-    OutputFile out_nodes_file(out_nodes_filename);
+    OutputFile out_file(out_filename);
 
-    ostream & out_nodes_stream = out_nodes_file.get_ostream_reference();
+    ostream & out = out_file.get_ostream_reference();
 
     const Board initial = Board::empty();
-    write_node_with_trivial_evaluation(out_nodes_stream, initial);
+    write_node_with_trivial_evaluation(out, initial);
 }
 
 static void make_nodes(const string & in_nodes_filename,
@@ -43,7 +44,7 @@ static void make_nodes(const string & in_nodes_filename,
 {
     // Given an input file of nodes, write a file with the possible nodes that
     // can be reached by starting at a node found in the input file, and making
-    // 1 move.
+    // a single move.
     //
     // The output is unsorted and may contain duplicates;
     // it should therefore be piped through 'sort -u'.
@@ -51,20 +52,20 @@ static void make_nodes(const string & in_nodes_filename,
     const InputFile  in_nodes_file(in_nodes_filename);
     const OutputFile out_nodes_file(out_nodes_filename);
 
-    istream & in_nodes_stream = in_nodes_file.get_istream_reference();
-    ostream & out_nodes_stream = out_nodes_file.get_ostream_reference();
+    istream & in_nodes  = in_nodes_file.get_istream_reference();
+    ostream & out_nodes = out_nodes_file.get_ostream_reference();
 
     Board  board;
     Player winner;
     char   winply_encoded;
 
-    while (in_nodes_stream >> board >> winner >> winply_encoded)
+    while (in_nodes >> board >> winner >> winply_encoded)
     {
         const set<Board> unique_boards = generate_unique_boards(board);
 
         for (const Board & unique_board: unique_boards)
         {
-            write_node_with_trivial_evaluation(out_nodes_stream, unique_board);
+            write_node_with_trivial_evaluation(out_nodes, unique_board);
         }
     }
 }
@@ -140,12 +141,12 @@ static void make_edges_with_score(const string & in_edges_filename,
             in_nodes_with_score >> setw(NUM_BASE62_DIGITS) >> score_board >> score_winner >> score_winply_encoded;
             if (!in_nodes_with_score)
             {
-                throw runtime_error("bad read.");
+                throw runtime_error("make_edges_with_score: bad read.");
             }
 
             if (edge_dst != score_board)
             {
-                throw runtime_error("didn't find score node we expected.");
+                throw runtime_error("make_edges_with_score: didn't find score node we expected.");
             }
         }
         out_edges_with_score << edge_src << score_winner << score_winply_encoded << '\n';
