@@ -21,34 +21,39 @@ export LC_ALL=C
 
 # Write the initial node.
 
+let H_SIZE=`./connect4 --horizontal-size`
+let V_SIZE=`./connect4 --vertical-size`
+
+let MAX_GEN=H_SIZE*V_SIZE
+
+echo "Preparing forward traversal ..."
+
 ./connect4 --make-initial-node nodes_0.dat
-wc -l nodes_0.dat | tee nodes.log
+wc -l nodes_0.dat > nodes.log
 
 # Forward stage: generate all nodes.
 
-for curr in {0..41} ; do
+for ((curr=0; curr <= MAX_GEN - 1; ++curr)) do
     let next=curr+1
-    echo "forward: $curr -> $next"
+    echo "  forward: $curr -> $next"
     ./connect4 --make-nodes nodes_$curr.dat STDOUT | sort -u > nodes_$next.dat
-    wc -l nodes_$next.dat | tee -a nodes.log
-    # xz nodes_$curr.dat
+    wc -l nodes_$next.dat >> nodes.log
 done
 
-#xz nodes_42.dat
-
 # Backward stage: propagate finalized node evaluations backwards.
-
+echo "Preparing backward traversal ..."
 # The last nodes file is already fully correct w.r.t. scores.
-mv nodes_42.dat nodes_with_score_42.dat
+mv nodes_$((MAX_GEN)).dat nodes_with_score_$((MAX_GEN)).dat
 
-for curr in {41..0..-1} ; do
+for ((curr=MAX_GEN - 1; curr >= 0; --curr)) do
     let next=curr+1
-    echo "backward: $next -> $curr"
+    echo "  backward: $next -> $curr"
     ./connect4 --make-edges nodes_$curr.dat STDOUT | sort |
       ./connect4 --make-edges-with-score STDIN nodes_with_score_$next.dat STDOUT | sort -u |
         ./connect4 --make-nodes-with-score nodes_$curr.dat STDIN nodes_with_score_$curr.dat
     rm nodes_$curr.dat
 done
 
-# Merge-sort the files together.
+# Merge-sort the nodes_with_score files together.
+echo "Merging all nodes_with_score files ..."
 sort -m nodes_with_score_*.dat > connect4.dat
