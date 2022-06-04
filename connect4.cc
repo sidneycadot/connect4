@@ -292,7 +292,7 @@ static void print_usage()
     cerr                                                                                                                                 << endl;
     cerr << "Usage: connect4 --MODE <filename> [<filename>...]"                                                                          << endl;
     cerr                                                                                                                                 << endl;
-    cerr << "The program can be run in one of five analysys modes, that together allow a full solution of the game:"                     << endl;
+    cerr << "The program can be run in one of five analysis modes, that together allow a full solution of the game:"                     << endl;
     cerr                                                                                                                                 << endl;
     cerr << "    connect4 --make-initial-node                                                            <out:nodes-without-score(0)>"   << endl;
     cerr << "    connect4 --make-nodes            <in:nodes-without-score(n)>                            <out:nodes-without-score(n+1)>" << endl;
