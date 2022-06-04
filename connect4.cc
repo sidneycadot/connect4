@@ -303,7 +303,7 @@ static void print_usage()
     cerr << "If an input filename is given as '"  << InputFile::stdin_name  << "', the program reads from stdin instead of a file."      << endl;
     cerr << "If an output filename is given as '" << OutputFile::stdout_name << "', the program writes to stdout instead of a file."     << endl;
     cerr                                                                                                                                 << endl;
-    cerr << "Two commands show the board size for which the 'connect4' program is compiled; this is useful for shell scripts:"           << endl;
+    cerr << "Two commands show the board size for which the 'connect4' program was compiled; this is useful for shell scripts:"          << endl;
     cerr                                                                                                                                 << endl;
     cerr << "    connect4 --horizontal-size"                                                                                             << endl;
     cerr << "    connect4 --vertical-size"                                                                                               << endl;
