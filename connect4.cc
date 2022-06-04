@@ -292,7 +292,7 @@ static void print_usage()
     cerr                                                                                                                                 << endl;
     cerr << "Usage: connect4 --MODE <filename> [<filename>...]"                                                                          << endl;
     cerr                                                                                                                                 << endl;
-    cerr << "The program can be run in one of five modes, that together allow a full solution of the game:"                              << endl;
+    cerr << "The program can be run in one of five analysys modes, that together allow a full solution of the game:"                     << endl;
     cerr                                                                                                                                 << endl;
     cerr << "    connect4 --make-initial-node                                                            <out:nodes-without-score(0)>"   << endl;
     cerr << "    connect4 --make-nodes            <in:nodes-without-score(n)>                            <out:nodes-without-score(n+1)>" << endl;
@@ -302,6 +302,11 @@ static void print_usage()
     cerr                                                                                                                                 << endl;
     cerr << "If an input filename is given as '"  << InputFile::stdin_name  << "', the program reads from stdin instead of a file."      << endl;
     cerr << "If an output filename is given as '" << OutputFile::stdout_name << "', the program writes to stdout instead of a file."     << endl;
+    cerr                                                                                                                                 << endl;
+    cerr << "Two commands show the board size for which the 'connect4' program is compiled; this is useful for shell scripts:"           << endl;
+    cerr                                                                                                                                 << endl;
+    cerr << "    connect4 --horizontal-size"                                                                                             << endl;
+    cerr << "    connect4 --vertical-size"                                                                                               << endl;
     cerr                                                                                                                                 << endl;
 }
 
@@ -333,6 +338,14 @@ int main(int argc, char **argv)
     else if (args.size() == 4 && args[0] == "--make-nodes-with-score")
     {
         make_nodes_with_score(args[1], args[2], args[3]);
+    }
+    else if (args.size() == 1 && args[0] == "--horizontal-size")
+    {
+        cout << H_SIZE << endl;
+    }
+    else if (args.size() == 1 && args[0] == "--vertical-size")
+    {
+        cout << V_SIZE << endl;
     }
     else
     {
