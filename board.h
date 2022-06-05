@@ -38,16 +38,16 @@ class Board
         // Decode Board from a base-62 string.
         static Board from_string(const std::string & s);
 
-    private: // Member functions.
-
-        // Check if x and y coordinates are both valid.
-        static bool is_valid_coordinate(int x, int y);
-
         // Encode Board as a 64-bit unsigned integer.
         uint64_t to_uint64() const;
 
         // Decode Board from a 64-bit unsigned integer.
         static Board from_uint64(uint64_t n);
+
+    private: // Member functions.
+
+        // Check if x and y coordinates are both valid.
+        static bool is_valid_coordinate(int x, int y);
 
     private: // Member variables.
 
