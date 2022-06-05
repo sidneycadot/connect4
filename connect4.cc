@@ -287,6 +287,43 @@ static void make_nodes_with_score(const string & in_nodes_filename,
     } // Walk the nodes.
 }
 
+static void consolidate(const string & in_nodes_filename,
+                        const string & out_nodes_filename)
+{
+    const InputFile  in_nodes_file(in_nodes_filename);
+    const OutputFile out_nodes_file(out_nodes_filename); // TODO: open as binary.
+
+    istream & in_nodes  = in_nodes_file.get_istream_reference();
+    ostream & out_nodes = out_nodes_file.get_ostream_reference();
+
+    Board  board;
+    Player winner;
+    char   winply_encoded;
+
+    while (in_nodes >> board >> winner >> winply_encoded)
+    {
+        int N_INDEX = 5;
+        uint8_t octets[N_INDEX + 1];
+        uint64_t n = board.to_uint64();
+	for (int i = 0; i < N_INDEX; ++i)
+	{
+             octets[N_INDEX - 1 - i] = n & 255;
+	     n >>= 8;
+        }
+
+        const unsigned winply = from_base62_digit(winply_encoded);
+
+	switch (winner)
+	{
+	    case Player::NONE: octets[N_INDEX] = 0; break;
+	    case Player::A:    octets[N_INDEX] = winply + 1; break;
+	    case Player::B:    octets[N_INDEX] = 255 - winply; break;
+        }
+
+	out_nodes.write(reinterpret_cast<char *>(octets), N_INDEX + 1);
+    }
+}
+
 static void print_usage()
 {
     cerr                                                                                                                                 << endl;
@@ -338,6 +375,10 @@ int main(int argc, char **argv)
     else if (args.size() == 4 && args[0] == "--make-nodes-with-score")
     {
         make_nodes_with_score(args[1], args[2], args[3]);
+    }
+    else if (args.size() == 3 && args[0] == "--consolidate")
+    {
+        consolidate(args[1], args[2]);
     }
     else if (args.size() == 1 && args[0] == "--horizontal-size")
     {
