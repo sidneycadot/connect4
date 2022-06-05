@@ -51,11 +51,6 @@ uint64_t Board::to_uint64() const
     return n;
 }
 
-string Board::to_string(unsigned num_digits) const
-{
-    return uint64_to_base62_string(to_uint64(), num_digits);
-}
-
 // static method
 Board Board::from_uint64(uint64_t n)
 {
@@ -74,6 +69,11 @@ Board Board::from_uint64(uint64_t n)
         }
     }
     return board;
+}
+
+string Board::to_string(unsigned num_digits) const
+{
+    return uint64_to_base62_string(to_uint64(), num_digits);
 }
 
 // static method

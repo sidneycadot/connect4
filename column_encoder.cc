@@ -3,6 +3,7 @@
 // column_encoder.cc //
 ///////////////////////
 
+#include <stdexcept>
 #include <algorithm>
 
 #include "constants.h"

@@ -56,7 +56,7 @@ string uint64_to_base62_string(uint64_t n, unsigned num_digits)
         n /= 62;
     }
 
-    encoded_number[num_digits] = '\0'; // terminating NUL character.
+    encoded_number[num_digits] = '\0'; // Terminating NUL character.
 
     if (n != 0)
     {

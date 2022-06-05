@@ -4,6 +4,7 @@
 
 CXXFLAGS = -W -Wall -O3 -std=c++14
 CC=$(CXX)
+LDFLAGS = -g
 
 .PHONY : clean
 

@@ -14,17 +14,21 @@ BoardNormalizer::BoardNormalizer()
     set<Permutation> permutations_found;
     vector<Permutation> to_be_processed;
 
-    // For connect-4, we only use the `mirror_horizontally` permutation.
-
     vector<Permutation> basic_permutations;
+
+    // Horizontal mirroring is a symmetry we want to exploit.
     basic_permutations.push_back(Permutation::mirror_horizontally());
 
-    //basic_permutations.push_back(Permutation::mirror_vertically());
-    //
-    //if (H_SIZE == V_SIZE)
-    //{
-    //    basic_permutations.push_back(Permutation::transpose());
-    //}
+    // Vertical mirroring and transposing. however, are not applicable for connect-4.
+    if (false)
+    {
+        basic_permutations.push_back(Permutation::mirror_vertically());
+
+        if (H_SIZE == V_SIZE)
+        {
+            basic_permutations.push_back(Permutation::transpose());
+        }
+    }
 
     const Permutation identity_permutation = Permutation::identity();
 

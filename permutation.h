@@ -8,13 +8,13 @@
 
 #include "board.h"
 
-// Permutation change the board in ways that keeps the important structure intact.
-// In connect-4, we only really need the `mirror_vertically` permutation;
-// for other games however, the `mirror_vertically` and `transpose` permutations
-// are defined as well.
-
 class Permutation
 {
+    // Permutation change the board in ways that keeps the important structure intact.
+    // In connect-4, we only really need the `mirror_vertically` permutation;
+    // for other games however, the `mirror_vertically` and `transpose` permutations
+    // are defined as well.
+
     public:
 
         Board apply(const Board & board) const;

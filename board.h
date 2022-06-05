@@ -26,23 +26,23 @@ class Board
         // Determine which player has the move.
         Player mover() const;
 
-        // Determine if the game has a connect-4 and if so, for which player.
+        // Determine if the game has a connect-4 and, if so, for which player.
         Player winner() const;
 
-        // Generate that are reachable from the current board.
+        // Generate a vector of Boards that are directly reachable from this Board.
         std::vector<Board> generate_boards() const;
 
-        // Encode Board as a base-62 string.
-        std::string to_string(unsigned num_digits) const;
-
-        // Decode Board from a base-62 string.
-        static Board from_string(const std::string & s);
-
-        // Encode Board as a 64-bit unsigned integer.
+        // Encode the Board as a 64-bit unsigned integer.
         uint64_t to_uint64() const;
 
-        // Decode Board from a 64-bit unsigned integer.
+        // Decode a Board from a 64-bit unsigned integer.
         static Board from_uint64(uint64_t n);
+
+        // Encode the Board as a base-62 string.
+        std::string to_string(unsigned num_digits) const;
+
+        // Decode a Board from a base-62 string.
+        static Board from_string(const std::string & s);
 
     private: // Member functions.
 

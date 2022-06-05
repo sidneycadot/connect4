@@ -13,9 +13,12 @@
 
 class BoardNormalizer
 {
+    // The BoardNormalizer provides representation of a Board in a canonical form,
+    // by mapping Boards that are symmetric to a specific bormalized Board.
+
     public:
 
-        // Instantiate BoardNormalizer by enumerating all non-identity permutations.
+        // Instantiate a BoardNormalizer by enumerating all non-identity permutations.
         BoardNormalizer();
 
         // Normalize a given Board.
