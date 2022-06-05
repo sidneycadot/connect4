@@ -5,10 +5,15 @@
 
 set -e
 
-# Substitute an appropriate temporary directory here.
-# Ideally, it should be on a different disk from the data files being read and written.
+# Check that TMDIR is set. It is used by 'sort' to know where to put temporary files.
+# Note that these can be large, and there can be many of them!
+# Ideally, TMPDIR should point to a different disk than the one where data is being
+# read from / written to.
 
-export TMPDIR=/tmp
+if [ -z "$TMPDIR" ] ; then
+    echo "Please set the environment variable TMPDIR for 'sort'."
+    exit 1
+fi
 
 # Make the sort tool stupid (sort by byte order).
 #
@@ -21,12 +26,17 @@ export LC_ALL=C
 
 # Add the current directory to the PATH, so we can find the 'connect4' executable.
 
-PATH=$PATH:$PWD
+CONNECT4=$PWD/connect4
+
+if [ ! -x "$CONNECT4" ] ; then
+    echo "The 'connect4' executable is not available. Use 'make' to create it."
+    exit 1
+fi
 
 # Get the size of the board we're processing.
 
-let H_SIZE=`connect4 --horizontal-board-size`
-let V_SIZE=`connect4 --vertical-board-size`
+let H_SIZE=`$CONNECT4 --horizontal-board-size`
+let V_SIZE=`$CONNECT4 --vertical-board-size`
 
 let MAX_GEN=H_SIZE*V_SIZE
 
@@ -36,7 +46,7 @@ echo "Preparing forward traversal ..."
 
 # Write the initial node.
 
-./connect4 --make-initial-node nodes_0.dat
+$CONNECT4 --make-initial-node nodes_0.dat
 wc -l nodes_0.dat > nodes.log
 
 # Forward stage: generate all nodes.
@@ -44,7 +54,7 @@ wc -l nodes_0.dat > nodes.log
 for ((curr=0; curr <= MAX_GEN - 1; ++curr)) do
     let next=curr+1
     echo "  forward: $curr -> $next"
-    connect4 --make-nodes nodes_$curr.dat STDOUT | sort -u > nodes_$next.dat
+    $CONNECT4 --make-nodes nodes_$curr.dat STDOUT | sort -u > nodes_$next.dat
     wc -l nodes_$next.dat >> nodes.log
 done
 
@@ -58,9 +68,9 @@ mv nodes_$((MAX_GEN)).dat nodes_with_score_$((MAX_GEN)).dat
 for ((curr=MAX_GEN - 1; curr >= 0; --curr)) do
     let next=curr+1
     echo "  backward: $next -> $curr"
-    connect4 --make-edges nodes_$curr.dat STDOUT | sort |
-      connect4 --make-edges-with-score STDIN nodes_with_score_$next.dat STDOUT | sort -u |
-        connect4 --make-nodes-with-score nodes_$curr.dat STDIN nodes_with_score_$curr.dat
+    $CONNECT4 --make-edges nodes_$curr.dat STDOUT | sort |
+      $CONNECT4 --make-edges-with-score STDIN nodes_with_score_$next.dat STDOUT | sort -u |
+        $CONNECT4 --make-nodes-with-score nodes_$curr.dat STDIN nodes_with_score_$curr.dat
     rm nodes_$curr.dat
 done
 
