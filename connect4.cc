@@ -287,11 +287,11 @@ static void make_nodes_with_score(const string & in_nodes_filename,
     } // Walk the nodes.
 }
 
-static void consolidate(const string & in_nodes_filename,
-                        const string & out_nodes_filename)
+static void make_binary_file(const string & in_nodes_filename,
+                             const string & out_nodes_filename)
 {
     const InputFile  in_nodes_file(in_nodes_filename);
-    const OutputFile out_nodes_file(out_nodes_filename); // TODO: open as binary.
+    const OutputFile out_nodes_file(out_nodes_filename);
 
     istream & in_nodes  = in_nodes_file.get_istream_reference();
     ostream & out_nodes = out_nodes_file.get_ostream_reference();
@@ -302,49 +302,57 @@ static void consolidate(const string & in_nodes_filename,
 
     while (in_nodes >> board >> winner >> winply_encoded)
     {
-        int N_INDEX = 5;
-        uint8_t octets[N_INDEX + 1];
+        uint8_t octets[NUM_OCTETS + 1];
         uint64_t n = board.to_uint64();
-	for (int i = 0; i < N_INDEX; ++i)
-	{
-             octets[N_INDEX - 1 - i] = n & 255;
-	     n >>= 8;
+
+        // Insert the Board's unsigned int value in big-endian order.
+        // We write using big-endian order because it leads to a file that
+        // can be compressed to a significantly smaller size.
+
+        for (unsigned i = 0; i < NUM_OCTETS; ++i)
+        {
+             octets[NUM_OCTETS - 1 - i] = n & 255;
+             n >>= 8;
         }
 
+        if (n != 0)
+        {
+            throw runtime_error("make_binary_file: unable to write board in NUM_OCTETS bytes.");
+        }
+
+        // Insert the board evaluation as a single octet.
         const unsigned winply = from_base62_digit(winply_encoded);
 
-	switch (winner)
-	{
-	    case Player::NONE: octets[N_INDEX] = 0; break;
-	    case Player::A:    octets[N_INDEX] = winply + 1; break;
-	    case Player::B:    octets[N_INDEX] = 255 - winply; break;
-        }
+        octets[NUM_OCTETS] = (winner == Player::A) ? 1 + winply : (winner == Player::B) ? 255 - winply : 0;
 
-	out_nodes.write(reinterpret_cast<char *>(octets), N_INDEX + 1);
+        out_nodes.write(reinterpret_cast<char *>(octets), NUM_OCTETS + 1);
     }
 }
 
 static void print_usage()
 {
-    cerr                                                                                                                                 << endl;
-    cerr << "Usage: connect4 --MODE <filename> [<filename>...]"                                                                          << endl;
-    cerr                                                                                                                                 << endl;
-    cerr << "The program can be run in one of five analysis modes, that together allow a full solution of the game:"                     << endl;
-    cerr                                                                                                                                 << endl;
-    cerr << "    connect4 --make-initial-node                                                            <out:nodes-without-score(0)>"   << endl;
-    cerr << "    connect4 --make-nodes            <in:nodes-without-score(n)>                            <out:nodes-without-score(n+1)>" << endl;
-    cerr << "    connect4 --make-edges            <in:nodes-without-score(n)>                            <out:edges-without-score(n)>"   << endl;
-    cerr << "    connect4 --make-edges-with-score <in:edges-without-score(n)> <in:nodes-with-score(n+1)> <out:edges-with-score(n)>"      << endl;
-    cerr << "    connect4 --make-nodes-with-score <in:nodes-without-score(n)> <in:edges-with-score(n)>   <out:nodes-with-score(n)>"      << endl;
-    cerr                                                                                                                                 << endl;
-    cerr << "If an input filename is given as '"  << InputFile::stdin_name  << "', the program reads from stdin instead of a file."      << endl;
-    cerr << "If an output filename is given as '" << OutputFile::stdout_name << "', the program writes to stdout instead of a file."     << endl;
-    cerr                                                                                                                                 << endl;
-    cerr << "Two commands show the board size for which the 'connect4' program was compiled; this is useful for shell scripts:"          << endl;
-    cerr                                                                                                                                 << endl;
-    cerr << "    connect4 --horizontal-size"                                                                                             << endl;
-    cerr << "    connect4 --vertical-size"                                                                                               << endl;
-    cerr                                                                                                                                 << endl;
+    cerr                                                                                                                                     << endl;
+    cerr << "Usage: connect4 --MODE <filename> [<filename>...]"                                                                              << endl;
+    cerr                                                                                                                                     << endl;
+    cerr << "The program can be run in the following file-processing modes:"                                                                 << endl;
+    cerr                                                                                                                                     << endl;
+    cerr << "    connect4 --make-initial-node                                                            <out:nodes-without-score(0)>"       << endl;
+    cerr << "    connect4 --make-nodes            <in:nodes-without-score(n)>                            <out:nodes-without-score(n+1)>"     << endl;
+    cerr << "    connect4 --make-edges            <in:nodes-without-score(n)>                            <out:edges-without-score(n)>"       << endl;
+    cerr << "    connect4 --make-edges-with-score <in:edges-without-score(n)> <in:nodes-with-score(n+1)> <out:edges-with-score(n)>"          << endl;
+    cerr << "    connect4 --make-nodes-with-score <in:nodes-without-score(n)> <in:edges-with-score(n)>   <out:nodes-with-score(n)>"          << endl;
+    cerr << "    connect4 --make-binary-file      <in:nodes-file>                                        <out:nodes-file-binary>"            << endl;
+    cerr                                                                                                                                     << endl;
+    cerr << "    Note: "                                                                                                                     << endl;
+    cerr                                                                                                                                     << endl;
+    cerr << "       If an input filename is given as '"  << InputFile::stdin_name   << "', the program reads from stdin instead of a file."  << endl;
+    cerr << "       If an output filename is given as '" << OutputFile::stdout_name << "', the program writes to stdout instead of a file."  << endl;
+    cerr                                                                                                                                     << endl;
+    cerr << "Two miscellaneous modes show the board dimensions; this is useful for shell scripts:"                                           << endl;
+    cerr                                                                                                                                     << endl;
+    cerr << "    connect4 --horizontal-board-size"                                                                                           << endl;
+    cerr << "    connect4 --vertical-board-size"                                                                                             << endl;
+    cerr                                                                                                                                     << endl;
 }
 
 int main(int argc, char **argv)
@@ -376,15 +384,15 @@ int main(int argc, char **argv)
     {
         make_nodes_with_score(args[1], args[2], args[3]);
     }
-    else if (args.size() == 3 && args[0] == "--consolidate")
+    else if (args.size() == 3 && args[0] == "--make-binary-file")
     {
-        consolidate(args[1], args[2]);
+        make_binary_file(args[1], args[2]);
     }
-    else if (args.size() == 1 && args[0] == "--horizontal-size")
+    else if (args.size() == 1 && args[0] == "--horizontal-board-size")
     {
         cout << H_SIZE << endl;
     }
-    else if (args.size() == 1 && args[0] == "--vertical-size")
+    else if (args.size() == 1 && args[0] == "--vertical-board-size")
     {
         cout << V_SIZE << endl;
     }

@@ -7,19 +7,23 @@ CC=$(CXX)
 
 .PHONY : clean
 
-TARGET = connect4
+TARGET  = connect4
 OBJECTS = connect4.o base62.o board.o player.o column_encoder.o unique_boards.o board_normalizer.o permutation.o
+HEADERS = base62.h board.h board_normalizer.h column_encoder.h constants.h files.h permutation.h player.h unique_boards.h
 
 $(TARGET) : $(OBJECTS)
 
-connect4.o         : connect4.cc base62.h board.h unique_boards.h files.h
-base62.o           : base62.cc base62.h
-board.o            : board.cc board.h base62.h
-column_encoder.o   : column_encoder.cc column_encoder.h
-unique_boards.o    : unique_boards.cc unique_boards.h board.h
-board_normalizer.o : board_normalizer.cc board_normalizer.h permutation.h
-permutation.o      : permutation.cc permutation.h board.h
-player.o           : player.cc player.h
+# Instead of doing transitive dependency analysis, we just pretend that all C++ source files depend on all C++ header files.
+# This simplifies our header file drastically.
+
+connect4.o         : connect4.cc         $(HEADERS)
+unique_boards.o    : unique_boards.cc    $(HEADERS)
+board_normalizer.o : board_normalizer.cc $(HEADERS)
+permutation.o      : permutation.cc      $(HEADERS)
+board.o            : board.cc            $(HEADERS)
+column_encoder.o   : column_encoder.cc   $(HEADERS)
+base62.o           : base62.cc           $(HEADERS)
+player.o           : player.cc           $(HEADERS)
 
 clean :
 	$(RM) $(TARGET) $(OBJECTS) *~ *.dat
