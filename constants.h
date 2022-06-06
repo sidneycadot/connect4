@@ -22,8 +22,8 @@
 //   9       707
 //  10      1303
 
-const int V_SIZE = 5; // Vertical board size.
-const int H_SIZE = 6; // Horizontal board size.
+const int V_SIZE = 6; // Vertical board size.
+const int H_SIZE = 7; // Horizontal board size.
 const int Q      = 4; // Number of consecutive horizontal/diagonal/vertical cells required to win.
 
 // The number of base-62 digits needed to represent a single board state:
