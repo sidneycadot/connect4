@@ -14,7 +14,6 @@
 #include "player.h"
 #include "constants.h"
 #include "board.h"
-#include "unique_boards.h"
 #include "files.h"
 
 using namespace std;
@@ -61,7 +60,7 @@ static void make_nodes(const string & in_nodes_filename,
 
     while (in_nodes >> board >> winner >> winply_encoded)
     {
-        const set<Board> unique_boards = generate_unique_boards(board);
+        const set<Board> unique_boards = board.generate_unique_boards();
 
         for (const Board & unique_board: unique_boards)
         {
@@ -97,7 +96,7 @@ static void make_edges(const string & in_nodes_filename,
 
     while (in_nodes >> board >> winner >> winply_encoded)
     {
-        const set<Board> unique_boards = generate_unique_boards(board);
+        const set<Board> unique_boards = board.generate_unique_boards();
 
         for (const Board & unique_board: unique_boards)
         {

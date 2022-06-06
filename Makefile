@@ -9,8 +9,8 @@ LDFLAGS = -g
 .PHONY : clean
 
 TARGET  = connect4
-OBJECTS = connect4.o base62.o board.o player.o column_encoder.o unique_boards.o board_normalizer.o permutation.o
-HEADERS = base62.h board.h board_normalizer.h column_encoder.h constants.h files.h permutation.h player.h unique_boards.h
+OBJECTS = connect4.o base62.o board.o player.o column_encoder.o board_normalizer.o permutation.o
+HEADERS = base62.h board.h board_normalizer.h column_encoder.h constants.h files.h permutation.h player.h
 
 $(TARGET) : $(OBJECTS)
 
@@ -18,7 +18,6 @@ $(TARGET) : $(OBJECTS)
 # This simplifies our header file drastically.
 
 connect4.o         : connect4.cc         $(HEADERS)
-unique_boards.o    : unique_boards.cc    $(HEADERS)
 board_normalizer.o : board_normalizer.cc $(HEADERS)
 permutation.o      : permutation.cc      $(HEADERS)
 board.o            : board.cc            $(HEADERS)

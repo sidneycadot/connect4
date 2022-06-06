@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <set>
 #include <istream>
 #include <ostream>
 
@@ -31,6 +32,8 @@ class Board
 
         // Generate a vector of Boards that are directly reachable from this Board.
         std::vector<Board> generate_boards() const;
+
+        std::set<Board> generate_unique_boards() const;
 
         // Encode the Board as a 64-bit unsigned integer.
         uint64_t to_uint64() const;

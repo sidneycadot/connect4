@@ -8,6 +8,7 @@
 
 #include "board.h"
 #include "base62.h"
+#include "board_normalizer.h"
 
 using namespace std;
 
@@ -200,6 +201,26 @@ vector<Board> Board::generate_boards() const
         }
     }
     return next_boards;
+}
+
+
+set<Board> Board::generate_unique_boards() const
+{
+    // Note that board_normalizer is declared as static; this is done to make sure that
+    // the BoardNormalizer is only instantiated once, if and when it is first needed.
+
+    static BoardNormalizer board_normalizer;
+
+    const vector<Board> boards = generate_boards();
+
+    set<Board> unique_boards;
+
+    for (const Board & board: boards)
+    {
+        unique_boards.insert(board_normalizer.normalize(board));
+    }
+
+    return unique_boards;
 }
 
 bool operator < (const Board & lhs, const Board & rhs)
