@@ -185,7 +185,7 @@ Board Board::normalize() const
         }
     }
 
-    return min(*this, horizontal_mirror); 
+    return min(*this, horizontal_mirror);
 }
 
 set<Board> Board::generate_unique_normalized_boards() const
