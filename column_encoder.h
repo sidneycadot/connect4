@@ -17,16 +17,17 @@ class ColumnEncoder
     // empty fields; and all fields above a connect-4 must be empty, since a connect-4 immediately
     // ends the game.
     //
-    // The ColumnEncoder class determines all valid column configurations and provides functions to
+    // The `ColumnEncoder` class determines all valid column configurations and provides functions to
     // change between ternary-encoded columns and a encoding as an unsigned integer that is more
     // efficient.
 
     public:
 
-        // Instantiate the ColumnEncoder by enumerating all valid
+        // Initialize the ColumnEncoder by enumerating all valid
         // columns and generating bidirectional lookup tables.
         ColumnEncoder();
 
+        // Return the number of different valid columns.
         unsigned num_entries() const
         {
             return column_encoded_to_column_ternary.size();

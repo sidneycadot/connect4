@@ -334,7 +334,7 @@ static void print_usage()
     cerr                                                                                                                                     << endl;
     cerr << "Usage: connect4 --MODE <filename> [<filename>...]"                                                                              << endl;
     cerr                                                                                                                                     << endl;
-    cerr << "The program can be run in the following file-processing modes:"                                                                 << endl;
+    cerr << "The following file-processing modes are available:"                                                                             << endl;
     cerr                                                                                                                                     << endl;
     cerr << "    connect4 --make-initial-node                                                            <out:nodes-without-score(0)>"       << endl;
     cerr << "    connect4 --make-nodes            <in:nodes-without-score(n)>                            <out:nodes-without-score(n+1)>"     << endl;
@@ -348,7 +348,7 @@ static void print_usage()
     cerr << "       If an input filename is given as '"  << InputFile::stdin_name   << "', the program reads from stdin instead of a file."  << endl;
     cerr << "       If an output filename is given as '" << OutputFile::stdout_name << "', the program writes to stdout instead of a file."  << endl;
     cerr                                                                                                                                     << endl;
-    cerr << "Two miscellaneous modes show the board dimensions; this is useful for shell scripts:"                                           << endl;
+    cerr << "The following miscellaneous modes are available:"                                                                               << endl;
     cerr                                                                                                                                     << endl;
     cerr << "    connect4 --horizontal-board-size"                                                                                           << endl;
     cerr << "    connect4 --vertical-board-size"                                                                                             << endl;

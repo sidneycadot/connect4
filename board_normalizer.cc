@@ -19,7 +19,7 @@ BoardNormalizer::BoardNormalizer()
     // Horizontal mirroring is a symmetry we want to exploit.
     basic_permutations.push_back(Permutation::mirror_horizontally());
 
-    // Vertical mirroring and transposing. however, are not applicable for connect-4.
+    // Vertical mirroring and transposing, however, are not applicable for connect-4.
     if (false)
     {
         basic_permutations.push_back(Permutation::mirror_vertically());

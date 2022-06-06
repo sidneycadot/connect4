@@ -13,8 +13,8 @@
 
 class BoardNormalizer
 {
-    // The BoardNormalizer provides representation of a Board in a canonical form,
-    // by mapping Boards that are symmetric to a specific bormalized Board.
+    // The `BoardNormalizer` implements normalization of a Board to a canonical form,
+    // by mapping all Boards that are identical up to symmetry to a specific normalized Board.
 
     public:
 

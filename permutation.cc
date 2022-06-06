@@ -85,7 +85,7 @@ Permutation Permutation::transpose()
 {
     if (H_SIZE != V_SIZE)
     {
-        throw runtime_error("Permutation::transpose: bad transpose");
+        throw runtime_error("Permutation::transpose: bad transpose.");
     }
 
     Permutation permutation;

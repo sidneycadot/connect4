@@ -10,9 +10,9 @@
 
 class Permutation
 {
-    // Permutation change the board in ways that keeps the important structure intact.
+    // Permutations are used to obtain Boards that are identical "up to symmetry".
     // In connect-4, we only really need the `mirror_vertically` permutation;
-    // for other games however, the `mirror_vertically` and `transpose` permutations
+    // for other 2D games however, the `mirror_vertically` and `transpose` permutations
     // are defined as well.
 
     public:
