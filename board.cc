@@ -5,10 +5,10 @@
 
 #include <iomanip>
 #include <stdexcept>
+#include <algorithm>
 
-#include "board.h"
 #include "base62.h"
-#include "board_normalizer.h"
+#include "board.h"
 
 using namespace std;
 
@@ -102,7 +102,7 @@ Player Board::mover() const
     }
     else
     {
-        throw runtime_error("Board::mover: bad mover");
+        throw runtime_error("Board::mover -- impossible board detected.");
     }
 }
 
@@ -174,13 +174,18 @@ Player Board::winner() const
 
 Board Board::normalize() const
 {
-    // This method defines a local static BoardInitializer to perform normalization.
-    // It is declared as static; this is done to make sure that it is only instantiated once,
-    // if and when first needed.
+    Board horizontal_mirror;
 
-    static BoardNormalizer board_normalizer;
+    for (int y = 0; y < V_SIZE; ++y)
+    {
+        for (int x = 0; x < H_SIZE; ++x)
+        {
+            const int x_mirrored = (H_SIZE - 1) - x;
+            horizontal_mirror.entries[y * H_SIZE + x_mirrored] = entries[y * H_SIZE + x];
+        }
+    }
 
-    return board_normalizer.normalize(*this);
+    return min(*this, horizontal_mirror); 
 }
 
 set<Board> Board::generate_unique_normalized_boards() const
