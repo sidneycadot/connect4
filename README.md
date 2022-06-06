@@ -25,7 +25,7 @@ to the number of nodes in each of the node files our program generates.
 The C++ source code for the 'connect-4' program consists of 11 files:
 
 * connect4.cc - The toplevel program, containing `main` and the code for the sub-steps.
-* constants.h - Basic constants describing the board dimensions, etc.
+* board_size.h - Constants describing the board dimensions and the encoding widths that follow from that.
 * board.cc, board.h - The `Board` class and its methods.
 * column_encoder.cc, column_encoder.h -- The `ColumnEncoder` class and its methods.
 * player.cc, player.h - The `Player` enum class and its methods.

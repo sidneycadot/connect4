@@ -14,7 +14,7 @@
 
 #include "column_encoder.h"
 #include "player.h"
-#include "constants.h"
+#include "board_size.h"
 
 class Board
 {

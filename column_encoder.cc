@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-#include "constants.h"
+#include "board_size.h"
 #include "player.h"
 #include "column_encoder.h"
 

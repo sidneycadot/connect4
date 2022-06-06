@@ -12,7 +12,7 @@
 
 #include "base62.h"
 #include "player.h"
-#include "constants.h"
+#include "board_size.h"
 #include "board.h"
 #include "files.h"
 
