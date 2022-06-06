@@ -26,21 +26,21 @@ ColumnEncoder::ColumnEncoder()
 
         // Calculate column value as a base-3 unsigned value
         // and put it into 'column_index_to_column' vector.
-        unsigned col_encoded = 0;
+        unsigned column_ternary = 0;
         for (int i = col.size() - 1; i >= 0; --i)
         {
-            col_encoded *= 3;
+            column_ternary *= 3;
             if (col[i] == Player::A)
             {
-                col_encoded += 1;
+                column_ternary += 1;
             }
             else if (col[i] == Player::B)
             {
-                col_encoded += 2;
+                column_ternary += 2;
             }
         }
 
-        column_encoded_to_column_ternary.push_back(col_encoded);
+        column_encoded_to_column_ternary.push_back(column_ternary);
 
         // Check if we can put another chip on top.
 
@@ -77,7 +77,7 @@ ColumnEncoder::ColumnEncoder()
     // Sort all possible encoded columns.
     sort(column_encoded_to_column_ternary.begin(), column_encoded_to_column_ternary.end());
 
-    // The highest possible ternary number we can encounter.
+    // The highest possible ternary column number we can encounter.
     const unsigned max_column_ternary = column_encoded_to_column_ternary.back();
 
     column_ternary_to_column_encoded.resize(max_column_ternary + 1);

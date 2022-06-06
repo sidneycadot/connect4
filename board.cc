@@ -172,14 +172,23 @@ Player Board::winner() const
     return player_a_wins ? Player::A : player_b_wins ? Player::B : Player::NONE;
 }
 
-vector<Board> Board::generate_boards() const
+Board Board::normalize() const
 {
-    // Return a vector of boards that can be reached from the
-    // current board state by making a single move.
-    //
-    // This method does not normalize the boards it generates.
+    // This method defines a local static BoardInitializer to perform normalization.
+    // It is declared as static; this is done to make sure that it is only instantiated once,
+    // if and when first needed.
 
-    vector<Board> next_boards;
+    static BoardNormalizer board_normalizer;
+
+    return board_normalizer.normalize(*this);
+}
+
+set<Board> Board::generate_unique_normalized_boards() const
+{
+    // Return a set of normalized boards that can be reached from the
+    // current board state by making a single move.
+
+    set<Board> next_boards;
 
     if (winner() == Player::NONE)
     {
@@ -194,33 +203,14 @@ vector<Board> Board::generate_boards() const
                 {
                     Board next_board(*this);
                     next_board.entries[i] = player;
-                    next_boards.push_back(next_board);
+                    next_boards.insert(next_board.normalize());
                     break;
                 }
             }
         }
     }
+
     return next_boards;
-}
-
-
-set<Board> Board::generate_unique_boards() const
-{
-    // Note that board_normalizer is declared as static; this is done to make sure that
-    // the BoardNormalizer is only instantiated once, if and when it is first needed.
-
-    static BoardNormalizer board_normalizer;
-
-    const vector<Board> boards = generate_boards();
-
-    set<Board> unique_boards;
-
-    for (const Board & board: boards)
-    {
-        unique_boards.insert(board_normalizer.normalize(board));
-    }
-
-    return unique_boards;
 }
 
 bool operator < (const Board & lhs, const Board & rhs)

@@ -8,7 +8,6 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
 #include <set>
 #include <istream>
 #include <ostream>
@@ -30,10 +29,11 @@ class Board
         // Determine if the game has a connect-4 and, if so, for which player.
         Player winner() const;
 
-        // Generate a vector of Boards that are directly reachable from this Board.
-        std::vector<Board> generate_boards() const;
+        // Normalize the board (i.e., return the smallest board, identical up to symmetry).
+        Board normalize() const;
 
-        std::set<Board> generate_unique_boards() const;
+        // Generate a set of normalized Boards that are directly reachable from this Board.
+        std::set<Board> generate_unique_normalized_boards() const;
 
         // Encode the Board as a 64-bit unsigned integer.
         uint64_t to_uint64() const;

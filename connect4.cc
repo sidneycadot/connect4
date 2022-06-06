@@ -60,7 +60,7 @@ static void make_nodes(const string & in_nodes_filename,
 
     while (in_nodes >> board >> winner >> winply_encoded)
     {
-        const set<Board> unique_boards = board.generate_unique_boards();
+        const set<Board> unique_boards = board.generate_unique_normalized_boards();
 
         for (const Board & unique_board: unique_boards)
         {
@@ -96,7 +96,7 @@ static void make_edges(const string & in_nodes_filename,
 
     while (in_nodes >> board >> winner >> winply_encoded)
     {
-        const set<Board> unique_boards = board.generate_unique_boards();
+        const set<Board> unique_boards = board.generate_unique_normalized_boards();
 
         for (const Board & unique_board: unique_boards)
         {
