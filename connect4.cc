@@ -133,11 +133,11 @@ static void make_edges_with_score(const string & in_edges_filename,
     Player score_winner;
     char   score_winply_encoded;
 
-    while (in_edges >> setw(NUM_BASE62_DIGITS) >> edge_dst >> setw(NUM_BASE62_DIGITS) >> edge_src)
+    while (in_edges >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_dst >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_src)
     {
         if (edge_dst != score_board)
         {
-            in_nodes_with_score >> setw(NUM_BASE62_DIGITS) >> score_board >> score_winner >> score_winply_encoded;
+            in_nodes_with_score >> setw(NUM_BASE62_BOARD_DIGITS) >> score_board >> score_winner >> score_winply_encoded;
             if (!in_nodes_with_score)
             {
                 throw runtime_error("make_edges_with_score: bad read.");
@@ -176,7 +176,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
     Player edge_score_winner;
     string edge_score_winply_encoded;
 
-    while (in_nodes >> setw(NUM_BASE62_DIGITS) >> node_board_encoded >> node_winner >> node_winply_encoded)
+    while (in_nodes >> setw(NUM_BASE62_BOARD_DIGITS) >> node_board_encoded >> node_winner >> node_winply_encoded)
     {
         if (node_winner != Player::NONE)
         {
@@ -189,7 +189,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
             // its outgoing edges and their scores as available in the 'in_edges_with_score' input stream.
             // For each non-trivial node, at least one such entry will be available.
 
-            const Board board = Board::from_string(node_board_encoded);
+            const Board board = Board::from_base62_string(node_board_encoded);
             const Player node_mover = board.mover();
 
             bool node_mover_has_draw = false;
@@ -203,7 +203,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
             {
                 if (!edge_score_valid)
                 {
-                    if (in_edges_with_score >> setw(NUM_BASE62_DIGITS) >> edge_score_board_encoded >> edge_score_winner >> setw(NUM_BASE62_SCORE_DIGITS) >> edge_score_winply_encoded)
+                    if (in_edges_with_score >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_score_board_encoded >> edge_score_winner >> setw(NUM_BASE62_SCORE_DIGITS) >> edge_score_winply_encoded)
                     {
                         edge_score_valid = true;
                     }
@@ -301,30 +301,30 @@ static void make_binary_file(const string & in_nodes_filename,
 
     while (in_nodes >> board >> winner >> setw(NUM_BASE62_SCORE_DIGITS) >> winply_encoded)
     {
-        uint8_t octets[NUM_OCTETS + 1];
+        uint8_t octets[NUM_BASE256_BOARD_DIGITS + 1];
         uint64_t n = board.to_uint64();
 
         // Insert the Board's unsigned int value in big-endian order.
         // We write using big-endian order because it leads to a file that
         // can be compressed to a significantly smaller size.
 
-        for (unsigned i = 0; i < NUM_OCTETS; ++i)
+        for (unsigned i = 0; i < NUM_BASE256_BOARD_DIGITS; ++i)
         {
-             octets[NUM_OCTETS - 1 - i] = n & 255;
+             octets[NUM_BASE256_BOARD_DIGITS - 1 - i] = n & 255;
              n >>= 8;
         }
 
         if (n != 0)
         {
-            throw runtime_error("make_binary_file: unable to write board in NUM_OCTETS bytes.");
+            throw runtime_error("make_binary_file: unable to write board in NUM_BASE256_BOARD_DIGITS bytes.");
         }
 
         // Insert the board evaluation as a single octet.
         const unsigned winply = base62_string_to_uint64(winply_encoded);
 
-        octets[NUM_OCTETS] = (winner == Player::A) ? 1 + winply : (winner == Player::B) ? 255 - winply : 0;
+        octets[NUM_BASE256_BOARD_DIGITS] = (winner == Player::A) ? 1 + winply : (winner == Player::B) ? 255 - winply : 0;
 
-        out_nodes.write(reinterpret_cast<char *>(octets), NUM_OCTETS + 1);
+        out_nodes.write(reinterpret_cast<char *>(octets), NUM_BASE256_BOARD_DIGITS + 1);
     }
 }
 
@@ -351,6 +351,7 @@ static void print_usage()
     cerr                                                                                                                                     << endl;
     cerr << "    connect4 --horizontal-board-size"                                                                                           << endl;
     cerr << "    connect4 --vertical-board-size"                                                                                             << endl;
+    cerr << "    connect4 --win-connect-count"                                                                                               << endl;
     cerr                                                                                                                                     << endl;
 }
 
@@ -394,6 +395,10 @@ int main(int argc, char **argv)
     else if (args.size() == 1 && args[0] == "--vertical-board-size")
     {
         cout << V_SIZE << endl;
+    }
+    else if (args.size() == 1 && args[0] == "--win-connect-count")
+    {
+        cout << Q << endl;
     }
     else
     {
