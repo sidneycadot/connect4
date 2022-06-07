@@ -72,13 +72,13 @@ Board Board::from_uint64(uint64_t n)
     return board;
 }
 
-string Board::to_string(unsigned num_digits) const
+string Board::to_base62_string() const
 {
-    return uint64_to_base62_string(to_uint64(), num_digits);
+    return uint64_to_base62_string(to_uint64(), NUM_BASE62_BOARD_DIGITS);
 }
 
 // static method
-Board Board::from_string(const string & s)
+Board Board::from_base62_string(const string & s)
 {
     return from_uint64(base62_string_to_uint64(s));
 }
@@ -238,14 +238,14 @@ bool operator < (const Board & lhs, const Board & rhs)
 
 ostream & operator << (ostream & out, const Board & board)
 {
-    out << board.to_string(NUM_BASE62_DIGITS);
+    out << board.to_base62_string();
     return out;
 }
 
 istream & operator >> (istream & in, Board & board)
 {
     string s;
-    in >> setw(NUM_BASE62_DIGITS) >> s;
-    board = Board::from_string(s);
+    in >> setw(NUM_BASE62_BOARD_DIGITS) >> s;
+    board = Board::from_base62_string(s);
     return in;
 }

@@ -42,10 +42,10 @@ class Board
         static Board from_uint64(uint64_t n);
 
         // Encode the Board as a base-62 string.
-        std::string to_string(unsigned num_digits) const;
+        std::string to_base62_string() const;
 
         // Decode a Board from a base-62 string.
-        static Board from_string(const std::string & s);
+        static Board from_base62_string(const std::string & s);
 
     private: // Member functions.
 
