@@ -171,7 +171,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
     Player node_winner;
     char   node_winply_encoded;
 
-    bool   edge_score_valid = false; // Are the values below valid (i.e., read from the inpout, but yet unused)?
+    bool   edge_score_valid = false; // Are the values below valid (i.e., read from the input, but yet unused)?
     string edge_score_board_encoded;
     Player edge_score_winner;
     string edge_score_winply_encoded;
@@ -305,8 +305,8 @@ static void make_binary_file(const string & in_nodes_filename,
         uint64_t n = board.to_uint64();
 
         // Insert the Board's unsigned int value in big-endian order.
-        // We write using big-endian order because it leads to a file that
-        // can be compressed to a significantly smaller size.
+        // We write using big-endian rather than little-endian order because it results in a
+        // file that can be compressed to a significantly smaller size.
 
         for (unsigned i = 0; i < NUM_BASE256_BOARD_DIGITS; ++i)
         {
