@@ -26,7 +26,7 @@ class Board
         // Determine which player has the move.
         Player mover() const;
 
-        // Determine if the game has a connect-4 and, if so, for which player.
+        // Determine if the game has a connect-Q and, if so, for which player.
         Player winner() const;
 
         // Normalize the board (i.e., return the smallest board, identical up to symmetry).
@@ -56,7 +56,7 @@ class Board
 
         static ColumnEncoder column_encoder;
 
-        Player entries[V_SIZE * H_SIZE];
+        Player entries[V_SIZE][H_SIZE];
 
     // Friends.
 

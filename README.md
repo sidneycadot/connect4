@@ -5,12 +5,8 @@ CONNECT-4 SOLVER
 INTRODUCTION
 ------------
 
-(TBW)
-
-ALGORITHM DESCRIPTION
----------------------
-
-(TBW)
+This repository contains the code needed to fully enumerate all game states for the game connect-4, and to determine,
+for each of those game states, their game-theoretical value.
 
 LIST OF FILES
 -------------
@@ -36,12 +32,9 @@ The C++ program can be compiled and linked using the provided Makefile.
 
 The file 'connect4-script' is a bash script to run a full forward, backward, and combine run for connect-4.
 
-GENERATING THE FULL TREE
-------------------------
+ALGORITHM DESCRIPTION
+---------------------
 
-(TBW)
+The algorithm proceeds in two main stages: "forward" and "backward".
 
-EXPECTED OUTCOME
-----------------
-
-(TBW)
+See the "connect4-script" Bash script for details.
