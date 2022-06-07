@@ -13,18 +13,18 @@ class ColumnEncoder
     // In the game of connect-4, each board field can be in one of three states: occupied by player A,
     // occupied by player B, or empty.
     //
-    // However, not all possible columns are valid. Specifically, non-empty fields can not exist above
+    // However, not all possible columns are valid. Specifically, non-empty fields can not occur above
     // empty fields; and all fields above a connect-4 must be empty, since a connect-4 immediately
     // ends the game.
     //
     // The `ColumnEncoder` class determines all valid column configurations and provides functions to
-    // change between ternary-encoded columns and a encoding as an unsigned integer that is more
+    // change between ternary-encoded columns and an encoding as an unsigned integer that is more
     // efficient.
 
     public:
 
-        // Initialize the ColumnEncoder by enumerating all valid
-        // columns and generating bidirectional lookup tables.
+        // Initialize the ColumnEncoder by enumerating all valid columns
+        // and generating bi-directional lookup tables.
         ColumnEncoder();
 
         // Return the number of different valid columns.

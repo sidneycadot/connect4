@@ -24,8 +24,7 @@ ColumnEncoder::ColumnEncoder()
         column col = to_be_processed.back();
         to_be_processed.pop_back();
 
-        // Calculate column value as a base-3 unsigned value
-        // and put it into 'column_index_to_column' vector.
+        // Represent the column as a base-3 unsigned value.
         unsigned column_ternary = 0;
         for (int i = col.size() - 1; i >= 0; --i)
         {
@@ -74,13 +73,21 @@ ColumnEncoder::ColumnEncoder()
         }
     }
 
-    // Sort all possible encoded columns.
+    // We enumerated the ternary representation of all valid columns.
+    // Sort them; the end result of this is the final encoded-to-ternary lookup table.
     sort(column_encoded_to_column_ternary.begin(), column_encoded_to_column_ternary.end());
 
-    // The highest possible ternary column number we can encounter.
+    // Shrink the 'column_encoded_to_column_ternary' vector to minimize its memory footprint.
+    column_encoded_to_column_ternary.shrink_to_fit();
+
+    // Find the highest valid ternary column value from the lookup table.
+
     const unsigned max_column_ternary = column_encoded_to_column_ternary.back();
 
     column_ternary_to_column_encoded.resize(max_column_ternary + 1);
+
+    // Construct the inverse (ternary-to-encoded) lookup table.
+
     for (unsigned i = 0; i < column_encoded_to_column_ternary.size(); ++i)
     {
         column_ternary_to_column_encoded[column_encoded_to_column_ternary[i]] = i;
