@@ -1,5 +1,7 @@
 connect4
 *.o
+*.log
 *.dat
 *.dat.xz
-*.log
+*.bin
+*.bin.xz
