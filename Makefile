@@ -22,4 +22,4 @@ player.o         : player.cc         $(HEADERS)
 connect4.o       : connect4.cc       $(HEADERS)
 
 clean :
-	$(RM) $(TARGET) $(OBJECTS) nodes.log *~ *.dat
+	$(RM) $(TARGET) $(OBJECTS) nodes.log *~ *.dat *.bin *.bin.xz
