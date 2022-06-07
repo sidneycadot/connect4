@@ -23,7 +23,7 @@ static void write_node_with_trivial_evaluation(ostream & out_stream, const Board
     // During the inital and forward steps, we mark boards that we can determine by immediate
     // inspection as won-in-0 (i.e., one of the players has a four-in-a-row): "A0" or "B0".
     // If we cannot determine the node evaluation, we write "unknown" which is marked as ".0".
-    out_stream << board << board.winner() << "0\n";
+    out_stream << board << board.winner() << to_base62_digit(0) << '\n';
 }
 
 static void make_initial_node(const string & out_filename)
@@ -270,7 +270,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                     else if (node_mover_has_draw || !node_mover_has_loss)
                     {
                         // We have a draw, or nothing.
-                        out_nodes_with_score << node_board_encoded << Player::NONE << "0\n";
+                        out_nodes_with_score << node_board_encoded << Player::NONE << to_base62_digit(0) << '\n';
                     }
                     else
                     {
