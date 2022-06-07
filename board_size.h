@@ -46,6 +46,8 @@ const unsigned NUM_BASE62_DIGITS_v6h7q4 = 8; // 6x7 board, connect-4.
 
 const unsigned NUM_BASE62_DIGITS = NUM_BASE62_DIGITS_v6h7q4;
 
+const unsigned NUM_BASE62_SCORE_DIGITS = 1;
+
 // The number of base-256 digits needed to represent a single board state:
 //
 //   ceiling(H_SIZE * log(column_count) / log(256))

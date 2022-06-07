@@ -9,7 +9,7 @@
 
 using namespace std;
 
-char to_base62_digit(unsigned n)
+static char to_base62_digit(unsigned n)
 {
     if (n < 10)
     {
@@ -26,7 +26,7 @@ char to_base62_digit(unsigned n)
     throw runtime_error("to_base62_digit: bad base-62 digit");
 }
 
-unsigned from_base62_digit(char c)
+static unsigned from_base62_digit(char c)
 {
     if ('0' <= c && c <= '9')
     {

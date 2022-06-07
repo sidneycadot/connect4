@@ -23,7 +23,7 @@ static void write_node_with_trivial_evaluation(ostream & out_stream, const Board
     // During the inital and forward steps, we mark boards that we can determine by immediate
     // inspection as won-in-0 (i.e., one of the players has a four-in-a-row): "A0" or "B0".
     // If we cannot determine the node evaluation, we write "unknown" which is marked as ".0".
-    out_stream << board << board.winner() << to_base62_digit(0) << '\n';
+    out_stream << board << board.winner() << uint64_to_base62_string(0, NUM_BASE62_SCORE_DIGITS) << '\n';
 }
 
 static void make_initial_node(const string & out_filename)
@@ -174,7 +174,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
     bool   edge_score_valid = false; // Are the values below valid (i.e., read from the inpout, but yet unused)?
     string edge_score_board_encoded;
     Player edge_score_winner;
-    char   edge_score_winply_encoded;
+    string edge_score_winply_encoded;
 
     while (in_nodes >> setw(NUM_BASE62_DIGITS) >> node_board_encoded >> node_winner >> node_winply_encoded)
     {
@@ -203,7 +203,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
             {
                 if (!edge_score_valid)
                 {
-                    if (in_edges_with_score >> setw(NUM_BASE62_DIGITS) >> edge_score_board_encoded >> edge_score_winner >> edge_score_winply_encoded)
+                    if (in_edges_with_score >> setw(NUM_BASE62_DIGITS) >> edge_score_board_encoded >> edge_score_winner >> setw(NUM_BASE62_SCORE_DIGITS) >> edge_score_winply_encoded)
                     {
                         edge_score_valid = true;
                     }
@@ -222,7 +222,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                     }
                     else if (edge_score_winner == node_mover)
                     {
-                        const unsigned score_winply = from_base62_digit(edge_score_winply_encoded) + 1;
+                        const unsigned score_winply = base62_string_to_uint64(edge_score_winply_encoded) + 1;
 
                         if (node_mover_has_win)
                         {
@@ -239,7 +239,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                     }
                     else // we lose
                     {
-                        const unsigned score_winply = from_base62_digit(edge_score_winply_encoded) + 1;
+                        const unsigned score_winply = base62_string_to_uint64(edge_score_winply_encoded) + 1;
 
                         if (node_mover_has_loss)
                         {
@@ -265,18 +265,18 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                     if (node_mover_has_win)
                     {
                         // We have a win!
-                        out_nodes_with_score << node_board_encoded << node_mover << to_base62_digit(node_mover_min_win) << '\n';
+                        out_nodes_with_score << node_board_encoded << node_mover << uint64_to_base62_string(node_mover_min_win, NUM_BASE62_SCORE_DIGITS) << '\n';
                     }
                     else if (node_mover_has_draw || !node_mover_has_loss)
                     {
                         // We have a draw, or nothing.
-                        out_nodes_with_score << node_board_encoded << Player::NONE << to_base62_digit(0) << '\n';
+                        out_nodes_with_score << node_board_encoded << Player::NONE << uint64_to_base62_string(0, NUM_BASE62_SCORE_DIGITS) << '\n';
                     }
                     else
                     {
                         // We have only losing moves (at least 1).
                         const Player node_other_player = (node_mover == Player::A) ? Player::B : Player::A;
-                        out_nodes_with_score << node_board_encoded << node_other_player << to_base62_digit(node_mover_max_loss) << '\n';
+                        out_nodes_with_score << node_board_encoded << node_other_player << uint64_to_base62_string(node_mover_max_loss, NUM_BASE62_SCORE_DIGITS) << '\n';
                     }
 
                     break; // Proceed to the next board.
@@ -297,9 +297,9 @@ static void make_binary_file(const string & in_nodes_filename,
 
     Board  board;
     Player winner;
-    char   winply_encoded;
+    string winply_encoded;
 
-    while (in_nodes >> board >> winner >> winply_encoded)
+    while (in_nodes >> board >> winner >> setw(NUM_BASE62_SCORE_DIGITS) >> winply_encoded)
     {
         uint8_t octets[NUM_OCTETS + 1];
         uint64_t n = board.to_uint64();
@@ -320,7 +320,7 @@ static void make_binary_file(const string & in_nodes_filename,
         }
 
         // Insert the board evaluation as a single octet.
-        const unsigned winply = from_base62_digit(winply_encoded);
+        const unsigned winply = base62_string_to_uint64(winply_encoded);
 
         octets[NUM_OCTETS] = (winner == Player::A) ? 1 + winply : (winner == Player::B) ? 255 - winply : 0;
 
