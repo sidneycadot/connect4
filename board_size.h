@@ -41,20 +41,22 @@ const int Q      = 4; // Number of consecutive horizontal/diagonal/vertical cell
 //
 //   ceiling(H_SIZE * log(column_count) / log(62))
 
-const unsigned NUM_BASE62_DIGITS_v5h6q4 = 6; // 5x6 board, connect-4.
-const unsigned NUM_BASE62_DIGITS_v6h7q4 = 8; // 6x7 board, connect-4.
+const unsigned NUM_BASE62_BOARD_DIGITS_v4h5q4 = 5; // 4x5 board, connect-4.
+const unsigned NUM_BASE62_BOARD_DIGITS_v5h6q4 = 6; // 5x6 board, connect-4.
+const unsigned NUM_BASE62_BOARD_DIGITS_v6h7q4 = 8; // 6x7 board, connect-4.
 
-const unsigned NUM_BASE62_DIGITS = NUM_BASE62_DIGITS_v6h7q4;
+const unsigned NUM_BASE62_BOARD_DIGITS = NUM_BASE62_BOARD_DIGITS_v6h7q4;
 
-const unsigned NUM_BASE62_SCORE_DIGITS = 1;
+const unsigned NUM_BASE62_SCORE_DIGITS = 1; // Assume that a score can always be represented as a length-1 string.
 
 // The number of base-256 digits needed to represent a single board state:
 //
 //   ceiling(H_SIZE * log(column_count) / log(256))
 
-const unsigned NUM_OCTETS_v5h6q4 = 5; // 5x6 board, connect-4
-const unsigned NUM_OCTETS_v6h7q4 = 6; // 6x7 board, connect-4
+const unsigned NUM_BASE256_BOARD_DIGITS_v4h5q4 = 4; // 4x5 board, connect-4.
+const unsigned NUM_BASE256_BOARD_DIGITS_v5h6q4 = 5; // 5x6 board, connect-4
+const unsigned NUM_BASE256_BOARD_DIGITS_v6h7q4 = 6; // 6x7 board, connect-4
 
-const unsigned NUM_OCTETS = NUM_OCTETS_v6h7q4;
+const unsigned NUM_BASE256_BOARD_DIGITS = NUM_BASE256_BOARD_DIGITS_v6h7q4;
 
 #endif // CONSTANTS_H
