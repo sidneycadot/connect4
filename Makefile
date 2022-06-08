@@ -5,11 +5,18 @@
 CC=$(CXX)
 CXXFLAGS = -W -Wall -O3 -std=c++14
 
-.PHONY : clean
+.PHONY : clean default
 
 TARGET  = connect4
 OBJECTS = board.o column_encoder.o base62.o player.o connect4.o
 HEADERS = board.h column_encoder.h base62.h player.h board_size.h files.h
+
+default : $(TARGET)
+	@echo
+	@echo "Compile-time parameters:"
+	@echo
+	@$(PWD)/$(TARGET) --print-constants
+	@echo
 
 $(TARGET) : $(OBJECTS)
 

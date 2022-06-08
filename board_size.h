@@ -1,16 +1,16 @@
 
-/////////////////
-// constants.h //
-/////////////////
+//////////////////
+// board_size.h //
+//////////////////
 
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#ifndef BOARD_SIZE_H
+#define BOARD_SIZE_H
 
 #include "number_of_possible_columns.h"
 
-const int V_SIZE = 4; // Vertical board size.
-const int H_SIZE = 5; // Horizontal board size.
-const int Q = 4; // Number of consecutive horizontal/diagonal/vertical cells required to win.
+const int V_SIZE = 6; // Vertical board size.
+const int H_SIZE = 7; // Horizontal board size.
+const int Q      = 4; // Number of consecutive horizontal/diagonal/vertical cells required to win.
 
 // Find the smallest value D such that BASE^D >= COL_POS ** HORIZONTAL
 
@@ -30,6 +30,6 @@ const uint64_t NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION = power(NUMBER_OF_POSSI
 const unsigned NUM_BASE62_BOARD_DIGITS  = num_digits_required(62, NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION);
 const unsigned NUM_BASE256_BOARD_DIGITS = num_digits_required(256, NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION);
 
-const unsigned NUM_BASE62_SCORE_DIGITS = 1; // Assume that a score can always be represented as a length-1 string.
+const unsigned NUM_BASE62_SCORE_DIGITS = 1; // Assume that winply can always be represented as a 1-character base62 string.
 
-#endif // CONSTANTS_H
+#endif // BOARD_SIZE_H

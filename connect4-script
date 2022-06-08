@@ -16,12 +16,13 @@ fi
 
 # Get the size of the board we're processing.
 echo
-echo "Main parameters:"
+echo "Compile-time parameters:"
 echo
-$CONNECT4 --print-constants
+$CONNECT4 --print-constants | tee variables.tmp
 echo
 
-source <($CONNECT4 --print-constants)
+source variables.tmp
+rm variables.tmp
 
 let MAX_GEN=H_SIZE*V_SIZE
 

@@ -6,11 +6,11 @@
 #ifndef NUMBER_OF_POSSIBLE_COLUMNS_H
 #define NUMBER_OF_POSSIBLE_COLUMNS_H
 
-// The constexpr function 'number_of_possible_columns(q, n)' calculates, possibly at runtime, the number of possible
-// connect-q columns of height up to and including n.
-
-// These are the counts of possible legal columns in connect-4-like games,
-// when the board has a certain height V_SIZE (0..20), and the winning sequence has length Q (0..10).
+// The constexpr function 'number_of_possible_columns(q, n)' calculates, either at compile-time or runtime,
+// the number of possible connect-q columns of height up to and including n.
+//
+// These are the number_of_possible_columns(q, n), with the winning sequence q ranging from 0 to 10
+// and the board height n ranging from 0 to 20:
 //
 //    |         0         1         2         3         4         5         6         7         8         9        10
 // ---+--------------------------------------------------------------------------------------------------------------
@@ -38,14 +38,14 @@
 
 constexpr unsigned number_of_possible_columns(unsigned q, unsigned n);
 
-constexpr unsigned number_of_possible_columns_sum(unsigned q, unsigned a, unsigned b)
+constexpr unsigned _number_of_possible_columns_sum(unsigned q, unsigned a, unsigned b)
 {
-    return number_of_possible_columns(q, a) + ((a == b) ? 0 : number_of_possible_columns_sum(q, a + 1, b));
+    return number_of_possible_columns(q, a) + ((a == b) ? 0 : _number_of_possible_columns_sum(q, a + 1, b));
 }
 
 constexpr unsigned number_of_possible_columns(unsigned q, unsigned n)
 {
-    return (n <= q) ? (2 << n) - 1 : number_of_possible_columns_sum(q, n - q + 1, n - 1) + q + 2;
+    return (n <= q) ? (2 << n) - 1 : _number_of_possible_columns_sum(q, n - q + 1, n - 1) + q + 2;
 }
 
 #endif // NUMBER_OF_POSSIBLE_COLUMNS_H
