@@ -5,6 +5,26 @@
 
 set -e
 
+# Add the current directory to the PATH, so we can find the 'connect4' executable.
+
+CONNECT4=$PWD/connect4
+
+if [ ! -x "$CONNECT4" ] ; then
+    echo "The 'connect4' executable is not available. Use 'make' to create it."
+    exit 1
+fi
+
+# Get the size of the board we're processing.
+echo
+echo "Main parameters:"
+echo
+$CONNECT4 --print-constants
+echo
+
+source <($CONNECT4 --print-constants)
+
+let MAX_GEN=H_SIZE*V_SIZE
+
 # Check that TMDIR is set. It is used by 'sort' to know where to put temporary files.
 # Note that these can be large, and there can be many of them!
 # Ideally, TMPDIR should point to a different disk than the one where data is being
@@ -23,23 +43,6 @@ fi
 #     Set LC_ALL=C to get the traditional sort order that uses native byte values.
 
 export LC_ALL=C
-
-# Add the current directory to the PATH, so we can find the 'connect4' executable.
-
-CONNECT4=$PWD/connect4
-
-if [ ! -x "$CONNECT4" ] ; then
-    echo "The 'connect4' executable is not available. Use 'make' to create it."
-    exit 1
-fi
-
-# Get the size of the board we're processing.
-
-let H_SIZE=`$CONNECT4 --horizontal-board-size`
-let V_SIZE=`$CONNECT4 --vertical-board-size`
-let Q_VALUE=`$CONNECT4 --win-connect-count`
-
-let MAX_GEN=H_SIZE*V_SIZE
 
 # Forward stage: expand game tree starting at the initial (empty) board.
 

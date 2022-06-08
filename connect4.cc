@@ -328,6 +328,18 @@ static void make_binary_file(const string & in_nodes_filename,
     }
 }
 
+static void print_constants()
+{
+    cout << "V_SIZE=" << V_SIZE << endl;
+    cout << "H_SIZE=" << H_SIZE << endl;
+    cout << "Q=" << Q << endl;
+    cout << "NUMBER_OF_POSSIBLE_COLUMNS=" << NUMBER_OF_POSSIBLE_COLUMNS << endl;
+    cout << "NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION=" << NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION << endl;
+    cout << "NUM_BASE62_BOARD_DIGITS=" << NUM_BASE62_BOARD_DIGITS << endl;
+    cout << "NUM_BASE256_BOARD_DIGITS=" << NUM_BASE256_BOARD_DIGITS << endl;
+    cout << "NUM_BASE62_SCORE_DIGITS=" << NUM_BASE62_SCORE_DIGITS << endl;
+}
+
 static void print_usage()
 {
     cerr                                                                                                                                     << endl;
@@ -347,11 +359,9 @@ static void print_usage()
     cerr << "       If an input filename is given as '"  << InputFile::stdin_name   << "', the program reads from stdin instead of a file."  << endl;
     cerr << "       If an output filename is given as '" << OutputFile::stdout_name << "', the program writes to stdout instead of a file."  << endl;
     cerr                                                                                                                                     << endl;
-    cerr << "The following miscellaneous modes are available:"                                                                               << endl;
+    cerr << "Compile-time constant can be printed as follows:"                                                                               << endl;
     cerr                                                                                                                                     << endl;
-    cerr << "    connect4 --horizontal-board-size"                                                                                           << endl;
-    cerr << "    connect4 --vertical-board-size"                                                                                             << endl;
-    cerr << "    connect4 --win-connect-count"                                                                                               << endl;
+    cerr << "    connect4 --print-constants"                                                                                                 << endl;
     cerr                                                                                                                                     << endl;
 }
 
@@ -388,17 +398,9 @@ int main(int argc, char **argv)
     {
         make_binary_file(args[1], args[2]);
     }
-    else if (args.size() == 1 && args[0] == "--horizontal-board-size")
+    else if (args.size() == 1 && args[0] == "--print-constants")
     {
-        cout << H_SIZE << endl;
-    }
-    else if (args.size() == 1 && args[0] == "--vertical-board-size")
-    {
-        cout << V_SIZE << endl;
-    }
-    else if (args.size() == 1 && args[0] == "--win-connect-count")
-    {
-        cout << Q << endl;
+        print_constants();
     }
     else
     {

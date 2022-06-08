@@ -20,9 +20,12 @@ Board Board::empty()
 {
     Board board;
 
-    for (int i = 0; i < V_SIZE * H_SIZE; ++i)
+    for (int y = 0; y < V_SIZE; ++y)
     {
-        board.entries[i] = Player::NONE;
+        for (int x = 0; x < H_SIZE; ++x)
+        {
+            board.entries[y][x] = Player::NONE;
+        }
     }
     return board;
 }
@@ -36,13 +39,11 @@ uint64_t Board::to_uint64() const
         for (int y = 0; y < V_SIZE; ++y)
         {
             column *= 3;
-            if (entries[y * H_SIZE + x] == Player::A)
+            switch (entries[y][x])
             {
-                column += 1;
-            }
-            else if (entries[y * H_SIZE + x] == Player::B)
-            {
-                column += 2;
+                case Player::NONE : column += 0; break;
+                case Player::A    : column += 1; break;
+                case Player::B    : column += 2; break;
             }
         }
 
@@ -65,7 +66,7 @@ Board Board::from_uint64(uint64_t n)
         for (int  y = V_SIZE - 1; y >= 0; --y)
         {
             const unsigned digit = (column % 3);
-            board.entries[y * H_SIZE + x] = (digit == 0) ? Player::NONE : (digit == 1) ? Player::A : Player::B;
+            board.entries[y][x] = (digit == 0) ? Player::NONE : (digit == 1) ? Player::A : Player::B;
             column /= 3;
         }
     }
@@ -87,11 +88,16 @@ Player Board::mover() const
 {
     // Determine whether player A or B has the move.
     int a_min_b = 0;
-    for (int i = 0; i < V_SIZE * H_SIZE; ++i)
+
+    for (int y = 0; y < V_SIZE; ++y)
     {
-        const Player entry = entries[i];
-        a_min_b += ((entry == Player::A) - (entry == Player::B));
+        for (int x = 0; x < H_SIZE; ++x)
+        {
+            const Player entry = entries[y][x];
+            a_min_b += ((entry == Player::A) - (entry == Player::B));
+        }
     }
+
     if (a_min_b == 0)
     {
         return Player::A;
@@ -102,7 +108,7 @@ Player Board::mover() const
     }
     else
     {
-        throw runtime_error("Board::mover -- impossible board detected.");
+        throw runtime_error("Board::mover: impossible board detected.");
     }
 }
 
@@ -121,7 +127,7 @@ Player Board::winner() const
     {
         for (int x = 0; x < H_SIZE; ++x)
         {
-            const Player player = entries[y * H_SIZE + x];
+            const Player player = entries[y][x];
 
             if (player != Player::NONE)
             {
@@ -137,7 +143,7 @@ Player Board::winner() const
                         bool found_win = true;
                         for (int i = 1; i < Q; ++i)
                         {
-                            if (entries[(y + dy * i) * H_SIZE + (x + dx * i)] != player)
+                            if (entries[y + dy * i][x + dx * i] != player)
                             {
                                 found_win = false;
                             }
@@ -145,17 +151,11 @@ Player Board::winner() const
                         if (found_win)
                         {
                             // Found a winning stretch!
-                            if (player == Player::A)
+                            switch (player)
                             {
-                                player_a_wins = true;
-                            }
-                            else if (player == Player::B)
-                            {
-                                player_b_wins = true;
-                            }
-                            else
-                            {
-                                throw runtime_error("bad winner");
+                                case Player::A : player_a_wins = true; break;
+                                case Player::B : player_b_wins = true; break;
+                                default        : throw runtime_error("Board::winner: bad winner");
                             }
                         } // found winning stretch
                     } // coordinates in the stretch are all valid
@@ -181,7 +181,7 @@ Board Board::normalize() const
         for (int x = 0; x < H_SIZE; ++x)
         {
             const int x_mirrored = (H_SIZE - 1) - x;
-            horizontal_mirror.entries[y * H_SIZE + x_mirrored] = entries[y * H_SIZE + x];
+            horizontal_mirror.entries[y][x_mirrored] = entries[y][x];
         }
     }
 
@@ -202,12 +202,10 @@ set<Board> Board::generate_unique_normalized_boards() const
         {
             for (int y = V_SIZE - 1; y >= 0; --y)
             {
-                const int i = y * H_SIZE + x;
-
-                if (entries[i] == Player::NONE)
+                if (entries[y][x] == Player::NONE)
                 {
                     Board next_board(*this);
-                    next_board.entries[i] = player;
+                    next_board.entries[y][x] = player;
                     next_boards.insert(next_board.normalize());
                     break;
                 }
@@ -220,15 +218,18 @@ set<Board> Board::generate_unique_normalized_boards() const
 
 bool operator < (const Board & lhs, const Board & rhs)
 {
-    for (int i = 0; i < V_SIZE * H_SIZE; ++i)
+    for (int y = 0; y < V_SIZE; ++y)
     {
-        if (lhs.entries[i] < rhs.entries[i])
+        for (int x = 0; x < H_SIZE; ++x)
         {
-            return true;
-        }
-        if (lhs.entries[i] > rhs.entries[i])
-        {
-            return false;
+            if (lhs.entries[y][x] < rhs.entries[y][x])
+            {
+                return true;
+            }
+            if (lhs.entries[y][x] > rhs.entries[y][x])
+            {
+                return false;
+            }
         }
     }
 
