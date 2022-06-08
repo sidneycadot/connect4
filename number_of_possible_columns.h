@@ -6,8 +6,8 @@
 #ifndef NUMBER_OF_POSSIBLE_COLUMNS_H
 #define NUMBER_OF_POSSIBLE_COLUMNS_H
 
-// The constexpr function 'number_of_possible_columns(q, n)' calculates, either at compile-time or runtime,
-// the number of possible connect-q columns of height up to and including n.
+// The constexpr function 'number_of_possible_columns(q, n)' calculates the number of possible connect-q columns
+// of height up to and including n.
 //
 // These are the number_of_possible_columns(q, n), with the winning sequence q ranging from 0 to 10
 // and the board height n ranging from 0 to 20:
@@ -35,6 +35,13 @@
 // 18 |         1         3        71     27055    171047    329567    428671    479551    503831    515071    520191
 // 19 |         1         3        75     43779    314607    635263    842747    951231   1003615   1028099   1039359
 // 20 |         1         3        79     70839    578655   1224511   1656799   1886847   1999167   2052119   2076671
+//
+// The calculation is implemented by evaluating the following recursive relations:
+//
+//    number_of_possible_columns(n, q) = 2 ** n - 1                                                       ;;  if n <= q   (Eq.1)
+//    number_of_possible_columns(n, q) = sum(k = [1 .. q-1] number_of_possible_columns(n - k)) + (q + 2)  ;;  if n >  q   (Eq.2)
+//
+// TODO: Add the justification of Eq.1 and Eq.2.
 
 constexpr unsigned number_of_possible_columns(unsigned q, unsigned n);
 
