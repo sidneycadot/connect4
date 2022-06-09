@@ -57,7 +57,7 @@ initial game state). Along the way, we add the game-theoretical value of each
 board visited, by inspecting the boards that can be reached from it (and that
 were previously visited and annotated as such). The end result is that all
 board states will be annotated with their game-theoretical value: either "won
-in P plies for player X (A or B" or "not winnable by either player if optimal
+in P plies for player X (A or B)" or "not winnable by either player if optimal
 play is assumed", i.e., a draw.
 
 The ability to perform both the forward and backward stages relies heavily on
