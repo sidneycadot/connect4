@@ -32,11 +32,16 @@ let MAX_GEN=H_SIZE*V_SIZE
 # read from / written to.
 
 if [ -z "$TMPDIR" ] ; then
-    echo "Please set the environment variable TMPDIR for 'sort'."
+    echo "Please set the environment variable TMPDIR for 'sort' temporary files."
     exit 1
 fi
 
-DATADIR=$PWD/data
+if [ -z "$DATADIR" ] ; then
+    echo "Please set the environment variable DATADIR to the directory where generated files go."
+    exit 1
+fi
+
+# Make sure the datadir exists.
 mkdir -p $DATADIR
 
 FILENAME_PREFIX=${DATADIR}/connect${Q}_${H_SIZE}x${V_SIZE}
@@ -52,7 +57,7 @@ export LC_ALL=C
 
 # Forward stage: expand game tree starting at the initial (empty) board.
 
-echo "Preparing forward traversal ..."
+echo "Performing forward game-tree traversal ..."
 
 # Write the initial node.
 
@@ -68,7 +73,7 @@ done
 
 # Backward stage: propagate finalized node evaluations backwards.
 
-echo "Preparing backward traversal ..."
+echo "Performing backward game-tree traversal ..."
 
 # The last nodes file is already fully correct w.r.t. scores.
 
@@ -87,11 +92,11 @@ done
 
 # Merge-sort the nodes_with_score files together.
 
-echo "Merging all nodes_with_score files ..."
+echo "Merging all generated nodes_with_score files ..."
 
 sort -m ${FILENAME_PREFIX}_nodes_with_score_*.dat > ${FILENAME_PREFIX}.dat
 
-echo "Converting to binary ..."
+echo "Converting data to binary ..."
 
 $CONNECT4 --make-binary-file ${FILENAME_PREFIX}.dat ${FILENAME_PREFIX}.bin
 
