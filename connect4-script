@@ -16,7 +16,7 @@ fi
 
 # Get the size of the board we're processing.
 echo
-echo "Compile-time parameters:"
+echo "Compile-time constants:"
 echo
 $CONNECT4 --print-constants | tee variables.tmp
 echo
@@ -83,12 +83,12 @@ done
 
 echo "Merging all nodes_with_score files ..."
 
-sort -m nodes_with_score_*.dat > connect4_v${V_SIZE}h${H_SIZE}q${Q_VALUE}.dat
+sort -m nodes_with_score_*.dat > connect4_v${V_SIZE}h${H_SIZE}q${Q}.dat
 
 echo "Converting to binary ..."
 
-$CONNECT4 --make-binary-file connect4_v${V_SIZE}h${H_SIZE}q${Q_VALUE}.dat connect4_v${V_SIZE}h${H_SIZE}q${Q_VALUE}.bin
+$CONNECT4 --make-binary-file connect4_v${V_SIZE}h${H_SIZE}q${Q}.dat connect4_v${V_SIZE}h${H_SIZE}q${Q}.bin
 
 echo "Compressing binary file ..."
 
-xz --keep --force connect4_v${V_SIZE}h${H_SIZE}q${Q_VALUE}.bin
+xz --keep --force connect4_v${V_SIZE}h${H_SIZE}q${Q}.bin
