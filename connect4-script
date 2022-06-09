@@ -36,6 +36,11 @@ if [ -z "$TMPDIR" ] ; then
     exit 1
 fi
 
+DATADIR=$PWD/data
+mkdir -p $DATADIR
+
+FILENAME_PREFIX=${DATADIR}/connect${Q}_${H_SIZE}x${V_SIZE}
+
 # Make the sort tool stupid (sort by byte order).
 #
 # The man page of sort says:
@@ -51,16 +56,14 @@ echo "Preparing forward traversal ..."
 
 # Write the initial node.
 
-$CONNECT4 --make-initial-node nodes_0.dat
-wc -l nodes_0.dat > nodes.log
+$CONNECT4 --make-initial-node STDOUT | tee ${FILENAME_PREFIX}_nodes_0.dat | wc -l > ${FILENAME_PREFIX}.log
 
 # Forward stage: generate all nodes.
 
 for ((curr=0; curr <= MAX_GEN - 1; ++curr)) do
     let next=curr+1
     echo "  forward: $curr -> $next"
-    $CONNECT4 --make-nodes nodes_$curr.dat STDOUT | sort -u > nodes_$next.dat
-    wc -l nodes_$next.dat >> nodes.log
+    $CONNECT4 --make-nodes ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -u | tee ${FILENAME_PREFIX}_nodes_$next.dat | wc -l >> ${FILENAME_PREFIX}.log
 done
 
 # Backward stage: propagate finalized node evaluations backwards.
@@ -68,27 +71,27 @@ done
 echo "Preparing backward traversal ..."
 
 # The last nodes file is already fully correct w.r.t. scores.
-mv nodes_$((MAX_GEN)).dat nodes_with_score_$((MAX_GEN)).dat
+mv ${FILENAME_PREFIX}_nodes_$((MAX_GEN)).dat ${FILENAME_PREFIX}_nodes_with_score_$((MAX_GEN)).dat
 
 for ((curr=MAX_GEN - 1; curr >= 0; --curr)) do
     let next=curr+1
     echo "  backward: $next -> $curr"
-    $CONNECT4 --make-edges nodes_$curr.dat STDOUT | sort |
-      $CONNECT4 --make-edges-with-score STDIN nodes_with_score_$next.dat STDOUT | sort -u |
-        $CONNECT4 --make-nodes-with-score nodes_$curr.dat STDIN nodes_with_score_$curr.dat
-    rm nodes_$curr.dat
+    $CONNECT4 --make-edges ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort |
+      $CONNECT4 --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_$next.dat STDOUT | sort -u |
+        $CONNECT4 --make-nodes-with-score ${FILENAME_PREFIX}_nodes_$curr.dat STDIN ${FILENAME_PREFIX}_nodes_with_score_$curr.dat
+    rm ${FILENAME_PREFIX}_nodes_$curr.dat
 done
 
 # Merge-sort the nodes_with_score files together.
 
 echo "Merging all nodes_with_score files ..."
 
-sort -m nodes_with_score_*.dat > connect4_v${V_SIZE}h${H_SIZE}q${Q}.dat
+sort -m ${FILENAME_PREFIX}_nodes_with_score_*.dat > ${FILENAME_PREFIX}.dat
 
 echo "Converting to binary ..."
 
-$CONNECT4 --make-binary-file connect4_v${V_SIZE}h${H_SIZE}q${Q}.dat connect4_v${V_SIZE}h${H_SIZE}q${Q}.bin
+$CONNECT4 --make-binary-file ${FILENAME_PREFIX}.dat ${FILENAME_PREFIX}.bin
 
 echo "Compressing binary file ..."
 
-xz --keep --force connect4_v${V_SIZE}h${H_SIZE}q${Q}.bin
+xz --keep --force ${FILENAME_PREFIX}.bin
