@@ -58,15 +58,13 @@ class Board
 
         Player entries[V_SIZE][H_SIZE];
 
-    // Friends.
+    // Friends functions.
 
         friend bool operator < (const Board & lhs, const Board & rhs);
 
         friend std::ostream & operator << (std::ostream & out, const Board & board);
 
         friend std::istream & operator >> (std::istream & in, Board & board);
-
-        friend class Permutation;
 };
 
 #endif // BOARD_H
