@@ -330,8 +330,8 @@ static void make_binary_file(const string & in_nodes_filename,
 
 static void print_constants()
 {
-    cout << "V_SIZE=" << V_SIZE << endl;
     cout << "H_SIZE=" << H_SIZE << endl;
+    cout << "V_SIZE=" << V_SIZE << endl;
     cout << "Q=" << Q << endl;
     cout << "NUMBER_OF_POSSIBLE_COLUMNS=" << NUMBER_OF_POSSIBLE_COLUMNS << endl;
     cout << "NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION=" << NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION << endl;
