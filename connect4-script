@@ -71,7 +71,10 @@ done
 echo "Preparing backward traversal ..."
 
 # The last nodes file is already fully correct w.r.t. scores.
+
 mv ${FILENAME_PREFIX}_nodes_$((MAX_GEN)).dat ${FILENAME_PREFIX}_nodes_with_score_$((MAX_GEN)).dat
+
+# Do backward traversal.
 
 for ((curr=MAX_GEN - 1; curr >= 0; --curr)) do
     let next=curr+1
