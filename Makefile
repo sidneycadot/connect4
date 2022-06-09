@@ -5,7 +5,7 @@
 CC=$(CXX)
 CXXFLAGS = -W -Wall -O3 -std=c++14
 
-.PHONY : clean default
+.PHONY : clean default run
 
 TARGET  = connect4
 OBJECTS = board.o column_encoder.o base62.o player.o connect4.o
@@ -19,6 +19,9 @@ default : $(TARGET)
 	@echo
 	@$(PWD)/$(TARGET) --print-constants
 	@echo
+
+run : $(TARGET)
+	./connect4-script
 
 $(TARGET) : $(OBJECTS)
 
