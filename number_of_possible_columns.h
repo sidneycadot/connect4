@@ -38,8 +38,8 @@
 //
 // The calculation is implemented by evaluating the following recursive relations:
 //
-//    number_of_possible_columns(n, q) = 2 ** n - 1                                                       ;;  if n <= q   (Eq.1)
-//    number_of_possible_columns(n, q) = sum(k = [1 .. q-1] number_of_possible_columns(n - k)) + (q + 2)  ;;  if n >  q   (Eq.2)
+//    number_of_possible_columns(n, q) = 2 ** n - 1                                                       ;; if n <= q   (Eq.1)
+//    number_of_possible_columns(n, q) = SUM(k = [1 .. q-1] number_of_possible_columns(n - k)) + (q + 2)  ;; if n >  q   (Eq.2)
 //
 // TODO: Add the justification of Eq.1 and Eq.2.
 
