@@ -8,9 +8,17 @@
 
 #include "number_of_possible_columns.h"
 
+// These are the main constants defines the board size and the connect rule.
+
 const int V_SIZE = 6; // Vertical board size.
 const int H_SIZE = 7; // Horizontal board size.
-const int Q      = 4; // Number of consecutive horizontal/diagonal/vertical cells required to win.
+const int Q      = 4; // The number of connected horizontal/diagonal/vertical chips required to win.
+
+// Apart from these, we need to define some derived constants that define the storage size of a Board
+// when represented in the base-62 ASCII representation and the base-256 binary representation.
+//
+// To calculate those, we need two constexpr functions that enable the compiler to calculate those
+// values at compile-time.
 
 constexpr uint64_t power(unsigned a, unsigned b)
 {
