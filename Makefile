@@ -13,7 +13,9 @@ HEADERS = board.h column_encoder.h base62.h player.h board_size.h files.h
 
 default : $(TARGET)
 	@echo
-	@echo "Compile-time parameters:"
+	@echo "Target '$(TARGET)' is up-to-date."
+	@echo
+	@echo "Compile-time constants:"
 	@echo
 	@$(PWD)/$(TARGET) --print-constants
 	@echo
