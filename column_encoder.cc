@@ -73,6 +73,11 @@ ColumnEncoder::ColumnEncoder()
         }
     }
 
+    if (column_encoded_to_column_ternary.size() != NUMBER_OF_POSSIBLE_COLUMNS)
+    {
+        throw runtime_error("ColumnEncoder::ColumnEncoder: the number of columns found is different from what we expected.");
+    }
+
     // We enumerated the ternary representation of all valid columns.
     // Sort them; the end result of this is the final encoded-to-ternary lookup table.
     sort(column_encoded_to_column_ternary.begin(), column_encoded_to_column_ternary.end());
@@ -81,6 +86,8 @@ ColumnEncoder::ColumnEncoder()
     column_encoded_to_column_ternary.shrink_to_fit();
 
     // Find the highest valid ternary column value from the lookup table.
+    // This enables us to size the 'column_ternary_to_column_encoded' vector to its
+    // optimal size.
 
     const unsigned max_column_ternary = column_encoded_to_column_ternary.back();
 
