@@ -12,7 +12,7 @@
 
 using namespace std;
 
-// Definition of the column encoder.
+// Definition of the static column encoder member.
 ColumnEncoder Board::column_encoder;
 
 // static method
@@ -218,23 +218,8 @@ set<Board> Board::generate_unique_normalized_boards() const
 
 bool operator < (const Board & lhs, const Board & rhs)
 {
-    for (int y = 0; y < V_SIZE; ++y)
-    {
-        for (int x = 0; x < H_SIZE; ++x)
-        {
-            if (lhs.entries[y][x] < rhs.entries[y][x])
-            {
-                return true;
-            }
-            if (lhs.entries[y][x] > rhs.entries[y][x])
-            {
-                return false;
-            }
-        }
-    }
-
-    // The boards are identical, so (lhs < rhs) is false.
-    return false;
+    // We compare boards in accordance with their representation as uint64 values.
+    return lhs.to_uint64() < rhs.to_uint64();
 }
 
 ostream & operator << (ostream & out, const Board & board)
