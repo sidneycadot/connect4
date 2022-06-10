@@ -20,7 +20,7 @@ with open(filename_bfile) as fi:
         #    pass
 
         sum_b += b
-        print("{:2} {:12} x {:10.6f} ; {:5.2f} % {:13} {:6.2f} %".format(a, b, b / b_prev, b / total * 100.0, sum_b, sum_b / total * 100.0))
+        print("{:2}  {:12}  x {:8.6f} ; {:5.2f} %  {:13}  {:6.2f} %".format(a, b, b / b_prev, b / total * 100.0, sum_b, sum_b / total * 100.0))
 
         b_prev = b
 
