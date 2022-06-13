@@ -2,7 +2,7 @@
 CONNECT4 solver and perfect-play GUI
 ====================================
 
-This project contains code to strongly solve the game of CONNECT-4.
+This repository contains code to strongly solve the game of CONNECT-4.
 
 The "solver" subdirectory contains the code that generates a
 perfect-play database.
