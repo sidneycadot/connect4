@@ -6,7 +6,7 @@ To play the 6x5 version of connect-4, put the file "connect4_6x5.bin" in the sam
 
 You can either generate this file yourself, or download a compressed version here:
 
-    https://data.jigsaw.nl/connect4/connect4_6x5.bin.xz
+https://data.jigsaw.nl/connect4/connect4_6x5.bin.xz
 
 Assuming your Python has the PyQt5 package installed, you can now start the GUI by running the "connect4-gui.py" program.
 
