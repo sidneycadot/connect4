@@ -5,9 +5,13 @@ CONNECT-4 SOLVER
 INTRODUCTION
 ------------
 
-This repository contains the code needed to fully enumerate all game states for
+This directory contains the code needed to fully enumerate all game states for
 the game connect-4 (and its generalization 'connect-q'), and to determine, for
 each of those game states, their game-theoretical value.
+
+This implementation can be parametrized to solve different connect-4 "like"
+games, by varying the board size and the number of connnected chips needed
+to win. See "board_size.h" for details.
 
 LIST OF FILES
 -------------
@@ -17,12 +21,13 @@ You are reading it right now.
 
 The LICENSE file contains the MIT license applicable to this code.
 
-The file 'show_gametree_size.py' is a Python script that shows the connect-4
-gametree size at each generation. It uses the file 'b013582.txt', as obtained
-from the Online Encyclopedia of Integer Sequences (OEIS) as a reference.
-This file gives the number of unique boards (up to reflection), at each
-generation. This number should correspond to the number of nodes in each of
-the node files our program generates for the standard 7x6 connect-4 board.
+The file 'show_gametree_size.py' is a Python script that shows the
+connect-4 gametree size at each generation on the standard 7x6 board. It uses
+the file 'b013582.txt', as obtained from the Online Encyclopedia of Integer
+Sequences (OEIS) as a reference. This file gives the number of unique boards
+(up to reflection), at each generation. This number should correspond to the
+number of nodes in each of the node files our program generates for the
+standard 7x6 connect-4 board.
 
 The file 'connect4-script' is a Bash script to run a full forward, backward,
 and combine run for connect-4. It uses a combination of command-line tools,
