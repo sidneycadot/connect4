@@ -5,8 +5,8 @@ import functools
 from typing import Optional
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
-from PyQt5.QtGui import QPalette
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QHBoxLayout, QVBoxLayout, QGridLayout, QPushButton, QTableView
+from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QHBoxLayout, QVBoxLayout, QGridLayout, QPushButton, QTableView, QCheckBox
 
 from player import Player
 from board import Board
@@ -16,6 +16,9 @@ class MoveRecordModel(QAbstractTableModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.move_record = []
+
+    def __len__(self):
+        return len(self.move_record)
 
     def rowCount(self, parent):
         return (len(self.move_record) + 1) // 2
@@ -68,7 +71,7 @@ class MoveRecordModel(QAbstractTableModel):
 
 class Connect4Widget(QWidget):
 
-    PLAYER_NONE_COLOR = Qt.gray
+    PLAYER_NONE_COLOR = Qt.white
     PLAYER_A_COLOR    = Qt.red
     PLAYER_B_COLOR    = Qt.yellow
 
@@ -76,6 +79,17 @@ class Connect4Widget(QWidget):
         super().__init__(*args, **kwargs)
 
         self.move_record_model = MoveRecordModel()
+
+        #palette = self.palette()
+        #palette.setColor(QPalette.ColorRole.Window, QColor("#66acd1"))
+        #self.setPalette(palette)
+        #self.setAutoFillBackground(True) 
+
+        self.status_widget = QLabel()
+        self.status_widget.setAlignment(Qt.AlignCenter)
+        font = self.status_widget.font()
+        font.setBold(True)
+        self.status_widget.setFont(font)
 
         grid_layout = QGridLayout()
 
@@ -114,17 +128,25 @@ class Connect4Widget(QWidget):
             grid_layout.addWidget(button, Board.V_SIZE + 1, x)
             self.drop_buttons.append(button)
 
+        game_state_checkbox = QCheckBox("Show game state")
+        game_state_checkbox.setChecked(True)
+        game_state_checkbox.stateChanged.connect(self.update_gui)
+
+        move_info_checkbox = QCheckBox("Show move info")
+        move_info_checkbox.setChecked(True)
+        move_info_checkbox.stateChanged.connect(self.update_gui)
+
+        left_checkbox_layout = QHBoxLayout()
+        left_checkbox_layout.addStretch()
+        left_checkbox_layout.addWidget(game_state_checkbox)
+        left_checkbox_layout.addStretch()
+        left_checkbox_layout.addWidget(move_info_checkbox)
+        left_checkbox_layout.addStretch()
+
         left_layout = QVBoxLayout()
-
-        self.status_widget = QLabel()
-        self.status_widget.setAlignment(Qt.AlignCenter)
-        font = self.status_widget.font()
-        font.setBold(True)
-        self.status_widget.setFont(font)
-
         left_layout.addWidget(self.status_widget)
         left_layout.addLayout(grid_layout)
-
+        left_layout.addLayout(left_checkbox_layout)
 
         self.move_record_widget = QTableView()
         self.move_record_widget.setModel(self.move_record_model)
@@ -135,22 +157,27 @@ class Connect4Widget(QWidget):
         takeback_button = QPushButton("Takeback")
         takeback_button.clicked.connect(self.takeback)
 
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-        button_layout.addWidget(reset_button)
-        button_layout.addStretch()
-        button_layout.addWidget(takeback_button)
-        button_layout.addStretch()
+        right_button_layout = QHBoxLayout()
+        right_button_layout.addStretch()
+        right_button_layout.addWidget(reset_button)
+        right_button_layout.addStretch()
+        right_button_layout.addWidget(takeback_button)
+        right_button_layout.addStretch()
 
         right_layout = QVBoxLayout()
         right_layout.addWidget(self.move_record_widget)
-        right_layout.addLayout(button_layout)
+        right_layout.addLayout(right_button_layout)
 
         h_layout = QHBoxLayout()
         h_layout.addLayout(left_layout)
         h_layout.addLayout(right_layout)
 
         self.setLayout(h_layout)
+
+        self.game_state_checkbox = game_state_checkbox
+        self.move_info_checkbox = move_info_checkbox
+        self.takeback_button = takeback_button
+        self.reset_button = reset_button
 
         self.update_gui()
 
@@ -236,36 +263,58 @@ class Connect4Widget(QWidget):
                 self.drop_buttons[col].setEnabled(True)
                 drop_board_evaluation = app.lookup(drop_board)
                 if drop_board_evaluation.player == Player.NONE:
-                    self.drop_labels[col].setText("draw\n(-)")
+                    self.drop_labels[col].setText("draw\n({})".format(Board.H_SIZE * Board.V_SIZE - len(self.move_record_model)))
                 if drop_board_evaluation.player == Player.A:
-                    self.drop_labels[col].setText("red\n({})".format(drop_board_evaluation.winply))
+                    self.drop_labels[col].setText("<font color=\"red\">red win<br>({})</font>".format(drop_board_evaluation.winply))
                 if drop_board_evaluation.player == Player.B:
-                    self.drop_labels[col].setText("yellow\n({})".format(drop_board_evaluation.winply))
+                    self.drop_labels[col].setText("<font color=\"yellow\">yellow win<br>({})</font>".format(drop_board_evaluation.winply))
 
-        if moves_available:
-            if mover == Player.A:
-                status_messages.append("red has the move")
+                self.drop_labels[col].setVisible(self.move_info_checkbox.isChecked())
+
+
+        # game over; red wins.
+        # game over; yellow wins.
+        # game over; draw.
+        # red to move and has a xxx-ply win.
+        # red to move and can draw.
+        # red to move; yellow has a xxx-ply win.
+        # yellow to move and has a xxx-ply win.
+        # yellow to move and can draw.
+        # yellow to move; yellow has a xxx-ply win.
+
+        if not moves_available:
+            if evaluation.player == Player.A:
+                status_message = "game over; red wins."
+            elif evaluation.player == Player.B:
+                status_message = "game over; yellow wins."
             else:
-                status_messages.append("yellow has the move")
+                status_message = "game over; draw."
         else:
-            status_messages.append("game over")
-
-        if evaluation.player == Player.NONE:
-            status_messages.append("the game is a draw")
-        elif evaluation.player == Player.A:
-            if evaluation.winply == 0:
-                status_messages.append("red wins")
+            if self.game_state_checkbox.isChecked():
+                if mover == Player.A:
+                    if evaluation.player == Player.A:
+                        status_message = "<font color=\"red\">red</font> to move and has a {}-ply win.".format(evaluation.winply)
+                    elif evaluation.player == Player.B:
+                        status_message = "<font color=\"red\">red</font> to move but <font color=\"yellow\">yellow</font> has a {}-ply win.".format(evaluation.winply)
+                    else:
+                        status_message = "<font color=\"red\">red</font> to move and can draw."
+                elif mover == Player.B:
+                    if evaluation.player == Player.B:
+                        status_message = "<font color=\"yellow\">yellow</font> to move and has a {}-ply win.".format(evaluation.winply)
+                    elif evaluation.player == Player.A:
+                        status_message = "<font color=\"yellow\">yellow</font> to move but <font color=\"red\">red</font> has a {}-ply win.".format(evaluation.winply)
+                    else:
+                        status_message = "<font color=\"yellow\">yellow</font> to move and can draw."
             else:
-                status_messages.append("red has a {}-ply win".format(evaluation.winply))
-        elif evaluation.player == Player.B:
-            if evaluation.winply == 0:
-                status_messages.append("yellow wins")
-            else:
-                status_messages.append("yellow has a {}-ply win".format(evaluation.winply))
-
-        status_message = "; ".join(status_messages)
+                if mover == Player.A:
+                    status_message = "<font color=\"red\">red</font> to move."
+                elif mover == Player.B:
+                    status_message = "<font color=\"yellow\">yellow</font> to move."
 
         self.status_widget.setText(status_message)
+
+        self.takeback_button.setEnabled(len(self.move_record_model) != 0)
+        self.reset_button.setEnabled(len(self.move_record_model) != 0)
 
 class MyMainWindow(QMainWindow):
 
