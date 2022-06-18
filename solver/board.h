@@ -14,6 +14,7 @@
 
 #include "column_encoder.h"
 #include "player.h"
+#include "score.h"
 #include "board_size.h"
 
 class Board
@@ -27,7 +28,11 @@ class Board
         Player mover() const;
 
         // Determine if the game has a connect-Q and, if so, for which player.
-        Player winner() const;
+        Score score() const;
+
+        unsigned count() const;
+
+        bool full() const;
 
         // Normalize the board (i.e., return the smallest board, identical up to symmetry).
         Board normalize() const;

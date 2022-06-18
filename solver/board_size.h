@@ -10,8 +10,8 @@
 
 // These are the main constants defines the board size and the connect rule.
 
-const int H_SIZE = 6; // Horizontal board size.
-const int V_SIZE = 5; // Vertical board size.
+const int H_SIZE = 5; // Horizontal board size.
+const int V_SIZE = 4; // Vertical board size.
 const int Q      = 4; // The number of connected horizontal/diagonal/vertical chips required to win.
 
 // Apart from these, we need to define some derived constants that define the storage size of a Board
@@ -38,6 +38,6 @@ const uint64_t NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION = power(NUMBER_OF_POSSI
 const unsigned NUM_BASE62_BOARD_DIGITS  = num_digits_required( 62, NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION);
 const unsigned NUM_BASE256_BOARD_DIGITS = num_digits_required(256, NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION);
 
-const unsigned NUM_BASE62_SCORE_DIGITS = 1; // Assume that winply can always be represented as a 1-character base62 string.
+const unsigned NUM_BASE62_SCOREPLY_DIGITS = 1; // Assume that winply can always be represented as a 1-character base62 string.
 
 #endif // BOARD_SIZE_H

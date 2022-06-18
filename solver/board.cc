@@ -112,13 +112,33 @@ Player Board::mover() const
     }
 }
 
+
+unsigned Board::count() const
+{
+    // TODO: we can get rid of this method at some point.
+    unsigned counter = 0;
+
+    for (int y = 0; y < V_SIZE; ++y)
+    {
+        for (int x = 0; x < H_SIZE; ++x)
+        {
+            if (entries[y][x] != Player::NONE)
+            {
+                ++counter;
+            }
+        }
+    }
+
+    return counter;
+}
+
 // static method
 bool Board::is_valid_coordinate(int x, int y)
 {
     return (0 <= x) && (x < H_SIZE) && (0 <= y) && (y < V_SIZE);
 }
 
-Player Board::winner() const
+Score Board::score() const
 {
     bool player_a_wins = false;
     bool player_b_wins = false;
@@ -155,7 +175,7 @@ Player Board::winner() const
                             {
                                 case Player::A : player_a_wins = true; break;
                                 case Player::B : player_b_wins = true; break;
-                                default        : throw runtime_error("Board::winner: bad winner");
+                                default        : throw runtime_error("Board::score: bad winner");
                             }
                         } // found winning stretch
                     } // coordinates in the stretch are all valid
@@ -166,10 +186,10 @@ Player Board::winner() const
 
     if (player_a_wins && player_b_wins)
     {
-        throw runtime_error("Board::winner: multiple winners");
+        throw runtime_error("Board::score: multiple winners");
     }
 
-    return player_a_wins ? Player::A : player_b_wins ? Player::B : Player::NONE;
+    return player_a_wins ? Score::A_WINS : player_b_wins ? Score::B_WINS : full() ? Score::DRAW : Score::INDETERMINATE;
 }
 
 Board Board::normalize() const
@@ -195,7 +215,7 @@ set<Board> Board::generate_unique_normalized_boards() const
 
     set<Board> next_boards;
 
-    if (winner() == Player::NONE)
+    if (score() == Score::INDETERMINATE)
     {
         const Player player = mover();
         for (int x = 0; x < H_SIZE; ++x)
@@ -216,9 +236,22 @@ set<Board> Board::generate_unique_normalized_boards() const
     return next_boards;
 }
 
+bool Board::full() const
+{
+    for (int x = 0; x < H_SIZE; ++x)
+    {
+        if (entries[0][x] == Player::NONE)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 bool operator < (const Board & lhs, const Board & rhs)
 {
-    // We compare boards in accordance with their representation as uint64 values.
+    // We compare boards according to their representation as uint64 values.
     return lhs.to_uint64() < rhs.to_uint64();
 }
 
