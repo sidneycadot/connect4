@@ -31,14 +31,13 @@ istream & operator >> (istream & in, Outcome & outcome)
             case INDETERMINATE_CHAR : outcome = Outcome::INDETERMINATE; break;
             default : throw runtime_error("Outcome from input stream: bad character.");
         }
-        score.ply = base62_string_to_uint64(ply_string);
     }
     return in;
 }
 
 ostream & operator << (ostream & out, const Outcome & outcome)
 {
-    switch (score.outcome)
+    switch (outcome)
     {
         case Outcome::A_WINS        : out << A_WINS_CHAR; break;
         case Outcome::B_WINS        : out << B_WINS_CHAR; break;

@@ -368,9 +368,9 @@ static void upgrade_binary_file(const string & in_nodes_filename,
             n += octets[i];
         }
 
-        Board board = Board::from_uint64(n);
+        const Board board = Board::from_uint64(n);
 
-        uint8_t old_style_score = octets[NUM_BASE256_BOARD_DIGITS];
+        const uint8_t old_style_score = octets[NUM_BASE256_BOARD_DIGITS];
         Score new_style_score;
 
         if (old_style_score > 0 && old_style_score <= 127)
@@ -401,14 +401,22 @@ static void print_info(const string & in_nodes_filename)
 
     istream & in_nodes = in_nodes_file.get_istream_reference();
 
-    Board board;
-    Score score;
-
     vector<uint64_t> occurrences;
 
-    while (in_nodes >> board >> score)
+    uint8_t octets[NUM_BASE256_BOARD_DIGITS + 1];
+
+    while (in_nodes.read(reinterpret_cast<char *>(octets), NUM_BASE256_BOARD_DIGITS + 1))
     {
-        const unsigned index = board.count() * 256 + score.to_uint8();
+        uint64_t n = 0;
+        for (unsigned i = 0; i < NUM_BASE256_BOARD_DIGITS; ++i)
+        {
+            n *= 256;
+            n += octets[i];
+        }
+
+        const Board board = Board::from_uint64(n);
+
+        const unsigned index = board.count() * 256 + octets[NUM_BASE256_BOARD_DIGITS];
         if (index >= occurrences.size())
         {
             occurrences.resize(index + 1);
@@ -421,12 +429,10 @@ static void print_info(const string & in_nodes_filename)
         if (occurrences[index] != 0)
         {
             const Score score = Score::from_uint8(index % 256);
-            cout << (index / 256) << '\t' << score.outcome << '\t' << score.ply << endl;
+            cout << "moves " << setw(2) << (index / 256) << " outcome " << score.outcome << " ply " << setw(2) << score.ply << " count " << setw(10) << occurrences[index] << endl;
         }
     }
 }
-
-henk;
 
 static void print_constants()
 {
