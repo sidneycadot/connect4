@@ -44,7 +44,7 @@ fi
 # Make sure the datadir exists.
 mkdir -p $DATADIR
 
-FILENAME_PREFIX=${DATADIR}/connect${Q}_${H_SIZE}x${V_SIZE}
+FILENAME_PREFIX=${DATADIR}/connect${CONNECT_Q}_${H_SIZE}x${V_SIZE}
 
 # Make the sort tool stupid (sort by byte order).
 #

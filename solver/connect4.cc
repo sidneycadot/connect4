@@ -398,7 +398,7 @@ static void print_constants()
 {
     cout << "H_SIZE=" << H_SIZE << endl;
     cout << "V_SIZE=" << V_SIZE << endl;
-    cout << "Q=" << Q << endl;
+    cout << "CONNECT_Q=" << CONNECT_Q << endl;
     cout << "NUMBER_OF_POSSIBLE_COLUMNS=" << NUMBER_OF_POSSIBLE_COLUMNS << endl;
     cout << "NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION=" << NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION << endl;
     cout << "NUM_BASE62_BOARD_DIGITS=" << NUM_BASE62_BOARD_DIGITS << endl;

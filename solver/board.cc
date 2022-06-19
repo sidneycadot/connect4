@@ -159,10 +159,10 @@ Outcome Board::trivial_outcome() const
                     const int dx = directions[d][0];
                     const int dy = directions[d][1];
 
-                    if (is_valid_coordinate(x + dx * (Q - 1), y + dy * (Q - 1)))
+                    if (is_valid_coordinate(x + dx * (CONNECT_Q - 1), y + dy * (CONNECT_Q - 1)))
                     {
                         bool found_win = true;
-                        for (int i = 1; i < Q; ++i)
+                        for (int i = 1; i < CONNECT_Q; ++i)
                         {
                             if (entries[y + dy * i][x + dx * i] != player)
                             {

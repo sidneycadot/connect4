@@ -47,11 +47,11 @@ ColumnEncoder::ColumnEncoder()
         {
             bool has_winner = false;
 
-            if (col.size() >= Q)
+            if (col.size() >= CONNECT_Q)
             {
                 has_winner = true;
 
-                for (int i = 1; i < Q; ++i)
+                for (int i = 1; i < CONNECT_Q; ++i)
                 {
                     if (col[col.size() - 1] != col[col.size() - 1 - i])
                     {
