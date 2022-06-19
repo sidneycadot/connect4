@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <iomanip>
+#include <string>
 
 #include "score.h"
 #include "base62.h"
@@ -15,6 +16,8 @@ const unsigned PLY_DIGITS = 1; // Number of base-62 digits to use for the "ply" 
 
 istream & operator >> (istream & in, Score & score)
 {
+    string ply_string;
+
     if (in)
     {
         in >> score.outcome >> setw(PLY_DIGITS) >> ply_string;
@@ -47,6 +50,8 @@ uint8_t Score::to_uint8() const
 // static method
 Score Score::from_uint8(uint8_t score_octet)
 {
+    Outcome outcome = Outcome::INDETERMINATE;
+
     switch (score_octet & 0xc0)
     {
         case 0x40: outcome = Outcome::A_WINS; break;
