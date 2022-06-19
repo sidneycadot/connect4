@@ -19,7 +19,7 @@
 
 using namespace std;
 
-static void write_node_with_trivial_score(ostream & out_stream, const Board & board)
+static void write_node_with_trivial_outcome(ostream & out_stream, const Board & board)
 {
     // During the inital and forward steps, we mark boards that we can determine by immediate
     // inspection as won-in-0 (i.e., one of the players has a four-in-a-row): "A0" or "B0",
@@ -37,8 +37,8 @@ static void make_initial_node(const string & out_filename)
 
     ostream & out = out_file.get_ostream_reference();
 
-    const Board initial = Board::empty();
-    write_node_with_trivial_score(out, initial);
+    const Board initial_board = Board::make_empty();
+    write_node_with_trivial_outcome(out, initial_board);
 }
 
 static void make_nodes(const string & in_nodes_filename,
@@ -62,11 +62,11 @@ static void make_nodes(const string & in_nodes_filename,
 
     while (in_nodes >> board >> score)
     {
-        const set<Board> unique_boards = board.generate_unique_normalized_boards();
+        const set<Board> unique_normalized_boards = board.generate_unique_normalized_boards();
 
-        for (const Board & unique_board: unique_boards)
+        for (const Board & unique_normalized_board: unique_normalized_boards)
         {
-            write_node_with_trivial_score(out_nodes, unique_board);
+            write_node_with_trivial_outcome(out_nodes, unique_normalized_board);
         }
     }
 }
@@ -78,7 +78,7 @@ static void make_edges(const string & in_nodes_filename,
     // can be traversed by starting at a node found in the input file, and
     // making 1 move.
     //
-    // The edges are writted starting with the destination node followed
+    // Each edge is written starting with the destination node followed
     // by the source node. This is done so that a sorted version of the
     // output can be used to determine the value of each edge, by combining
     // the file with a file containing node evaluations of the destination node.
@@ -97,12 +97,12 @@ static void make_edges(const string & in_nodes_filename,
 
     while (in_nodes >> board >> score)
     {
-        const set<Board> unique_boards = board.generate_unique_normalized_boards();
+        const set<Board> unique_normalized_boards = board.generate_unique_normalized_boards();
 
-        for (const Board & unique_board: unique_boards)
+        for (const Board & unique_normalized_board: unique_normalized_boards)
         {
             // Write destination, followed by source.
-            out_edges << unique_board << board << '\n';
+            out_edges << unique_normalized_board << board << '\n';
         }
     }
 }
@@ -128,14 +128,14 @@ static void make_edges_with_score(const string & in_edges_filename,
     istream & in_nodes_with_score  = in_nodes_with_score_file.get_istream_reference();
     ostream & out_edges_with_score = out_edges_with_score_file.get_ostream_reference();
 
-    string edge_src, edge_dst;
+    string edge_src_string, edge_dst_string;
 
     string board_string;
     Score score;
 
-    while (in_edges >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_dst >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_src)
+    while (in_edges >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_dst_string >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_src_string)
     {
-        if (edge_dst != board_string)
+        if (edge_dst_string != board_string)
         {
             in_nodes_with_score >> setw(NUM_BASE62_BOARD_DIGITS) >> board_string >> score;
             if (!in_nodes_with_score)
@@ -143,12 +143,12 @@ static void make_edges_with_score(const string & in_edges_filename,
                 throw runtime_error("make_edges_with_score: bad read.");
             }
 
-            if (edge_dst != board_string)
+            if (edge_dst_string != board_string)
             {
-                throw runtime_error("make_edges_with_score: didn't find score node we expected.");
+                throw runtime_error("make_edges_with_score: didn't find the node we expected.");
             }
         }
-        out_edges_with_score << edge_src << score << '\n';
+        out_edges_with_score << edge_src_string << score << '\n';
     }
 }
 
@@ -217,17 +217,19 @@ static void make_nodes_with_score(const string & in_nodes_filename,
 
                     if (edge_score.outcome == Outcome::DRAW)
                     {
+                        const unsigned draw_ply = edge_score.ply + 1;
+
                         if (node_mover_has_draw)
                         {
-                            if (edge_score.ply + 1 != node_mover_any_draw)
+                            if (draw_ply != node_mover_any_draw)
                             {
-                                throw runtime_error("multiple draw-in-n values encountered");
+                                throw runtime_error("multiple draw-in-n ply values encountered");
                             }
                         }
                         else
                         {
                             node_mover_has_draw = true;
-                            node_mover_any_draw = edge_score.ply + 1;
+                            node_mover_any_draw = draw_ply;
                         }
                     }
                     else if ((node_mover == Player::A && edge_score.outcome == Outcome::A_WINS) || (node_mover == Player::B && edge_score.outcome == Outcome::B_WINS))
@@ -249,13 +251,13 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                     }
                     else // The mover loses
                     {
-                        const unsigned lose_ply = edge_score.ply + 1;
+                        const unsigned loss_ply = edge_score.ply + 1;
 
                         if (node_mover_has_loss)
                         {
-                            if (lose_ply > node_mover_max_loss)
+                            if (loss_ply > node_mover_max_loss)
                             {
-                                node_mover_max_loss = lose_ply;
+                                node_mover_max_loss = loss_ply;
                             }
                         }
                         else
@@ -268,8 +270,8 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                 }
                 else
                 {
-                    // Either we reached the end of the 'in_edges_with_score' stream, or the edge just read for is is not
-                    // relevant for the currently processed node (board). In either case, we can now calculate the evaluation
+                    // Either we reached the end of the 'in_edges_with_score' stream, or the edge just read from it is not
+                    // relevant to the currently processed node (board). In either case, we can now calculate the evaluation
                     // for the current node.
 
                     if (node_mover_has_win)
@@ -297,7 +299,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
 
                     break; // Proceed to the next board.
                 }
-            } // while loop for reading edges for the current node (board).
+            } // While loop for reading edges for the current node (board).
         } // Visiting a node that has no trivial winner. Determine win/lose/draw state for the node.
     } // Walk the nodes.
 }
@@ -410,13 +412,15 @@ static void print_info(const string & in_nodes_filename)
         uint64_t n = 0;
         for (unsigned i = 0; i < NUM_BASE256_BOARD_DIGITS; ++i)
         {
-            n *= 256;
+            n *= 512;
             n += octets[i];
         }
 
         const Board board = Board::from_uint64(n);
 
-        const unsigned index = board.count() * 256 + octets[NUM_BASE256_BOARD_DIGITS];
+        const bool is_symmetric = board.is_symmetric();
+
+        const unsigned index = board.count() * 512 + (is_symmetric ? 256 : 0) + octets[NUM_BASE256_BOARD_DIGITS];
         if (index >= occurrences.size())
         {
             occurrences.resize(index + 1);
@@ -429,7 +433,8 @@ static void print_info(const string & in_nodes_filename)
         if (occurrences[index] != 0)
         {
             const Score score = Score::from_uint8(index % 256);
-            cout << "moves " << setw(2) << (index / 256) << " outcome " << score.outcome << " ply " << setw(2) << score.ply << " count " << setw(10) << occurrences[index] << endl;
+            const bool is_symmetric = (index & 256) != 0;
+            cout << "moves " << setw(2) << (index / 512) << " symmetric " << is_symmetric << " outcome " << score.outcome << " ply " << setw(2) << score.ply << " count " << setw(10) << occurrences[index] << endl;
         }
     }
 }

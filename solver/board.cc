@@ -16,7 +16,7 @@ using namespace std;
 ColumnEncoder Board::column_encoder;
 
 // static method
-Board Board::empty()
+Board Board::make_empty()
 {
     Board board;
 
@@ -190,7 +190,28 @@ Outcome Board::trivial_outcome() const
         throw runtime_error("Board::trivial_outcome: multiple winners found, which is impossible.");
     }
 
-    return player_a_wins ? Outcome::A_WINS : player_b_wins ? Outcome::B_WINS : full() ? Outcome::DRAW : Outcome::INDETERMINATE;
+    return player_a_wins ? Outcome::A_WINS : player_b_wins ? Outcome::B_WINS : is_full() ? Outcome::DRAW : Outcome::INDETERMINATE;
+}
+
+bool is_symmetric() const
+{
+    for (int y = 0; y < V_SIZE; ++y)
+    {
+        for (int x = 0; ; ++x)
+        {
+            const int x_mirrored = (H_SIZE - 1) - x;
+
+            if (x >= x_mirrored)
+            {
+                break;
+            }
+            if (entries[y][x] != entries[y][x_mirrored])
+            {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 Board Board::normalize() const
@@ -237,7 +258,7 @@ set<Board> Board::generate_unique_normalized_boards() const
     return next_boards;
 }
 
-bool Board::full() const
+bool Board::is_full() const
 {
     for (int x = 0; x < H_SIZE; ++x)
     {

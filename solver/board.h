@@ -22,7 +22,7 @@ class Board
     public:
 
         // Make an empty board.
-        static Board empty();
+        static Board make_empty();
 
         // Determine which player has the move.
         Player mover() const;
@@ -36,7 +36,10 @@ class Board
         unsigned count() const;
 
         // Check if the Board is full.
-        bool full() const;
+        bool is_full() const;
+
+        // Return a horizontally mirrored copy of the board.
+        Board Board::is_symmetric() const
 
         // Normalize the board (i.e., return the smallest board, identical up to horizontal reflection).
         Board normalize() const;
