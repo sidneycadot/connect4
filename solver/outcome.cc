@@ -4,10 +4,9 @@
 ////////////////
 
 #include <stdexcept>
-#include <iomanip>
 
-#include "outcome.h"
 #include "base62.h"
+#include "outcome.h"
 
 using namespace std;
 
@@ -15,8 +14,6 @@ const char A_WINS_CHAR        = 'A';
 const char B_WINS_CHAR        = 'B';
 const char DRAW_CHAR          = '-';
 const char INDETERMINATE_CHAR = '?';
-
-const unsigned PLY_DIGITS = 1; // Number of base-62 digits to use for the "ply" field.
 
 istream & operator >> (istream & in, Outcome & outcome)
 {
