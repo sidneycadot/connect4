@@ -9,6 +9,11 @@
 #include <istream>
 #include <ostream>
 
+// The Outcome represents the game-theoretical outcome of a game position,
+// assuming both players play optimally.
+//
+// The "INDETERMINATE" value is used when the Outcome cannot (yet) be determined.
+
 enum class Outcome {
     A_WINS,
     B_WINS,
@@ -28,7 +33,7 @@ struct Score {
     uint8_t to_uint8() const;
 
     Outcome  outcome; // Game-theoretical result.
-    unsigned ply;     // Plies until the result is final assuming optimal play on both sides. 0 if INDETERMINATE.
+    unsigned ply;     // Plies until the result is final, assuming optimal play on both sides. 0 if INDETERMINATE.
 };
 
 std::istream & operator >> (std::istream & in, Score & score);
