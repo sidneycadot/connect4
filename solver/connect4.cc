@@ -12,6 +12,7 @@
 
 #include "base62.h"
 #include "player.h"
+#include "score.h"
 #include "board_size.h"
 #include "board.h"
 #include "files.h"
