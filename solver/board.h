@@ -27,11 +27,13 @@ class Board
         // Determine which player has the move.
         Player mover() const;
 
-        // Determine if the game has a connect-Q and, if so, for which player.
+        // Determine if the board has a connect-Q and, if so, for which player.
         Score score() const;
 
+        // Count the number of occupied slices, which is identical to the move number.
         unsigned count() const;
 
+        // Check if the Board is full.
         bool full() const;
 
         // Normalize the board (i.e., return the smallest board, identical up to symmetry).

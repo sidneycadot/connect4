@@ -140,6 +140,8 @@ bool Board::is_valid_coordinate(int x, int y)
 
 Score Board::score() const
 {
+    // Find the score of the Board if it can be determined by direct inspection.
+
     bool player_a_wins = false;
     bool player_b_wins = false;
 
@@ -186,10 +188,12 @@ Score Board::score() const
 
     if (player_a_wins && player_b_wins)
     {
-        throw runtime_error("Board::score: multiple winners");
+        throw runtime_error("Board::score: multiple winners found, which is impossible.");
     }
 
-    return player_a_wins ? Score::A_WINS : player_b_wins ? Score::B_WINS : full() ? Score::DRAW : Score::INDETERMINATE;
+    const Outcome outcome = player_a_wins ? Outcome::A_WINS : player_b_wins ? Outcome::B_WINS : full() ? Outcome::DRAW : Outcome::INDETERMINATE;
+
+    return Score(outcome, 0);
 }
 
 Board Board::normalize() const
@@ -215,7 +219,7 @@ set<Board> Board::generate_unique_normalized_boards() const
 
     set<Board> next_boards;
 
-    if (score() == Score::INDETERMINATE)
+    if (score().outcome == Outcome::INDETERMINATE)
     {
         const Player player = mover();
         for (int x = 0; x < H_SIZE; ++x)
@@ -247,7 +251,6 @@ bool Board::full() const
     }
     return true;
 }
-
 
 bool operator < (const Board & lhs, const Board & rhs)
 {

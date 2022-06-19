@@ -25,7 +25,7 @@ static void write_node_with_trivial_score(ostream & out_stream, const Board & bo
     // or draw in zero: "-0".
     // If we cannot determine the node evaluation, we write "unknown" which is marked as "?0".
 
-    out_stream << board << board.score() << uint64_to_base62_string(0, NUM_BASE62_SCOREPLY_DIGITS) << '\n';
+    out_stream << board << board.score() << '\n';
 }
 
 static void make_initial_node(const string & out_filename)
@@ -56,11 +56,10 @@ static void make_nodes(const string & in_nodes_filename,
     istream & in_nodes  = in_nodes_file.get_istream_reference();
     ostream & out_nodes = out_nodes_file.get_ostream_reference();
 
-    Board  board;
-    Score  score;
-    char   scoreply_encoded;
+    Board board;
+    Score score;
 
-    while (in_nodes >> board >> score >> scoreply_encoded)
+    while (in_nodes >> board >> score)
     {
         const set<Board> unique_boards = board.generate_unique_normalized_boards();
 
@@ -92,11 +91,10 @@ static void make_edges(const string & in_nodes_filename,
     istream & in_nodes  = in_nodes_file.get_istream_reference();
     ostream & out_edges = out_edges_file.get_ostream_reference();
 
-    Board  board;
-    Score  score;
-    char   scoreply_encoded;
+    Board board;
+    Score score;
 
-    while (in_nodes >> board >> score >> scoreply_encoded)
+    while (in_nodes >> board >> score)
     {
         const set<Board> unique_boards = board.generate_unique_normalized_boards();
 
@@ -131,26 +129,25 @@ static void make_edges_with_score(const string & in_edges_filename,
 
     string edge_src, edge_dst;
 
-    string board;
-    Score  score;
-    char   scoreply_encoded;
+    string board_string;
+    Score score;
 
     while (in_edges >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_dst >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_src)
     {
-        if (edge_dst != board)
+        if (edge_dst != board_string)
         {
-            in_nodes_with_score >> setw(NUM_BASE62_BOARD_DIGITS) >> board >> score >> scoreply_encoded;
+            in_nodes_with_score >> setw(NUM_BASE62_BOARD_DIGITS) >> board_string >> score;
             if (!in_nodes_with_score)
             {
                 throw runtime_error("make_edges_with_score: bad read.");
             }
 
-            if (edge_dst != board)
+            if (edge_dst != board_string)
             {
                 throw runtime_error("make_edges_with_score: didn't find score node we expected.");
             }
         }
-        out_edges_with_score << edge_src << score << scoreply_encoded << '\n';
+        out_edges_with_score << edge_src << score << '\n';
     }
 }
 
@@ -169,21 +166,19 @@ static void make_nodes_with_score(const string & in_nodes_filename,
     istream & in_edges_with_score  = in_edges_with_score_file.get_istream_reference();
     ostream & out_nodes_with_score = out_nodes_with_score_file.get_ostream_reference();
 
-    string node_board_encoded;
+    string node_board_string;
     Score  node_score;
-    char   node_scoreply_encoded;
 
     bool   edge_score_valid = false; // Are the values below valid (i.e., read from the input, but yet unused)?
-    string edge_score_board_encoded;
+    string edge_score_board_string;
     Score  edge_score;
-    string edge_scoreply_encoded;
 
-    while (in_nodes >> setw(NUM_BASE62_BOARD_DIGITS) >> node_board_encoded >> node_score >> node_scoreply_encoded)
+    while (in_nodes >> setw(NUM_BASE62_BOARD_DIGITS) >> node_board_string >> node_score)
     {
-        if (node_score != Score::INDETERMINATE)
+        if (node_score.outcome != Outcome::INDETERMINATE)
         {
             // The node has a determined result. No outgoing edges need to be checked, we can just write the result.
-            out_nodes_with_score << node_board_encoded << node_score << node_scoreply_encoded << '\n';
+            out_nodes_with_score << node_board_string << node_score << '\n';
         }
         else
         {
@@ -191,7 +186,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
             // its outgoing edges and their results as available in the 'in_edges_with_score' input stream.
             // For each indeterminate-result node, at least one such entry will be available.
 
-            const Board board = Board::from_base62_string(node_board_encoded);
+            const Board board = Board::from_base62_string(node_board_string);
             const Player node_mover = board.mover();
 
             bool node_mover_has_draw = false;
@@ -200,13 +195,13 @@ static void make_nodes_with_score(const string & in_nodes_filename,
 
             unsigned node_mover_min_win  = 0;
             unsigned node_mover_max_loss = 0;
-            unsigned node_mover_all_draw = 0;
-            
+            unsigned node_mover_any_draw = 0;
+
             while (true)
             {
                 if (!edge_score_valid)
                 {
-                    if (in_edges_with_score >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_score_board_encoded >> edge_score >> setw(NUM_BASE62_SCOREPLY_DIGITS) >> edge_scoreply_encoded)
+                    if (in_edges_with_score >> setw(NUM_BASE62_BOARD_DIGITS) >> edge_score_board_string >> edge_score)
                     {
                         edge_score_valid = true;
                     }
@@ -214,16 +209,16 @@ static void make_nodes_with_score(const string & in_nodes_filename,
 
                 // If 'edge_score_valid' is false here, we have reached the end of the 'in_edges_with_score' input stream.
 
-                if (edge_score_valid && edge_score_board_encoded == node_board_encoded)
+                if (edge_score_valid && edge_score_board_string == node_board_string)
                 {
                     // We have a valid edge score, and it does contain information relevant to the current board (node).
                     // Update the 'node_mover_*' variables with the new information provided by this edge.
 
-                    if (edge_score == Score::DRAW)
+                    if (edge_score.outcome == Outcome::DRAW)
                     {
                         if (node_mover_has_draw)
                         {
-                            if (base62_string_to_uint64(edge_scoreply_encoded) + 1 != node_mover_all_draw)
+                            if (edge_score.ply + 1 != node_mover_any_draw)
                             {
                                 throw runtime_error("multiple draw-in-n values encountered");
                             }
@@ -231,41 +226,41 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                         else
                         {
                             node_mover_has_draw = true;
-                            node_mover_all_draw = base62_string_to_uint64(edge_scoreply_encoded) + 1;
+                            node_mover_any_draw = edge_score.ply + 1;
                         }
                     }
-                    else if ((node_mover == Player::A && edge_score == Score::A_WINS) || (node_mover == Player::B && edge_score == Score::B_WINS))
+                    else if ((node_mover == Player::A && edge_score.outcome == Outcome::A_WINS) || (node_mover == Player::B && edge_score.outcome == Outcome::B_WINS))
                     {
-                        const unsigned score_winply = base62_string_to_uint64(edge_scoreply_encoded) + 1;
+                        const unsigned win_ply = edge_score.ply + 1;
 
                         if (node_mover_has_win)
                         {
-                            if (score_winply < node_mover_min_win)
+                            if (win_ply < node_mover_min_win)
                             {
-                                node_mover_min_win = score_winply;
+                                node_mover_min_win = win_ply;
                             }
                         }
                         else
                         {
                             node_mover_has_win = true;
-                            node_mover_min_win = score_winply;
+                            node_mover_min_win = win_ply;
                         }
                     }
-                    else // we lose
+                    else // The mover loses
                     {
-                        const unsigned score_winply = base62_string_to_uint64(edge_scoreply_encoded) + 1;
+                        const unsigned lose_ply = edge_score.ply + 1;
 
                         if (node_mover_has_loss)
                         {
-                            if (score_winply > node_mover_max_loss)
+                            if (lose_ply > node_mover_max_loss)
                             {
-                                node_mover_max_loss = score_winply;
+                                node_mover_max_loss = lose_ply;
                             }
                         }
                         else
                         {
                             node_mover_has_loss = true;
-                            node_mover_max_loss = score_winply;
+                            node_mover_max_loss = lose_ply;
                         }
                     }
                     edge_score_valid = false; // Invalidate current score; we used it.
@@ -278,22 +273,25 @@ static void make_nodes_with_score(const string & in_nodes_filename,
 
                     if (node_mover_has_win)
                     {
-                        // We have a win!
-                        out_nodes_with_score << node_board_encoded << (node_mover == Player::A ? Score::A_WINS : Score::B_WINS) << uint64_to_base62_string(node_mover_min_win, NUM_BASE62_SCOREPLY_DIGITS) << '\n';
+                        // The mover's best move is a win.
+                        const Score score = Score(node_mover == Player::A ? Outcome::A_WINS : Outcome::B_WINS, node_mover_min_win);
+                        out_nodes_with_score << node_board_string << score << '\n';
                     }
                     else if (node_mover_has_draw)
                     {
-                        // We have a draw, or nothing.
-                        out_nodes_with_score << node_board_encoded << Score::DRAW << uint64_to_base62_string(node_mover_all_draw, NUM_BASE62_SCOREPLY_DIGITS) << '\n';
+                        // The mover's best move is a draw.
+                        const Score score = Score(Outcome::DRAW, node_mover_any_draw);
+                        out_nodes_with_score << node_board_string << score << '\n';
+                    }
+                    else if (node_mover_has_loss)
+                    {
+                        // The mover's best move is a loss.
+                        const Score score = Score(node_mover == Player::A ? Outcome::B_WINS : Outcome::A_WINS, node_mover_max_loss);
+                        out_nodes_with_score << node_board_string << score << '\n';
                     }
                     else
                     {
-                        if (!node_mover_has_loss)
-                        {
-                            throw runtime_error("we should have a loss.");
-                        }
-                        // We have only losing moves (at least 1).
-                        out_nodes_with_score << node_board_encoded << (node_mover == Player::A ? Score::B_WINS : Score::A_WINS) << uint64_to_base62_string(node_mover_max_loss, NUM_BASE62_SCOREPLY_DIGITS) << '\n';
+                        throw runtime_error("we should have a win, draw, or loss.");
                     }
 
                     break; // Proceed to the next board.
@@ -312,11 +310,10 @@ static void make_binary_file(const string & in_nodes_filename,
     istream & in_nodes  = in_nodes_file.get_istream_reference();
     ostream & out_nodes = out_nodes_file.get_ostream_reference();
 
-    Board  board;
-    Score  score;
-    string scoreply_encoded;
+    Board board;
+    Score score;
 
-    while (in_nodes >> board >> score >> setw(NUM_BASE62_SCOREPLY_DIGITS) >> scoreply_encoded)
+    while (in_nodes >> board >> score)
     {
         uint8_t octets[NUM_BASE256_BOARD_DIGITS + 1];
         uint64_t n = board.to_uint64();
@@ -336,15 +333,12 @@ static void make_binary_file(const string & in_nodes_filename,
             throw runtime_error("make_binary_file: unable to write board in NUM_BASE256_BOARD_DIGITS bytes.");
         }
 
-        // Insert the board evaluation as a single octet.
-        const unsigned scoreply = base62_string_to_uint64(scoreply_encoded);
-
-        if (score == Score::INDETERMINATE)
+        if (score.outcome == Outcome::INDETERMINATE)
         {
             throw runtime_error("unexpected indeterminate score.");
         }
 
-        octets[NUM_BASE256_BOARD_DIGITS] = (score == Score::A_WINS) ? 0x40 + scoreply : (score == Score::B_WINS) ? 0x80 + scoreply : 0x00 + scoreply;
+        octets[NUM_BASE256_BOARD_DIGITS] = score.to_uint8();
 
         out_nodes.write(reinterpret_cast<char *>(octets), NUM_BASE256_BOARD_DIGITS + 1);
     }
@@ -354,6 +348,8 @@ static void make_binary_file(const string & in_nodes_filename,
 static void upgrade_binary_file(const string & in_nodes_filename,
                                 const string & out_nodes_filename)
 {
+    // This function converts an old-style binary file to a new-style binary file.
+
     const InputFile  in_nodes_file(in_nodes_filename);
     const OutputFile out_nodes_file(out_nodes_filename);
 
@@ -374,24 +370,24 @@ static void upgrade_binary_file(const string & in_nodes_filename,
         Board board = Board::from_uint64(n);
 
         uint8_t old_style_score = octets[NUM_BASE256_BOARD_DIGITS];
-        uint8_t new_style_score;
-        
+        Score new_style_score;
+
         if (old_style_score > 0 && old_style_score <= 127)
         {
             // Player A wins in (old_style_score - 1) moves.
-            new_style_score = 0x40 + (old_style_score - 1);
+            new_style_score = Score(Outcome::A_WINS, old_style_score - 1);
         }
         else if (old_style_score >= 128)
         {
             // Player B wins in (255 - old_style_score) moves.
-            new_style_score = 0x80 + (255 - old_style_score);
+            new_style_score = Score(Outcome::B_WINS, 255 - old_style_score);
         }
         else
         {
-            new_style_score = 0x00 + V_SIZE * H_SIZE - board.count();
+            new_style_score = Score(Outcome::DRAW, V_SIZE * H_SIZE - board.count());
         }
 
-        octets[NUM_BASE256_BOARD_DIGITS] = new_style_score;
+        octets[NUM_BASE256_BOARD_DIGITS] = new_style_score.to_uint8();
 
         out_nodes.write(reinterpret_cast<char *>(octets), NUM_BASE256_BOARD_DIGITS + 1);
     }
@@ -406,7 +402,6 @@ static void print_constants()
     cout << "NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION=" << NUMBER_OF_BOARDS_IN_COLUMN_REPRESENTATION << endl;
     cout << "NUM_BASE62_BOARD_DIGITS=" << NUM_BASE62_BOARD_DIGITS << endl;
     cout << "NUM_BASE256_BOARD_DIGITS=" << NUM_BASE256_BOARD_DIGITS << endl;
-    cout << "NUM_BASE62_SCOREPLY_DIGITS=" << NUM_BASE62_SCOREPLY_DIGITS << endl;
 }
 
 static void print_usage()
