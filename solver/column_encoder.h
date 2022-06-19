@@ -27,12 +27,6 @@ class ColumnEncoder
         // and generating bi-directional lookup tables.
         ColumnEncoder();
 
-        // Return the number of different valid columns.
-        unsigned num_entries() const
-        {
-            return column_encoded_to_column_ternary.size();
-        }
-
         // Encode a column, expressed as a ternary number, to its encoded form.
         unsigned encode(unsigned column_ternary) const
         {
