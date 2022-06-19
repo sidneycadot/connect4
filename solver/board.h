@@ -28,7 +28,7 @@ class Board
         Player mover() const;
 
         // Determine if the board has a connect-Q and, if so, for which player.
-        Score score() const;
+        Outcome trivial_outcome() const;
 
         // Count the number of occupied slices, which is identical to the move number.
         unsigned count() const;

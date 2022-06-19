@@ -26,7 +26,7 @@ static void write_node_with_trivial_score(ostream & out_stream, const Board & bo
     // or draw in zero: "-0".
     // If we cannot determine the node evaluation, we write "unknown" which is marked as "?0".
 
-    out_stream << board << board.score() << '\n';
+    out_stream << board << Score(board.trivial_outcome(), 0) << '\n';
 }
 
 static void make_initial_node(const string & out_filename)

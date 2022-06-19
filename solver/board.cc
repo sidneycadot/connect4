@@ -137,9 +137,9 @@ bool Board::is_valid_coordinate(int x, int y)
     return (0 <= x) && (x < H_SIZE) && (0 <= y) && (y < V_SIZE);
 }
 
-Score Board::score() const
+Outcome Board::trivial_outcome() const
 {
-    // Find the score of the Board if it can be determined by direct inspection.
+    // Find the outcome of the Board if it can be determined by direct inspection.
 
     bool player_a_wins = false;
     bool player_b_wins = false;
@@ -176,7 +176,7 @@ Score Board::score() const
                             {
                                 case Player::A : player_a_wins = true; break;
                                 case Player::B : player_b_wins = true; break;
-                                default        : throw runtime_error("Board::score: bad winner");
+                                default        : throw runtime_error("Board::trivial_outcome: bad winner");
                             }
                         } // found winning stretch
                     } // coordinates in the stretch are all valid
@@ -187,12 +187,10 @@ Score Board::score() const
 
     if (player_a_wins && player_b_wins)
     {
-        throw runtime_error("Board::score: multiple winners found, which is impossible.");
+        throw runtime_error("Board::trivial_outcome: multiple winners found, which is impossible.");
     }
 
-    const Outcome outcome = player_a_wins ? Outcome::A_WINS : player_b_wins ? Outcome::B_WINS : full() ? Outcome::DRAW : Outcome::INDETERMINATE;
-
-    return Score(outcome, 0);
+    return player_a_wins ? Outcome::A_WINS : player_b_wins ? Outcome::B_WINS : full() ? Outcome::DRAW : Outcome::INDETERMINATE;
 }
 
 Board Board::normalize() const
@@ -218,7 +216,7 @@ set<Board> Board::generate_unique_normalized_boards() const
 
     set<Board> next_boards;
 
-    if (score().outcome == Outcome::INDETERMINATE)
+    if (trivial_outcome() == Outcome::INDETERMINATE)
     {
         const Player player = mover();
         for (int x = 0; x < H_SIZE; ++x)
