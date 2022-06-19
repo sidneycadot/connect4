@@ -8,7 +8,7 @@
 
 #include "number_of_possible_columns.h"
 
-// These are the main constants defines the board size and the connect rule.
+// These constants define the board size and the win rule.
 
 const int H_SIZE    = 5; // Horizontal board size.
 const int V_SIZE    = 4; // Vertical board size.

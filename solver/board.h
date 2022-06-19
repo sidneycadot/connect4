@@ -67,7 +67,7 @@ class Board
     private: // Member variables.
 
         // The ColumnEncoder supports encoding and decoding the Board to a
-        // compact representation, by only considering possible columns.
+        // compact representation, by only considering valid columns.
         static ColumnEncoder column_encoder;
 
         // The entries on the Board.

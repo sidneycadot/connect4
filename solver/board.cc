@@ -112,7 +112,6 @@ Player Board::mover() const
     }
 }
 
-
 unsigned Board::count() const
 {
     unsigned counter = 0;
@@ -205,6 +204,7 @@ bool Board::is_symmetric() const
             {
                 break;
             }
+
             if (entries[y][x] != entries[y][x_mirrored])
             {
                 return false;

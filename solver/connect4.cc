@@ -338,7 +338,7 @@ static void make_binary_file(const string & in_nodes_filename,
 
         if (score.outcome == Outcome::INDETERMINATE)
         {
-            throw runtime_error("unexpected indeterminate score.");
+            throw runtime_error("make_binary_file: unexpected indeterminate score.");
         }
 
         octets[NUM_BASE256_BOARD_DIGITS] = score.to_uint8();
@@ -351,7 +351,7 @@ static void make_binary_file(const string & in_nodes_filename,
 static void upgrade_binary_file(const string & in_nodes_filename,
                                 const string & out_nodes_filename)
 {
-    // This function converts an old-style binary file to a new-style binary file.
+    // Convert an old-style binary file to a new-style binary file.
 
     const InputFile  in_nodes_file(in_nodes_filename);
     const OutputFile out_nodes_file(out_nodes_filename);
@@ -462,8 +462,8 @@ static void print_usage()
     cerr << "    connect4 --make-edges            <in:nodes-without-score(n)>                            <out:edges-without-score(n)>"       << endl;
     cerr << "    connect4 --make-edges-with-score <in:edges-without-score(n)> <in:nodes-with-score(n+1)> <out:edges-with-score(n)>"          << endl;
     cerr << "    connect4 --make-nodes-with-score <in:nodes-without-score(n)> <in:edges-with-score(n)>   <out:nodes-with-score(n)>"          << endl;
-    cerr << "    connect4 --make-binary-file      <in:nodes-file>                                        <out:nodes-file-binary>"            << endl;
-    cerr << "    connect4 --print-info            <in:nodes-file-binary>"                                                                    << endl;
+    cerr << "    connect4 --make-binary-file      <in:nodes-file>                                        <out:nodes-file-binary-new>"        << endl;
+    cerr << "    connect4 --print-info            <in:nodes-file-binary-new>"                                                                << endl;
     cerr << "    connect4 --upgrade-binary-file   <in:nodes-file-binary-old>                             <out:nodes-file-binary-new>"        << endl;
     cerr                                                                                                                                     << endl;
     cerr << "    Note: "                                                                                                                     << endl;

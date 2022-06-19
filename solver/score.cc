@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const unsigned PLY_DIGITS = 1; // Number of base-62 digits to use for the "ply" field.
+const unsigned BASE62_PLY_DIGITS = 1; // Number of base-62 digits to use for the "ply" field.
 
 istream & operator >> (istream & in, Score & score)
 {
@@ -20,7 +20,7 @@ istream & operator >> (istream & in, Score & score)
 
     if (in)
     {
-        in >> score.outcome >> setw(PLY_DIGITS) >> ply_string;
+        in >> score.outcome >> setw(BASE62_PLY_DIGITS) >> ply_string;
         score.ply = base62_string_to_uint64(ply_string);
     }
     return in;
@@ -28,7 +28,7 @@ istream & operator >> (istream & in, Score & score)
 
 ostream & operator << (ostream & out, const Score & score)
 {
-    out << score.outcome << uint64_to_base62_string(score.ply, PLY_DIGITS);
+    out << score.outcome << uint64_to_base62_string(score.ply, BASE62_PLY_DIGITS);
     return out;
 }
 
