@@ -115,7 +115,6 @@ Player Board::mover() const
 
 unsigned Board::count() const
 {
-    // TODO: we can get rid of this method at some point.
     unsigned counter = 0;
 
     for (int y = 0; y < V_SIZE; ++y)
