@@ -10,8 +10,8 @@
 
 // These are the main constants defines the board size and the connect rule.
 
-const int H_SIZE    = 7; // Horizontal board size.
-const int V_SIZE    = 6; // Vertical board size.
+const int H_SIZE    = 6; // Horizontal board size.
+const int V_SIZE    = 5; // Vertical board size.
 const int CONNECT_Q = 4; // The number of connected horizontal/diagonal/vertical chips required to win.
 
 // Apart from these, we need to define some derived constants that define the storage size of a Board

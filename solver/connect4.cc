@@ -394,6 +394,40 @@ static void upgrade_binary_file(const string & in_nodes_filename,
     }
 }
 
+
+static void print_info(const string & in_nodes_filename)
+{
+    const InputFile in_nodes_file(in_nodes_filename);
+
+    istream & in_nodes = in_nodes_file.get_istream_reference();
+
+    Board board;
+    Score score;
+
+    vector<uint64_t> occurrences;
+
+    while (in_nodes >> board >> score)
+    {
+        const unsigned index = board.count() * 256 + score.to_uint8();
+        if (index >= occurrences.size())
+        {
+            occurrences.resize(index + 1);
+        }
+        ++occurrences[index];
+    }
+
+    for (unsigned index = 0; index < occurrences.size(); ++index)
+    {
+        if (occurrences[index] != 0)
+        {
+            const Score score = Score::from_uint8(index % 256);
+            cout << (index / 256) << '\t' << score.outcome << '\t' << score.ply << endl;
+        }
+    }
+}
+
+henk;
+
 static void print_constants()
 {
     cout << "H_SIZE=" << H_SIZE << endl;
@@ -418,6 +452,7 @@ static void print_usage()
     cerr << "    connect4 --make-edges-with-score <in:edges-without-score(n)> <in:nodes-with-score(n+1)> <out:edges-with-score(n)>"          << endl;
     cerr << "    connect4 --make-nodes-with-score <in:nodes-without-score(n)> <in:edges-with-score(n)>   <out:nodes-with-score(n)>"          << endl;
     cerr << "    connect4 --make-binary-file      <in:nodes-file>                                        <out:nodes-file-binary>"            << endl;
+    cerr << "    connect4 --print-info            <in:nodes-file-binary>"                                                                    << endl;
     cerr << "    connect4 --upgrade-binary-file   <in:nodes-file-binary-old>                             <out:nodes-file-binary-new>"        << endl;
     cerr                                                                                                                                     << endl;
     cerr << "    Note: "                                                                                                                     << endl;
@@ -463,6 +498,10 @@ int main(int argc, char **argv)
     else if (args.size() == 3 && args[0] == "--make-binary-file")
     {
         make_binary_file(args[1], args[2]);
+    }
+    else if (args.size() == 2 && args[0] == "--print-info")
+    {
+        print_info(args[1]);
     }
     else if (args.size() == 3 && args[0] == "--upgrade-binary-file")
     {

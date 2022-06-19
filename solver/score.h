@@ -8,18 +8,9 @@
 
 #include <istream>
 #include <ostream>
+#include <cstdint>
 
-// The Outcome represents the game-theoretical outcome of a game position,
-// assuming both players play optimally.
-//
-// The "INDETERMINATE" value is used when the Outcome cannot (yet) be determined.
-
-enum class Outcome {
-    A_WINS,
-    B_WINS,
-    DRAW,
-    INDETERMINATE
-};
+#include "outcome.h"
 
 struct Score {
 
@@ -31,6 +22,7 @@ struct Score {
     }
 
     uint8_t to_uint8() const;
+    static Score from_uint8(uint8_t score_octet);
 
     Outcome  outcome; // Game-theoretical result.
     unsigned ply;     // Plies until the result is final, assuming optimal play on both sides. 0 if INDETERMINATE.
