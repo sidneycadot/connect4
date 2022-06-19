@@ -40,7 +40,7 @@ The C++ source code for the 'connect-4' program consists of 13 files:
 * number_of_columns.h - Provides a function that can calculate the number of possible columns at compile time.
 * board.cc, board.h - The `Board` class that represents a single Board, with some convenient methods.
 * column_encoder.cc, column_encoder.h - The `ColumnEncoder` class and its methods.
-* score.cc, score.h - The `Outcome` and `Score` classes that represent the game-theoretical value of a board position.
+* score.cc, score.h - The `Outcome` enum class and `Score` qclasses that represent the game-theoretical value of a board position.
 * player.h - The `Player` enum class.
 * base62.cc, base62.h - Implement a pure-ASCII encoding and decoding of 64-bit unsigned integers in 'base-62' format, using only the characters 0-9, A-Z, and a-z. We need to be able to represent boards as ASCII strings since we heavily rely on the 'sort' utility that cannot sort binary data.
 * files.h - Support specification of file streams by name, with special handling for stdin/stdout.
