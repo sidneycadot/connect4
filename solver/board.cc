@@ -47,7 +47,7 @@ uint64_t Board::to_uint64() const
             }
         }
 
-        n *= column_encoder.num_entries();
+        n *= NUMBER_OF_POSSIBLE_COLUMNS;
         n += column_encoder.encode(column);
     }
     return n;
@@ -60,8 +60,8 @@ Board Board::from_uint64(uint64_t n)
 
     for (int x = H_SIZE - 1; x >= 0; --x)
     {
-        unsigned column = column_encoder.decode(n % column_encoder.num_entries());
-        n /= column_encoder.num_entries();
+        unsigned column = column_encoder.decode(n % NUMBER_OF_POSSIBLE_COLUMNS);
+        n /= NUMBER_OF_POSSIBLE_COLUMNS;
 
         for (int  y = V_SIZE - 1; y >= 0; --y)
         {

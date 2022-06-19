@@ -28,18 +28,20 @@ class Board
         Player mover() const;
 
         // Determine if the board has a connect-Q and, if so, for which player.
+        // If the board is full and there is no winner, the outcome will we DRAW.
+        // Otherwise, the output will be INDETERMINATE.
         Outcome trivial_outcome() const;
 
-        // Count the number of occupied slices, which is identical to the move number.
+        // Count the number of occupied board entries, which is identical to the move number.
         unsigned count() const;
 
         // Check if the Board is full.
         bool full() const;
 
-        // Normalize the board (i.e., return the smallest board, identical up to symmetry).
+        // Normalize the board (i.e., return the smallest board, identical up to horizontal reflection).
         Board normalize() const;
 
-        // Generate a set of normalized Boards that are directly reachable from this Board.
+        // Generate the set of normalized Boards that are reachable from this Board with a single move.
         std::set<Board> generate_unique_normalized_boards() const;
 
         // Encode the Board as a 64-bit unsigned integer.
@@ -56,13 +58,18 @@ class Board
 
     private: // Member functions.
 
-        // Check if x and y coordinates are both valid.
+        // Check if the x and y coordinates are both valid.
         static bool is_valid_coordinate(int x, int y);
 
     private: // Member variables.
 
+        // The ColumnEncoder supports encoding and decoding the Board to a
+        // compact representation, by only considering possible columns.
         static ColumnEncoder column_encoder;
 
+        // The entries on the Board.
+        // The first row (i.e., entries[0][0 .. H_SIZE - 1]) is the top row;
+        // the last row (i.e., entries[V_SIZE - 1][0 .. H_SIZE - 1]) is the bottom row.
         Player entries[V_SIZE][H_SIZE];
 
     // Friends functions.
