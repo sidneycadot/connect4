@@ -263,7 +263,7 @@ static void make_nodes_with_score(const string & in_nodes_filename,
                         else
                         {
                             node_mover_has_loss = true;
-                            node_mover_max_loss = lose_ply;
+                            node_mover_max_loss = loss_ply;
                         }
                     }
                     edge_score_valid = false; // Invalidate current score; we used it.
@@ -412,7 +412,7 @@ static void print_info(const string & in_nodes_filename)
         uint64_t n = 0;
         for (unsigned i = 0; i < NUM_BASE256_BOARD_DIGITS; ++i)
         {
-            n *= 512;
+            n *= 256;
             n += octets[i];
         }
 

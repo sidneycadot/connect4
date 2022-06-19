@@ -38,8 +38,8 @@ class Board
         // Check if the Board is full.
         bool is_full() const;
 
-        // Return a horizontally mirrored copy of the board.
-        Board Board::is_symmetric() const
+        // Check if the board is horizontally symmetric.
+        bool is_symmetric() const;
 
         // Normalize the board (i.e., return the smallest board, identical up to horizontal reflection).
         Board normalize() const;

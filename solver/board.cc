@@ -193,7 +193,7 @@ Outcome Board::trivial_outcome() const
     return player_a_wins ? Outcome::A_WINS : player_b_wins ? Outcome::B_WINS : is_full() ? Outcome::DRAW : Outcome::INDETERMINATE;
 }
 
-bool is_symmetric() const
+bool Board::is_symmetric() const
 {
     for (int y = 0; y < V_SIZE; ++y)
     {
