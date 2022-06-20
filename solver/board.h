@@ -28,8 +28,8 @@ class Board
         Player mover() const;
 
         // Determine if the board has a connect-Q and, if so, for which player.
-        // If the board is full and there is no winner, the outcome will we DRAW.
-        // Otherwise, the output will be INDETERMINATE.
+        // If the board is full and there is no winner, the outcome is a DRAW.
+        // Otherwise, the outcome will be INDETERMINATE.
         Outcome trivial_outcome() const;
 
         // Count the number of occupied board entries, which is identical to the move number.

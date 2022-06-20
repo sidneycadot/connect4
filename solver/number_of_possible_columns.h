@@ -6,11 +6,10 @@
 #ifndef NUMBER_OF_POSSIBLE_COLUMNS_H
 #define NUMBER_OF_POSSIBLE_COLUMNS_H
 
-// The constexpr function 'number_of_possible_columns(q, n)' calculates the number of possible connect-q columns
-// of height up to and including n.
+// The constexpr function number_of_possible_columns(q, n) counts the number of distinct valid columns as a function
+// of q (the number of connected chips required to win) and n (the column height).
 //
-// These are the number_of_possible_columns(q, n), with the winning sequence q ranging from 0 to 10
-// and the board height n ranging from 0 to 20:
+// The table below shows number_of_possible_columns(q, n), with q ranging from 0 to 10, and n ranging from 0 to 20:
 //
 //    |         0         1         2         3         4         5         6         7         8         9        10
 // ---+--------------------------------------------------------------------------------------------------------------
@@ -38,8 +37,8 @@
 //
 // The calculation is implemented by evaluating the following recursive relations:
 //
-//    number_of_possible_columns(n, q) = 2 ** n - 1                                                       ;; if n <= q   (Eq.1)
-//    number_of_possible_columns(n, q) = SUM(k = [1 .. q-1] number_of_possible_columns(n - k)) + (q + 2)  ;; if n >  q   (Eq.2)
+//    number_of_possible_columns(q, n) = 2 ** n - 1                                                       ;; if n <= q   (Eq.1)
+//    number_of_possible_columns(q, n) = SUM(k = [1 .. q-1] number_of_possible_columns(n - k)) + (q + 2)  ;; if n >  q   (Eq.2)
 //
 // TODO: Add the justification of Eq.1 and Eq.2.
 

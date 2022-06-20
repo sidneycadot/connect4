@@ -10,7 +10,7 @@
 #include <ostream>
 
 // The Outcome represents the game-theoretical outcome of a game position,
-// assuming both players play optimally.
+// assuming optimal play by both sides.
 //
 // The "INDETERMINATE" value is used when the Outcome cannot (yet) be determined.
 

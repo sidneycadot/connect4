@@ -10,12 +10,12 @@
 
 // These constants define the board size and the win rule.
 
-const int H_SIZE    = 5; // Horizontal board size.
-const int V_SIZE    = 4; // Vertical board size.
+const int H_SIZE    = 7; // Horizontal board size.
+const int V_SIZE    = 6; // Vertical board size.
 const int CONNECT_Q = 4; // The number of connected horizontal/diagonal/vertical chips required to win.
 
-// Apart from these, we need to define some derived constants that define the storage size of a Board
-// when represented in the base-62 ASCII representation and the base-256 binary representation.
+// We determine several constants that define the storage size of a Board when represented in the base-62
+// ASCII representation (see base62.h) and the base-256 binary representation.
 //
 // To calculate those, we need two constexpr functions that enable the compiler to calculate those
 // values at compile-time.
