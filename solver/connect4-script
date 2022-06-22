@@ -98,8 +98,35 @@ sort -m ${FILENAME_PREFIX}_nodes_with_score_*.dat > ${FILENAME_PREFIX}.dat
 
 echo "Converting data to binary ..."
 
-$CONNECT4 --make-binary-file ${FILENAME_PREFIX}.dat ${FILENAME_PREFIX}.bin
+# We use the "new" extension to prevent confusion with the legacy "bin" format.
+$CONNECT4 --make-binary-file ${FILENAME_PREFIX}.dat ${FILENAME_PREFIX}.new
 
-echo "Compressing binary file ..."
+echo "All done!"
 
-xz --keep --force ${FILENAME_PREFIX}.bin
+# Afterwards, we may want to compress the generated binary file.
+#
+# However, the compression rate can drastically be improved by judicious use
+# of xz's filters. In particular, if the "--delta" filter is configured with
+# a distance parameter equal to the record size in the binary file (i.e.,
+# the number of bytes needed to represent one board, plus a single byte to
+# represent its outcome), the compression ratio will improve vastly.
+#
+# As an example:
+#
+# connect4_5x4.new        9870870    ; uncompressed
+# connect4_5x4.new.xz     2364516    ; xz connect4_5x4.new
+# connect4_5x4.new.xz     2364452    ; xz -9 connect4_5x4.new
+# connect4_5x4.new.xz      790120    ; xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0  connect4_5x4.new  )optimal settings)
+#
+#
+# Some optimal flag choices:
+#
+# xz --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=117,depth=0 connect4_4x4.new  #       322164 -->     36688
+# xz --delta=dist=4 --lzma2=dict=64MiB,lc=1,lp=2,pb=2,mf=bt2,mode=normal,nice=152,depth=0 connect4_4x5.new  #      3412740 -->    328396
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0 connect4_5x4.new  #      9870870 -->    790120
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=266,depth=0 connect4_5x5.new  #    174441835 -->  10899820
+# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=272,depth=0 connect4_5x6.new  #   3133181598 --> 116887316
+# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x5.new  #   8456931210 --> 300771484
+# xz ------------------------------------------------------------------------------------ connect4_6x6.new  # 242105656233 --> (TBD; in progress)
+# xz ------------------------------------------------------------------------------------ connect4_6x7.new  #        (TBD) --> (TBD)
+# xz ------------------------------------------------------------------------------------ connect4_7x6.new  #        (TBD) --> (TBD)
