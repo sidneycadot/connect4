@@ -10,15 +10,15 @@
 
 class ColumnEncoder
 {
-    // In the game of connect-4, each board entry can be in one of three states: occupied by player A,
-    // occupied by player B, or empty.
+    // In the game of connect-4, each board entry can be in one of three states: occupied by a
+    // player A chip, occupied by a player B chip, or empty.
     //
     // However, not all possible columns are valid. Non-empty fields cannot occur above empty fields;
     // and all fields above a connect-4 must be empty, since a connect-4 immediately ends the game.
     //
     // The `ColumnEncoder` class enumerates all valid column configurations and provides functions to
-    // convert between ternary-encoded columns and an encoding as an unsigned integer. The latter
-    // representation allows compact storage of the state of a board.
+    // convert between ternary-encoded columns and a compact encoding as an unsigned integer.
+    // The latter representation allows for the compact storage of the state of a board.
 
     public:
 

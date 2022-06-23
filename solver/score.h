@@ -12,8 +12,8 @@
 
 #include "outcome.h"
 
-// A Score is a game-theoretical Outcome (A_WINDS / B_WINDS / DRAW / INDETERMINATE) plus a number of moves
-// to be made before the game ends in that outcome.
+// A Score is a game-theoretical Outcome (A_WINS / B_WINS / DRAW / INDETERMINATE) plus a
+// number of optimal moves to be made before the game ends in that outcome.
 
 struct Score {
 
@@ -31,7 +31,7 @@ struct Score {
     static Score from_uint8(uint8_t score_octet);
 
     // Game-theoretical outcome for this position, assuming optimal play by both sides.
-    Outcome  outcome;
+    Outcome outcome;
 
     // Plies until the result is final (i.e., the game ends with the outcome), assuming optimal play by both sides.
     // This value is meaningless for Outcome::INDETERMINATE; in that case, we store 0 here.

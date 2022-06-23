@@ -10,9 +10,9 @@
 
 // These constants define the board size and the win rule.
 
-const int H_SIZE    = 7; // Horizontal board size.
-const int V_SIZE    = 6; // Vertical board size.
-const int CONNECT_Q = 4; // The number of connected horizontal/diagonal/vertical chips required to win.
+constexpr int H_SIZE    = 7; // Horizontal board size.
+constexpr int V_SIZE    = 6; // Vertical board size.
+constexpr int CONNECT_Q = 4; // The number of connected horizontal/diagonal/vertical chips required to win.
 
 // Determine several constants that define the storage size of a Board when represented in the base-62
 // ASCII representation (see base62.h) and the base-256 binary representation.

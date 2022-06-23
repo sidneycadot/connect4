@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const unsigned BASE62_PLY_DIGITS = 1; // Number of base-62 digits to use for the "ply" field.
+constexpr unsigned BASE62_PLY_DIGITS = 1; // Number of base-62 digits to use for the "ply" field.
 
 istream & operator >> (istream & in, Score & score)
 {
