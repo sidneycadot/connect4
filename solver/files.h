@@ -17,7 +17,8 @@ class InputFile
 
     public:
 
-        static constexpr const char * stdin_name  = "STDIN";  // Special name for input files, indicating stdin (cin) should be used.
+        // Special name for input files, indicating stdin (cin) should be used.
+        static constexpr const char * stdin_name  = "STDIN";
 
         InputFile(const std::string & filename):
             input_file(filename == stdin_name ? nullptr : std::make_unique<std::ifstream>(filename))
@@ -41,7 +42,8 @@ class OutputFile
 
     public:
 
-        static constexpr const char * stdout_name = "STDOUT"; // Special name for output files, indicating stdout (cout) should be used.
+        // Special name for output files, indicating stdout (cout) should be used.
+        static constexpr const char * stdout_name = "STDOUT";
 
         OutputFile(const std::string & filename):
             output_file(filename == stdout_name ? nullptr : std::make_unique<std::ofstream>(filename))

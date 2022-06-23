@@ -347,7 +347,6 @@ static void make_binary_file(const string & in_nodes_filename,
     }
 }
 
-
 static void upgrade_binary_file(const string & in_nodes_filename,
                                 const string & out_nodes_filename)
 {
@@ -395,7 +394,6 @@ static void upgrade_binary_file(const string & in_nodes_filename,
         out_nodes.write(reinterpret_cast<char *>(octets), NUM_BASE256_BOARD_DIGITS + 1);
     }
 }
-
 
 static void print_info(const string & in_nodes_filename)
 {

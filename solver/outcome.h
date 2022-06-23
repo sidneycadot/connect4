@@ -9,10 +9,10 @@
 #include <istream>
 #include <ostream>
 
-// The Outcome represents the game-theoretical outcome of a game position,
+// An Outcome represents the game-theoretical outcome of a game position,
 // assuming optimal play by both sides.
 //
-// The "INDETERMINATE" value is used when the Outcome cannot (yet) be determined.
+// The Outcome::INDETERMINATE value is used when the outcome cannot (yet) be determined.
 
 enum class Outcome {
     A_WINS,

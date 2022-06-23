@@ -16,10 +16,10 @@ const unsigned BASE62_PLY_DIGITS = 1; // Number of base-62 digits to use for the
 
 istream & operator >> (istream & in, Score & score)
 {
-    string ply_string;
-
     if (in)
     {
+        string ply_string;
+
         in >> score.outcome >> setw(BASE62_PLY_DIGITS) >> ply_string;
         score.ply = base62_string_to_uint64(ply_string);
     }

@@ -14,7 +14,7 @@ const int H_SIZE    = 7; // Horizontal board size.
 const int V_SIZE    = 6; // Vertical board size.
 const int CONNECT_Q = 4; // The number of connected horizontal/diagonal/vertical chips required to win.
 
-// We determine several constants that define the storage size of a Board when represented in the base-62
+// Determine several constants that define the storage size of a Board when represented in the base-62
 // ASCII representation (see base62.h) and the base-256 binary representation.
 //
 // To calculate those, we need two constexpr functions that enable the compiler to calculate those
