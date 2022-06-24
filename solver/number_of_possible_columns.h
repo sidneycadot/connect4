@@ -37,8 +37,8 @@
 //
 // The calculation is implemented by evaluating the following recursive relations:
 //
-//    number_of_possible_columns(q, n) = 2 ** (n + 1) - 1                                                 ;; if n <= q   (Eq.1)
-//    number_of_possible_columns(q, n) = SUM(k = [1 .. q-1] number_of_possible_columns(n - k)) + (q + 2)  ;; if n >  q   (Eq.2)
+//   number_of_possible_columns(q, n) = 2 ** (n + 1) - 1                                                 ;; if n <= q   (Eq.1)
+//   number_of_possible_columns(q, n) = SUM(k = [1 .. q-1] number_of_possible_columns(n - k)) + (q + 2)  ;; if n >  q   (Eq.2)
 //
 // Justification for (Eq.1):
 //
@@ -49,9 +49,11 @@
 //   So we need to count the {A, B} chip stacks of height 0, plus the {A, B} chip stacks of height 1, and so on, until
 //   the {A, B} chip stacks of height n.
 //
-//   This is equal to 1 + 2 + 4 + 8 + ... 2**n == 2 ** (n+1) - 1
+//   This is equal to 1 + 2 + 4 + 8 + ... 2**n == 2 ** (n + 1) - 1
 //
-// TODO: Add the justification for (Eq.2).
+// Justification for (Eq.2):
+//
+//   TODO: Add this.
 
 constexpr unsigned number_of_possible_columns(unsigned q, unsigned n);
 

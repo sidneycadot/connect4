@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "base62.h"
+#include "derived_constants.h"
 #include "board.h"
 
 using namespace std;

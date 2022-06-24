@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "board_size.h"
+#include "derived_constants.h"
 #include "player.h"
 #include "column_encoder.h"
 

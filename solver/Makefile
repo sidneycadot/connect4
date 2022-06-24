@@ -9,7 +9,7 @@ CXXFLAGS = -W -Wall -O3 -std=c++14
 
 TARGET  = connect4
 OBJECTS = board.o column_encoder.o base62.o score.o outcome.o connect4.o
-HEADERS = board.h column_encoder.h base62.h score.h outcome.h player.h board_size.h files.h
+HEADERS = board.h column_encoder.h base62.h score.h outcome.h player.h board_size.h derived_constants.h files.h
 
 default : $(TARGET)
 	@echo

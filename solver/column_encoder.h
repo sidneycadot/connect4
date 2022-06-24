@@ -13,12 +13,24 @@ class ColumnEncoder
     // In the game of connect-4, each board entry can be in one of three states: occupied by a
     // player A chip, occupied by a player B chip, or empty.
     //
-    // However, not all possible columns are valid. Non-empty fields cannot occur above empty fields;
-    // and all fields above a connect-4 must be empty, since a connect-4 immediately ends the game.
+    // Looking at a single column of height n, we find that not all length-n sequences of
+    // {A, B, empty} are valid columns:
     //
-    // The `ColumnEncoder` class enumerates all valid column configurations and provides functions to
-    // convert between ternary-encoded columns and a compact encoding as an unsigned integer.
-    // The latter representation allows for the compact storage of the state of a board.
+    //   * Gravity prevents player chips floating above empty positions, so the player chips
+    //     are bunched up at the bottom of the column.
+    //
+    //   * If a sequence of 'q' chips of either player A or B occur in the column, it must be in
+    //     the last 'q' non-empty positions, since the occurrence of 'q' identical non-empty chips
+    //     ends the game immediately with a win for the player with that color.
+    //
+    // We can use these rules to enumerate all possible columns, given the height n and win rule
+    // 'q-in-a-row'. For example, it turns out there are 111 valid columns in the standard connect-4
+    // game with n=6 and q=4.
+    //
+    // The `ColumnEncoder` class enumerates all valid column configurations in its constructor, and
+    // provides 'encode' and 'decode' methods to convert between ternary-encoded columns and a compect
+    // encoding as an unsigned integer. This latter representation allows for the compact storage of
+    // of the state of a board as a sequence of valid columns.
 
     public:
 
