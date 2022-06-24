@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Optional, Dict, Tuple, List
 
-from player import Player
+from simple_types import Player
 
 def _make_column_ternary_to_column_encoded(v_size, q) -> Dict[int, int]:
 

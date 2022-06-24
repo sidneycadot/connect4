@@ -8,9 +8,10 @@ from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QHBoxLayout, QVBoxLayout, QGridLayout, QPushButton, QTableView, QCheckBox
 
-from player import Player
+from simple_types import Player, Outcome
 from board import Board
 from lookup_table import LookupTable
+
 
 class MoveRecordModel(QAbstractTableModel):
     def __init__(self, *args, **kwargs):
@@ -250,8 +251,6 @@ class Connect4Widget(QWidget):
 
         status_messages = []
 
-        evaluation = app.lookup(board)
-
         moves_available = False
         for col in range(Board.H_SIZE):
             drop_board = board.drop(col)
@@ -261,50 +260,43 @@ class Connect4Widget(QWidget):
             else:
                 moves_available = True
                 self.drop_buttons[col].setEnabled(True)
-                drop_board_evaluation = app.lookup(drop_board)
-                if drop_board_evaluation.player == Player.NONE:
-                    self.drop_labels[col].setText("draw\n({})".format(Board.H_SIZE * Board.V_SIZE - len(self.move_record_model)))
-                if drop_board_evaluation.player == Player.A:
-                    self.drop_labels[col].setText("<font color=\"red\">red win<br>({})</font>".format(drop_board_evaluation.winply))
-                if drop_board_evaluation.player == Player.B:
-                    self.drop_labels[col].setText("<font color=\"yellow\">yellow win<br>({})</font>".format(drop_board_evaluation.winply))
+                drop_board_score = app.lookup(drop_board)
+                if drop_board_score.outcome == Outcome.DRAW:
+                    self.drop_labels[col].setText("draw\n({})".format(drop_board_score.ply))
+                elif drop_board_score.outcome == Outcome.A_WINS:
+                    self.drop_labels[col].setText("<font color=\"red\">red win<br>({})</font>".format(drop_board_score.ply))
+                elif drop_board_score.outcome == Outcome.B_WINS:
+                    self.drop_labels[col].setText("<font color=\"yellow\">yellow win<br>({})</font>".format(drop_board_score.ply))
+                else:
+                    self.drop_labels[col].setText("indeterminate")
 
                 self.drop_labels[col].setVisible(self.move_info_checkbox.isChecked())
 
-
-        # game over; red wins.
-        # game over; yellow wins.
-        # game over; draw.
-        # red to move and has a xxx-ply win.
-        # red to move and can draw.
-        # red to move; yellow has a xxx-ply win.
-        # yellow to move and has a xxx-ply win.
-        # yellow to move and can draw.
-        # yellow to move; yellow has a xxx-ply win.
+        score = app.lookup(board)
 
         if not moves_available:
-            if evaluation.player == Player.A:
-                status_message = "game over; red wins."
-            elif evaluation.player == Player.B:
-                status_message = "game over; yellow wins."
+            if score.outcome == Outcome.A_WINS:
+                status_message = "game over; <font color=\"red\">red</font> wins."
+            elif score.outcome == Outcome.B_WINS:
+                status_message = "game over; <font color=\"yellow\">yellow</font> wins."
             else:
                 status_message = "game over; draw."
         else:
             if self.game_state_checkbox.isChecked():
                 if mover == Player.A:
-                    if evaluation.player == Player.A:
-                        status_message = "<font color=\"red\">red</font> to move and has a {}-ply win.".format(evaluation.winply)
-                    elif evaluation.player == Player.B:
-                        status_message = "<font color=\"red\">red</font> to move but <font color=\"yellow\">yellow</font> has a {}-ply win.".format(evaluation.winply)
+                    if score.outcome == Outcome.A_WINS:
+                        status_message = "<font color=\"red\">red</font> to move and has a {}-ply win.".format(score.ply)
+                    elif score.outcome == Outcome.B_WINS:
+                        status_message = "<font color=\"red\">red</font> to move but <font color=\"yellow\">yellow</font> has a {}-ply win.".format(score.ply)
                     else:
-                        status_message = "<font color=\"red\">red</font> to move and can draw."
+                        status_message = "<font color=\"red\">red</font> to move and can reach a {}-ply draw.".format(score.ply)
                 elif mover == Player.B:
-                    if evaluation.player == Player.B:
-                        status_message = "<font color=\"yellow\">yellow</font> to move and has a {}-ply win.".format(evaluation.winply)
-                    elif evaluation.player == Player.A:
-                        status_message = "<font color=\"yellow\">yellow</font> to move but <font color=\"red\">red</font> has a {}-ply win.".format(evaluation.winply)
+                    if score.outcome == Outcome.B_WINS:
+                        status_message = "<font color=\"yellow\">yellow</font> to move and has a {}-ply win.".format(score.ply)
+                    elif score.outcome == Outcome.A_WINS:
+                        status_message = "<font color=\"yellow\">yellow</font> to move but <font color=\"red\">red</font> has a {}-ply win.".format(score.ply)
                     else:
-                        status_message = "<font color=\"yellow\">yellow</font> to move and can draw."
+                        status_message = "<font color=\"yellow\">yellow</font> to move and can reach a {}-ply draw.".format(score.ply)
             else:
                 if mover == Player.A:
                     status_message = "<font color=\"red\">red</font> to move."
@@ -330,7 +322,7 @@ class MyApplication(QApplication):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._lookup_table = LookupTable("connect4_6x5.bin", 6)
+        self._lookup_table = LookupTable("connect4_6x5.new", 6)
         self._lookup_table.open()
 
         self.main_window = MyMainWindow()
