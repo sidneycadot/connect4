@@ -16,8 +16,8 @@ class ColumnEncoder
     // Looking at a single column of height n, we find that not all length-n sequences of
     // {A, B, empty} are valid columns:
     //
-    //   * Gravity prevents player chips floating above empty positions, so the player chips
-    //     are bunched up at the bottom of the column.
+    //   * Player chips cannot float above empty positions, so the player chips are bunched up at
+    //     the bottom of the column.
     //
     //   * If a sequence of 'q' chips of either player A or B occur in the column, it must be in
     //     the last 'q' non-empty positions, since the occurrence of 'q' identical non-empty chips

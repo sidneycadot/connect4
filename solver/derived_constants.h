@@ -9,11 +9,17 @@
 #include "board_size.h"
 #include "number_of_possible_columns.h"
 
-// Determine several constants that define the storage size of a Board when represented in the base-62
-// ASCII representation (see base62.h) and the base-256 binary representation.
+// Determine several constants:
 //
-// To calculate those, we need two constexpr functions that enable the compiler to calculate those
-// values at compile-time.
+// * A constant that holds the number of possible distinct columns, and the number
+//   of possible representable boards in a representation based on those;
+//
+// * Constants that define the storage size of a Board when represented in the base-62
+//   ASCII representation (see base62.h) and the base-256 binary representation.
+//
+// To calculate those, we need the `number_of_columns` constexpr function that we include
+// from "number_of_possible_columns.h", and two additional constexpr functions
+// `power` and `num_digits_required`.
 
 constexpr uint64_t power(unsigned a, unsigned b)
 {
