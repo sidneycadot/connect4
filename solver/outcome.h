@@ -9,8 +9,8 @@
 #include <istream>
 #include <ostream>
 
-// An Outcome represents the game-theoretical outcome of a game position,
-// assuming optimal play by both sides.
+// An Outcome represents the game-theoretical outcome of a game that proceeds from a
+// given board position, assuming optimal play by both sides.
 //
 // The Outcome::INDETERMINATE value is used when the outcome cannot (yet) be determined.
 

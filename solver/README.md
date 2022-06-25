@@ -33,15 +33,16 @@ in particular 'sort', and a custom C++ program called 'connect-4' that can
 generate and process game tree nodes in a way that allows strong solution of
 the game.
 
-The C++ source code for the 'connect-4' program consists of 15 files:
+The C++ source code for the 'connect-4' program consists of 16 files:
 
 * connect4.cc - The toplevel program, containing `main` and the code for the sub-steps.
-* board_size.h - Constants describing the board dimensions and the encoding widths that follow from that.
-* number_of_columns.h - Provides a function that can calculate the number of possible columns at compile time.
-* board.cc, board.h - The `Board` class that represents a single Board, with some convenient methods.
+* board_size.h - Constants that define the board dimensions and the win rule ("connect by q").
+* derived_constants.h - Compile-time calculated constants for the encoding widths that follow from the board size constants.
+* number_of_columns.h - Provides a compile-time function that calculates the number of possible columns.
 * column_encoder.cc, column_encoder.h - The `ColumnEncoder` class and its methods.
-* score.cc, score.h - The `Score` class represent the game-theoretical outcome of a board position, including the number of moves to get there.
+* board.cc, board.h - The `Board` class that represents a single Board, with some convenient methods.
 * outcome.cc, outcome.h - The `Outcome` enum class represent the game-theoretical value of a board position.
+* score.cc, score.h - The `Score` class represent the game-theoretical outcome of a board position, including the number of moves to get there.
 * player.h - The `Player` enum class represents a player (A / B / NONE).
 * base62.cc, base62.h - Implement a pure-ASCII encoding and decoding of 64-bit unsigned integers in 'base-62' format, using only the characters 0-9, A-Z, and a-z. We need to be able to represent boards as ASCII strings since we heavily rely on the 'sort' utility that cannot sort binary data.
 * files.h - Support specification of file streams by name, with special handling for stdin/stdout.
@@ -55,26 +56,26 @@ The algorithm proceeds in two main stages: "forward" and "backward".
 
 In the forward stage, all reachable board states are enumerated, starting at
 the initial (empty) board, and progressing by making moves. If boards have a
-connect-4 (i.e., they are won for one of the player), they are marked a "won
+connect-4 (i.e., they are won for one of the player), they are marked as "won
 in zero plies for player X (A or B)". The data generated is collected in files
-that hold all possible board states after N moves.
+that hold all possible board states after a given number of moves.
 
 In the backward stage, we progress from the end (boards with the highest
-possible  number of moves) to the start (the board with no moves, i.e., the
+possible number of moves) to the start (the board with no moves, i.e., the
 initial game state). Along the way, we add the game-theoretical value of each
 board visited, by inspecting the boards that can be reached from it (and that
 were previously visited and annotated as such). The end result is that all
 board states will be annotated with their game-theoretical value: either "won
 in P plies for player X (A or B)" or "not winnable by either player if optimal
-play is assumed", i.e., a draw.
+play is assumed, and reaching a draw in P plies", i.e., a draw.
 
 The ability to perform both the forward and backward stages relies heavily on
 the use of the standard command-line tool 'sort' to do sorting and
 de-duplication of ASCII text files, even if those files are *huge*, by using
 many temporarily sorted files (tens of millions, while solving the standard
-7x6 connect-4 board) and merge-sorting them to produce a single sorted output.
-This use of sort is an alternative to using some form of indexing when we need
-the ability to look up the game-theoretical valuation of board states that can
-be reached by a single move from a certain board.
+7x6 connect-4 board) and performing an external merge-sort to produce a single
+sorted output. This use of sort is an alternative to using some form of
+indexing when we need the ability to look up the game-theoretical valuation of
+board states that can be reached by a single move from a certain board.
 
 See the "connect4-script" Bash script for details.

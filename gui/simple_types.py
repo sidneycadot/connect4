@@ -1,5 +1,7 @@
+"""Simple support types."""
 
 from enum import Enum
+from typing import NamedTuple
 
 class Player(Enum):
     NONE = 0
@@ -14,3 +16,16 @@ class Player(Enum):
         if self == Player.B:
             return 'B'
         raise ValueError("Bad Player value.")
+
+
+class Outcome(Enum):
+    A_WINS = 0
+    B_WINS = 1
+    DRAW = 2
+    INDETERMINATE = 3
+
+
+
+class Score(NamedTuple):
+    outcome: Outcome
+    ply    : int

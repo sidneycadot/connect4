@@ -14,6 +14,7 @@
 #include "player.h"
 #include "score.h"
 #include "board_size.h"
+#include "derived_constants.h"
 #include "board.h"
 #include "files.h"
 

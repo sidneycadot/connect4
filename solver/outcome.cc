@@ -10,10 +10,10 @@
 
 using namespace std;
 
-const char A_WINS_CHAR        = 'A';
-const char B_WINS_CHAR        = 'B';
-const char DRAW_CHAR          = '-';
-const char INDETERMINATE_CHAR = '?';
+constexpr char A_WINS_CHAR        = 'A';
+constexpr char B_WINS_CHAR        = 'B';
+constexpr char DRAW_CHAR          = '-';
+constexpr char INDETERMINATE_CHAR = '?';
 
 istream & operator >> (istream & in, Outcome & outcome)
 {

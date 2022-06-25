@@ -1,14 +1,10 @@
 """Implement a lookup table for connect-4."""
+
 import os
 import mmap
-from typing import NamedTuple
 
 from board import Board
-from player import Player
-
-class Evaluation(NamedTuple):
-    player: Player
-    winply: int
+from simple_types import Outcome, Score
 
 
 class LookupTable:
@@ -74,9 +70,16 @@ class LookupTable:
         raise KeyError()
 
     def lookup(self, board: Board):
-        raw_value = self._lookup_raw_value(board.normalize().encode())
-        if raw_value >= 128:
-            return Evaluation(Player.B, 255 - raw_value)
-        if raw_value > 0:
-            return Evaluation(Player.A, raw_value - 1)
-        return Evaluation(Player.NONE, 0)
+        score_octet = self._lookup_raw_value(board.normalize().encode())
+        score_octet_outcome_bits = score_octet & 0xc0
+        ply = score_octet & 0x3f
+        if score_octet_outcome_bits == 0x40:
+            outcome = Outcome.A_WINS
+        elif score_octet_outcome_bits == 0x80:
+            outcome = Outcome.B_WINS
+        elif score_octet_outcome_bits == 0x00:
+            outcome = Outcome.DRAW
+        else:
+            outcome = Outcome.INDETERMINATE
+
+        return Score(outcome, ply)

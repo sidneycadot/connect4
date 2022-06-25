@@ -17,7 +17,7 @@ class InputFile
 
     public:
 
-        // Special name for input files, indicating stdin (cin) should be used.
+        // Special name for input files, indicating that stdin (cin) should be used.
         static constexpr const char * stdin_name  = "STDIN";
 
         InputFile(const std::string & filename):
@@ -42,7 +42,7 @@ class OutputFile
 
     public:
 
-        // Special name for output files, indicating stdout (cout) should be used.
+        // Special name for output files, indicating that stdout (cout) should be used.
         static constexpr const char * stdout_name = "STDOUT";
 
         OutputFile(const std::string & filename):
