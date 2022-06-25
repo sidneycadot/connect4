@@ -6,8 +6,6 @@
 #ifndef BOARD_SIZE_H
 #define BOARD_SIZE_H
 
-#include "number_of_possible_columns.h"
-
 // These constants define the board size and the win rule.
 
 constexpr int H_SIZE    = 7; // Horizontal board size.

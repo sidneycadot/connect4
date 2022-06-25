@@ -7,6 +7,7 @@
 #define DERIVED_CONSTANTS_H
 
 #include "board_size.h"
+#include "number_of_possible_columns.h"
 
 // Determine several constants that define the storage size of a Board when represented in the base-62
 // ASCII representation (see base62.h) and the base-256 binary representation.
