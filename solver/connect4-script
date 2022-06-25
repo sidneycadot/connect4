@@ -1,11 +1,9 @@
 #! /bin/bash
 
 # Solve connect-4 using a combination of a C++ program ('connect4') and the
-# standard 'sort' tool.
+# standard unix 'sort' tool.
 
 set -e
-
-# Add the current directory to the PATH, so we can find the 'connect4' executable.
 
 CONNECT4=$PWD/connect4
 
@@ -14,15 +12,15 @@ if [ ! -x "$CONNECT4" ] ; then
     exit 1
 fi
 
-# Get the size of the board we're processing.
 echo
 echo "Compile-time constants:"
 echo
-$CONNECT4 --print-constants | tee variables.tmp
+$CONNECT4 --print-constants
 echo
 
-source variables.tmp
-rm variables.tmp
+# Make the compile-time constants available in bash.
+
+source <($CONNECT4 --print-constants)
 
 let MAX_GEN=H_SIZE*V_SIZE
 
@@ -40,6 +38,11 @@ if [ -z "$DATADIR" ] ; then
     echo "Please set the environment variable DATADIR to the directory where generated files go."
     exit 1
 fi
+
+# Tell sort that it can use a lot of RAM while sorting.
+# This reduces use of the disk for temporary data.
+
+SORTBUF=24G
 
 # Make sure the datadir exists.
 mkdir -p $DATADIR
@@ -68,7 +71,7 @@ $CONNECT4 --make-initial-node STDOUT | tee ${FILENAME_PREFIX}_nodes_0.dat | wc -
 for ((curr=0; curr <= MAX_GEN - 1; ++curr)) do
     let next=curr+1
     echo "  forward: $curr -> $next"
-    $CONNECT4 --make-nodes ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -u | tee ${FILENAME_PREFIX}_nodes_$next.dat | wc -l >> ${FILENAME_PREFIX}.log
+    $CONNECT4 --make-nodes ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUF} -u | tee ${FILENAME_PREFIX}_nodes_$next.dat | wc -l >> ${FILENAME_PREFIX}.log
 done
 
 # Backward stage: propagate finalized node evaluations backwards.
@@ -84,8 +87,8 @@ mv ${FILENAME_PREFIX}_nodes_$((MAX_GEN)).dat ${FILENAME_PREFIX}_nodes_with_score
 for ((curr=MAX_GEN - 1; curr >= 0; --curr)) do
     let next=curr+1
     echo "  backward: $next -> $curr"
-    $CONNECT4 --make-edges ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort |
-      $CONNECT4 --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_$next.dat STDOUT | sort -u |
+    $CONNECT4 --make-edges ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUF} |
+      $CONNECT4 --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_$next.dat STDOUT | sort -S ${SORTBUF} -u |
         $CONNECT4 --make-nodes-with-score ${FILENAME_PREFIX}_nodes_$curr.dat STDIN ${FILENAME_PREFIX}_nodes_with_score_$curr.dat
     rm ${FILENAME_PREFIX}_nodes_$curr.dat
 done
@@ -94,18 +97,23 @@ done
 
 echo "Merging all generated nodes_with_score files ..."
 
-sort -m ${FILENAME_PREFIX}_nodes_with_score_*.dat > ${FILENAME_PREFIX}.dat
+sort -S ${SORTBUF} -m ${FILENAME_PREFIX}_nodes_with_score_*.dat > ${FILENAME_PREFIX}.dat
 
 echo "Converting data to binary ..."
 
 # We use the "new" extension to prevent confusion with the legacy "bin" format.
 $CONNECT4 --make-binary-file ${FILENAME_PREFIX}.dat ${FILENAME_PREFIX}.new
 
+echo "Extracting info ..."
+
+$CONNECT4 --print-info ${FILENAME_PREFIX}.new > ${FILENAME_PREFIX}.info
+
 echo "All done!"
 
-# Afterwards, we may want to compress the generated binary file.
+# After completion, we'd like to generate a compressed version of the generated 'new' file.
+# The go-to tool for that is xz, nowadays.
 #
-# However, the compression rate can drastically be improved by judicious use
+# The compression rate can drastically be improved by judicious use
 # of xz's filters. In particular, if the "--delta" filter is configured with
 # a distance parameter equal to the record size in the binary file (i.e.,
 # the number of bytes needed to represent one board, plus a single byte to
@@ -118,15 +126,15 @@ echo "All done!"
 # connect4_5x4.new.xz     2364452    ; xz -9 connect4_5x4.new
 # connect4_5x4.new.xz      790120    ; xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0  connect4_5x4.new  )optimal settings)
 #
-#
 # Some optimal flag choices:
 #
-# xz --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=117,depth=0 connect4_4x4.new  #       322164 -->     36688
-# xz --delta=dist=4 --lzma2=dict=64MiB,lc=1,lp=2,pb=2,mf=bt2,mode=normal,nice=152,depth=0 connect4_4x5.new  #      3412740 -->    328396
-# xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0 connect4_5x4.new  #      9870870 -->    790120
-# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=266,depth=0 connect4_5x5.new  #    174441835 -->  10899820
-# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=272,depth=0 connect4_5x6.new  #   3133181598 --> 116887316
-# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x5.new  #   8456931210 --> 300771484
-# xz ------------------------------------------------------------------------------------ connect4_6x6.new  # 242105656233 --> (TBD; in progress)
+# xz --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=117,depth=0 connect4_4x4.new  #       322164 -->      36688  (8.78x)
+# xz --delta=dist=4 --lzma2=dict=64MiB,lc=1,lp=2,pb=2,mf=bt2,mode=normal,nice=152,depth=0 connect4_4x5.new  #      3412740 -->     328396 (10.39x)
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0 connect4_5x4.new  #      9870870 -->     790120 (12.49x)
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=266,depth=0 connect4_5x5.new  #    174441835 -->   10899820 (16.00x)
+# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=272,depth=0 connect4_5x6.new  #   3133181598 -->  116887316 (26.81x)
+# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x5.new  #   8456931210 -->  300771484 (28.12x)
+# xz --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x6.new  # 242105656233 --> 6373063076 (37.98x)
+#
 # xz ------------------------------------------------------------------------------------ connect4_6x7.new  #        (TBD) --> (TBD)
 # xz ------------------------------------------------------------------------------------ connect4_7x6.new  #        (TBD) --> (TBD)
