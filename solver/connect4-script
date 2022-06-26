@@ -47,8 +47,8 @@ fi
 # The "SORTBUFx1" size is used when a solver pass involves two concurrent 'sort' processes;
 # The "SORTBUFx2" size is used when a solver pass involves only one 'sort' process.
 
-SORTBUFx1=32G
-SORTBUFx2=64G
+SORTBUFx1=30G
+SORTBUFx2=60G
 
 # Make sure the datadir exists.
 mkdir -p $DATADIR
@@ -102,7 +102,7 @@ done
 # Merge-sort the nodes_with_score files together.
 # Note that we use the "new" extension to prevent confusion with the legacy "bin" format.
 
-echo "Merging all generated nodes_with_score files, converting to binary, and gathering summary ..."
+echo "Merging all generated nodes_with_score files, converting to binary, and gathering summary data ..."
 
 sort -S ${SORTBUFx2} -m ${FILENAME_PREFIX}_nodes_with_score_*.dat |
   $CONNECT4 --make-binary-file STDIN STDOUT | tee ${FILENAME_PREFIX}.new |
@@ -126,20 +126,20 @@ echo "All done!"
 #
 # Some optimal flag choices for compression of different board size connect4 binary data files:
 #
-# xz command used to compress                                                                               uncompressed size -> compressed size     compression factor
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# xz --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=117,depth=0 connect4_4x4.new          322164    ->         36688              8.78x
-# xz --delta=dist=4 --lzma2=dict=64MiB,lc=1,lp=2,pb=2,mf=bt2,mode=normal,nice=152,depth=0 connect4_4x5.new         3412740    ->        328396             10.39x
-# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=255,depth=0 connect4_4x6.new        39589775    ->       2669540             14.83x
+# xz command used to compress                                                                               uncompressed size  ->  compressed size  compression factor
+# --------------------------------------------------------------------------------------------------------  -----------------      ---------------  ------------------
+# xz --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=117,depth=0 connect4_4x4.new           322164    ->          36688           8.78x
+# xz --delta=dist=4 --lzma2=dict=64MiB,lc=1,lp=2,pb=2,mf=bt2,mode=normal,nice=152,depth=0 connect4_4x5.new          3412740    ->         328396          10.39x
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=255,depth=0 connect4_4x6.new         39589775    ->        2669540          14.83x
 #
-# xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0 connect4_5x4.new         9870870    ->        790120             12.49x
-# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=266,depth=0 connect4_5x5.new       174441835    ->      10899820             16.00x
-# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=272,depth=0 connect4_5x6.new      3133181598    ->     116887316             26.81x
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0 connect4_5x4.new          9870870    ->         790120          12.49x
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=266,depth=0 connect4_5x5.new        174441835    ->       10899820          16.00x
+# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=272,depth=0 connect4_5x6.new       3133181598    ->      116887316          26.81x
 #
-# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=270,depth=0 connect4_6x4.new       237279345    ->      12895108             18.40x
-# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x5.new      8456931210    ->     300771484             28.12x
-# xz --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x6.new    242105656233    ->    6373063076             37.98x
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=270,depth=0 connect4_6x4.new        237279345    ->       12895108          18.40x
+# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x5.new       8456931210    ->      300771484          28.12x
+# xz --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x6.new     242105656233    ->     6373063076          37.98x
 #
-# xz                                                                                      connect4_7x4.new     10196347653    ->        ...
-# xz                                                                                      connect4_7x5.new                    ->        ...
-# xz                                                                                      connect4_7x6/new                    ->        ...
+# xz                                                                                      connect4_7x4.new      10196347653    ->          ...
+# xz                                                                                      connect4_7x5.new            ...      ->          ...
+# xz                                                                                      connect4_7x6.new            ...      ->          ...
