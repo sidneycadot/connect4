@@ -41,8 +41,12 @@ fi
 
 # Tell sort that it can use a lot of RAM while sorting.
 # This reduces use of the disk for temporary data.
+#
+# The "SORTBUFx1" size is used when a solver pass involves two concurrent 'sort' processes;
+# The "SORTBUFx2" size is used when a solver pass involves only one 'sort' process.
 
-SORTBUF=24G
+SORTBUFx1=32G
+SORTBUFx2=64G
 
 # Make sure the datadir exists.
 mkdir -p $DATADIR
@@ -71,70 +75,69 @@ $CONNECT4 --make-initial-node STDOUT | tee ${FILENAME_PREFIX}_nodes_0.dat | wc -
 for ((curr=0; curr <= MAX_GEN - 1; ++curr)) do
     let next=curr+1
     echo "  forward: $curr -> $next"
-    $CONNECT4 --make-nodes ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUF} -u | tee ${FILENAME_PREFIX}_nodes_$next.dat | wc -l >> ${FILENAME_PREFIX}.log
+    $CONNECT4 --make-nodes ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUFx2} -u | tee ${FILENAME_PREFIX}_nodes_$next.dat | wc -l >> ${FILENAME_PREFIX}.log
 done
 
 # Backward stage: propagate finalized node evaluations backwards.
 
 echo "Performing backward game-tree traversal ..."
 
-# The last nodes file is already fully correct w.r.t. scores.
+# The last nodes-file generated is already fully correct w.r.t. scores; rename it.
 
 mv ${FILENAME_PREFIX}_nodes_$((MAX_GEN)).dat ${FILENAME_PREFIX}_nodes_with_score_$((MAX_GEN)).dat
 
-# Do backward traversal.
+# Loop backward to generate the nodes_with_score files; annotate each of the nodes with their score.
 
 for ((curr=MAX_GEN - 1; curr >= 0; --curr)) do
     let next=curr+1
     echo "  backward: $next -> $curr"
-    $CONNECT4 --make-edges ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUF} |
-      $CONNECT4 --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_$next.dat STDOUT | sort -S ${SORTBUF} -u |
+    $CONNECT4 --make-edges ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUFx1} |
+      $CONNECT4 --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_$next.dat STDOUT | sort -S ${SORTBUFx1} -u |
         $CONNECT4 --make-nodes-with-score ${FILENAME_PREFIX}_nodes_$curr.dat STDIN ${FILENAME_PREFIX}_nodes_with_score_$curr.dat
     rm ${FILENAME_PREFIX}_nodes_$curr.dat
 done
 
 # Merge-sort the nodes_with_score files together.
+# Note that we use the "new" extension to prevent confusion with the legacy "bin" format.
 
-echo "Merging all generated nodes_with_score files ..."
+echo "Merging all generated nodes_with_score files, converting to binary, and gathering summary ..."
 
-sort -S ${SORTBUF} -m ${FILENAME_PREFIX}_nodes_with_score_*.dat > ${FILENAME_PREFIX}.dat
-
-echo "Converting data to binary ..."
-
-# We use the "new" extension to prevent confusion with the legacy "bin" format.
-$CONNECT4 --make-binary-file ${FILENAME_PREFIX}.dat ${FILENAME_PREFIX}.new
-
-echo "Extracting info ..."
-
-$CONNECT4 --print-info ${FILENAME_PREFIX}.new > ${FILENAME_PREFIX}.info
+sort -S ${SORTBUFx2} -m ${FILENAME_PREFIX}_nodes_with_score_*.dat |
+  $CONNECT4 --make-binary-file STDIN STDOUT | tee ${FILENAME_PREFIX}.new |
+    $CONNECT4 --print-info STDIN > ${FILENAME_PREFIX}.summary
 
 echo "All done!"
 
-# After completion, we'd like to generate a compressed version of the generated 'new' file.
-# The go-to tool for that is xz, nowadays.
+# After completion, we'd like to generate a compressed version of the generated 'new' file for archival and distribution purposes.
+# The go-to tool for that is 'xz' because of its generally superior compression performance.
 #
-# The compression rate can drastically be improved by judicious use
-# of xz's filters. In particular, if the "--delta" filter is configured with
-# a distance parameter equal to the record size in the binary file (i.e.,
-# the number of bytes needed to represent one board, plus a single byte to
-# represent its outcome), the compression ratio will improve vastly.
+# The compression rate can drastically be improved by judicious use of xz's filters. In particular, if the "--delta" filter is configured
+# with a distance parameter equal to the record size in the binary file (i.e., the number of bytes needed to represent one board, plus a
+# single byte to represent its outcome), the compression ratio will improve drastically.
 #
 # As an example:
 #
-# connect4_5x4.new        9870870    ; uncompressed
-# connect4_5x4.new.xz     2364516    ; xz connect4_5x4.new
-# connect4_5x4.new.xz     2364452    ; xz -9 connect4_5x4.new
-# connect4_5x4.new.xz      790120    ; xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0  connect4_5x4.new  )optimal settings)
+# connect4_5x4.new        9870870    ; uncompressed version
+# connect4_5x4.new.xz     2364516    ; command: xz connect4_5x4.new
+# connect4_5x4.new.xz     2364452    ; command: xz -9 connect4_5x4.new
+# connect4_5x4.new.xz      790120    ; command: xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0 connect4_5x4.new
 #
-# Some optimal flag choices:
+# Some optimal flag choices for compression of different board size connect4 binary data files:
 #
-# xz --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=117,depth=0 connect4_4x4.new  #       322164 -->      36688  (8.78x)
-# xz --delta=dist=4 --lzma2=dict=64MiB,lc=1,lp=2,pb=2,mf=bt2,mode=normal,nice=152,depth=0 connect4_4x5.new  #      3412740 -->     328396 (10.39x)
-# xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0 connect4_5x4.new  #      9870870 -->     790120 (12.49x)
-# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=266,depth=0 connect4_5x5.new  #    174441835 -->   10899820 (16.00x)
-# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=272,depth=0 connect4_5x6.new  #   3133181598 -->  116887316 (26.81x)
-# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x5.new  #   8456931210 -->  300771484 (28.12x)
-# xz --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x6.new  # 242105656233 --> 6373063076 (37.98x)
+# xz command used to compress                                                                               uncompressed size -> compressed size     compression factor
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# xz --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=117,depth=0 connect4_4x4.new          322164    ->         36688              8.78x
+# xz --delta=dist=4 --lzma2=dict=64MiB,lc=1,lp=2,pb=2,mf=bt2,mode=normal,nice=152,depth=0 connect4_4x5.new         3412740    ->        328396             10.39x
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=255,depth=0 connect4_4x6.new        39589775    ->       2669540             14.83x
 #
-# xz ------------------------------------------------------------------------------------ connect4_6x7.new  #        (TBD) --> (TBD)
-# xz ------------------------------------------------------------------------------------ connect4_7x6.new  #        (TBD) --> (TBD)
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0 connect4_5x4.new         9870870    ->        790120             12.49x
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=266,depth=0 connect4_5x5.new       174441835    ->      10899820             16.00x
+# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=272,depth=0 connect4_5x6.new      3133181598    ->     116887316             26.81x
+#
+# xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=270,depth=0 connect4_6x4.new       237279345    ->      12895108             18.40x
+# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x5.new      8456931210    ->     300771484             28.12x
+# xz --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x6.new    242105656233    ->    6373063076             37.98x
+#
+# xz                                                                                      connect4_7x4.new     10196347653    ->        ...
+# xz                                                                                      connect4_7x5.new                    ->        ...
+# xz                                                                                      connect4_7x6/new                    ->        ...
