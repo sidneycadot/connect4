@@ -3,7 +3,7 @@
 # Solve connect-4 using a combination of a C++ program ('connect4') and the
 # standard unix 'sort' tool.
 
-set -e
+#set -e
 
 CONNECT4=$PWD/connect4
 
@@ -15,12 +15,14 @@ fi
 echo
 echo "Compile-time constants:"
 echo
-$CONNECT4 --print-constants
+$CONNECT4 --print-constants | tee constants.tmp
 echo
 
 # Make the compile-time constants available in bash.
-
-source <($CONNECT4 --print-constants)
+# NOTE: using process redirection, i.e, source <($CONNECT4 --print-constants), doesn't work in
+# bash version 3.2 as available in MacOS.
+source constants.tmp
+rm constants.tmp
 
 let MAX_GEN=H_SIZE*V_SIZE
 
