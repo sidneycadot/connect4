@@ -126,8 +126,8 @@ echo "All done!"
 #
 # Some optimal flag choices for compression of different board size connect4 binary data files:
 #
-# xz command used to compress                                                                               uncompressed size  ->  compressed size  compression factor
-# --------------------------------------------------------------------------------------------------------  -----------------      ---------------  ------------------
+# xz command used to compress                                                                               uncompressed size  ->  compressed size  compression ratio
+# --------------------------------------------------------------------------------------------------------  -----------------      ---------------  -----------------
 # xz --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=117,depth=0 connect4_4x4.new           322164    ->          36688           8.78x
 # xz --delta=dist=4 --lzma2=dict=64MiB,lc=1,lp=2,pb=2,mf=bt2,mode=normal,nice=152,depth=0 connect4_4x5.new          3412740    ->         328396          10.39x
 # xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=255,depth=0 connect4_4x6.new         39589775    ->        2669540          14.83x
@@ -140,6 +140,6 @@ echo "All done!"
 # xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x5.new       8456931210    ->      300771484          28.12x
 # xz --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x6.new     242105656233    ->     6373063076          37.98x
 #
-# xz                                                                                      connect4_7x4.new      10196347653    ->          ...
+# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=273,depth=0 connect4_7x4.new      10196347653    ->      217328488          46.92x
 # xz                                                                                      connect4_7x5.new            ...      ->          ...
 # xz                                                                                      connect4_7x6.new            ...      ->          ...

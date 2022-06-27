@@ -79,3 +79,42 @@ indexing when we need the ability to look up the game-theoretical valuation of
 board states that can be reached by a single move from a certain board.
 
 See the "connect4-script" Bash script for details.
+
+RUNNING THE SOLVER
+------------------
+
+To generate a solution database, you first need to configure the board size and
+the win-rule for the game that you want to solve. You do this by editing the
+"board_size.h" file.
+
+Next, generate the `connect4` executable. This can be done by executing make.
+
+Then set the environment variables DATADIR and TMPDIR. The former is where
+all generated files will be stored. The latter is where `sort` will store its
+temporary files. You can improve performance by having these locations on
+separate disks.
+
+Depending on your physical system memory, you may want to edit the SORTBUFx1
+and SORTBUFx2 variables that are set in `connect4-script`. Larger values
+allow `sort` to use more physical memory for its operations, and lessen
+its dependence of temporary disk files. SORTBUGF sizes of at least several
+gigabytes are recommended.
+
+Finally, you can run the `connect4-script` Bash script, that will perform
+a full set of forward, backward, and merge steps to generate a solution
+database.
+
+Be advised that a full run for the standard connect-4 7x6 board will take
+months, and requires tens of terabytes of disk space to be available in
+both the TEMPDIR and DATADIR locations.
+
+The end result of the script's run will be a binary file ending in `.new`,
+containing all reachable board states and their game-theoretical outcome,
+including the number of moves until the game ends with optimal play from
+both sides. (The winning side will seek to minimize the number of moves
+until the win is on the board, whereas the losing side will seek to
+maximize the number of moves untill the loss is on the board.)
+
+Since the game files can become huge, some effort was expended to find
+optimal compression settings for these files using the `xz` tool. See the
+comments at the end of `connect4-script` for guidance.
