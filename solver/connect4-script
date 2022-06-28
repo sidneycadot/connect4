@@ -15,11 +15,11 @@ fi
 echo
 echo "Compile-time constants:"
 echo
-$CONNECT4 --print-constants | tee constants.tmp
+${CONNECT4} --print-constants | tee constants.tmp
 echo
 
 # Make the compile-time constants available in bash.
-# NOTE: using process redirection, i.e, source <($CONNECT4 --print-constants), doesn't work in
+# NOTE: using process redirection, i.e, source <(${CONNECT4} --print-constants), doesn't work in
 # bash version 3.2 as available in MacOS.
 source constants.tmp
 rm constants.tmp
@@ -54,6 +54,7 @@ SORTBUFx2=60G
 mkdir -p $DATADIR
 
 FILENAME_PREFIX=${DATADIR}/connect${CONNECT_Q}_${H_SIZE}x${V_SIZE}
+ABORT_REQUEST_FILENAME=${FILENAME_PREFIX}.abort-request
 
 # Make the sort tool stupid (sort by byte order).
 #
@@ -70,14 +71,18 @@ echo "Performing forward game-tree traversal ..."
 
 # Write the initial node.
 
-$CONNECT4 --make-initial-node STDOUT | tee ${FILENAME_PREFIX}_nodes_0.dat | wc -l > ${FILENAME_PREFIX}.log
+${CONNECT4} --make-initial-node STDOUT | tee ${FILENAME_PREFIX}_nodes_0.dat | wc -l > ${FILENAME_PREFIX}.log
 
 # Forward stage: generate all nodes.
 
 for ((curr=0; curr <= MAX_GEN - 1; ++curr)) do
+    if [ -f ${ABORT_REQUEST_FILENAME} ] ; then
+        echo "Aborting as requested."
+        exit 1
+    fi
     let next=curr+1
     echo "  forward: $curr -> $next"
-    $CONNECT4 --make-nodes ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUFx2} -u | tee ${FILENAME_PREFIX}_nodes_$next.dat | wc -l >> ${FILENAME_PREFIX}.log
+    ${CONNECT4} --make-nodes ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUFx2} -u | tee ${FILENAME_PREFIX}_nodes_$next.dat | wc -l >> ${FILENAME_PREFIX}.log
 done
 
 # Backward stage: propagate finalized node evaluations backwards.
@@ -91,22 +96,31 @@ mv ${FILENAME_PREFIX}_nodes_$((MAX_GEN)).dat ${FILENAME_PREFIX}_nodes_with_score
 # Loop backward to generate the nodes_with_score files; annotate each of the nodes with their score.
 
 for ((curr=MAX_GEN - 1; curr >= 0; --curr)) do
+    if [ -f ${ABORT_REQUEST_FILENAME} ] ; then
+        echo "Aborting as requested."
+        exit 1
+    fi
     let next=curr+1
     echo "  backward: $next -> $curr"
-    $CONNECT4 --make-edges ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUFx1} |
-      $CONNECT4 --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_$next.dat STDOUT | sort -S ${SORTBUFx1} -u |
-        $CONNECT4 --make-nodes-with-score ${FILENAME_PREFIX}_nodes_$curr.dat STDIN ${FILENAME_PREFIX}_nodes_with_score_$curr.dat
+    ${CONNECT4} --make-edges ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUFx1} |
+      ${CONNECT4} --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_$next.dat STDOUT | sort -S ${SORTBUFx1} -u |
+        ${CONNECT4} --make-nodes-with-score ${FILENAME_PREFIX}_nodes_$curr.dat STDIN ${FILENAME_PREFIX}_nodes_with_score_$curr.dat
     rm ${FILENAME_PREFIX}_nodes_$curr.dat
 done
 
 # Merge-sort the nodes_with_score files together.
 # Note that we use the "new" extension to prevent confusion with the legacy "bin" format.
 
+if [ -f ${ABORT_REQUEST_FILENAME} ] ; then
+    echo "Aborting as requested."
+    exit 1
+fi
+
 echo "Merging all generated nodes_with_score files, converting to binary, and gathering summary data ..."
 
 sort -S ${SORTBUFx2} -m ${FILENAME_PREFIX}_nodes_with_score_*.dat |
-  $CONNECT4 --make-binary-file STDIN STDOUT | tee ${FILENAME_PREFIX}.new |
-    $CONNECT4 --print-info STDIN > ${FILENAME_PREFIX}.summary
+  ${CONNECT4} --make-binary-file STDIN STDOUT | tee ${FILENAME_PREFIX}.new |
+    ${CONNECT4} --print-info STDIN > ${FILENAME_PREFIX}.summary
 
 echo "All done!"
 
