@@ -14,6 +14,8 @@ from lookup_table import LookupTable
 
 
 class MoveRecordModel(QAbstractTableModel):
+    """A table model for the move list."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.move_record = []
@@ -71,6 +73,7 @@ class MoveRecordModel(QAbstractTableModel):
 
 
 class Connect4Widget(QWidget):
+    """A widget for playing connect-4."""
 
     PLAYER_NONE_COLOR = Qt.white
     PLAYER_A_COLOR    = Qt.red
@@ -194,7 +197,6 @@ class Connect4Widget(QWidget):
             return Player.B
         raise RuntimeError("Bad entry.")
 
-
     def set_field(self, i, j, player) -> None:
         label = self.rows[i][j]
         palette = label.palette()
@@ -234,7 +236,7 @@ class Connect4Widget(QWidget):
 
     def make_board(self) -> Board:
         entries = []
-        for i in range(Board.V_SIZE - 1, -1, -1):
+        for i in reversed(range(Board.V_SIZE)):
             for j in range(Board.H_SIZE):
                 entries.append(self.get_field(i, j))
 
@@ -307,6 +309,7 @@ class Connect4Widget(QWidget):
 
         self.takeback_button.setEnabled(len(self.move_record_model) != 0)
         self.reset_button.setEnabled(len(self.move_record_model) != 0)
+
 
 class MyMainWindow(QMainWindow):
 

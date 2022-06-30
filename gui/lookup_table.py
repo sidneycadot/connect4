@@ -1,4 +1,4 @@
-"""Implement a lookup table for connect-4."""
+"""A lookup table for connect-4 new-style binary databases."""
 
 import os
 import mmap
@@ -47,10 +47,7 @@ class LookupTable:
 
             mid = (a + b) // 2
 
-            #print(a, b, mid)
-
             mid_entry = self.get_entry(mid)
-            #print(" ".join("0x{:02x}".format(x) for x in mid_entry))
 
             mid_key = 0
             for digit in mid_entry[:-1]:

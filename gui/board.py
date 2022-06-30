@@ -5,7 +5,7 @@ from typing import Optional, Dict, Tuple, List
 
 from simple_types import Player
 
-def _make_column_ternary_to_column_encoded(v_size, q) -> Dict[int, int]:
+def _make_column_ternary_to_column_encoded(n, q) -> Dict[int, int]:
 
     to_be_processed: List[Tuple[Player, ...]] = [tuple()]
     columns = []
@@ -22,7 +22,7 @@ def _make_column_ternary_to_column_encoded(v_size, q) -> Dict[int, int]:
 
         columns.append(ternary)
 
-        if len(tup) < v_size:
+        if len(tup) < n:
             # check if the last q entries are winning.
             if len(tup) >= q:
                 if len(set(tup[-q:])) == 1:
