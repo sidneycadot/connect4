@@ -3,11 +3,11 @@
 # Solve connect-4 using a combination of a C++ program ('connect4') and the
 # standard unix 'sort' tool.
 
-#set -e
+set -e
 
-CONNECT4=$PWD/connect4
+CONNECT4=${PWD}/connect4
 
-if [ ! -x "$CONNECT4" ] ; then
+if [ ! -x "${CONNECT4}" ] ; then
     echo "The 'connect4' executable is not available. Use 'make' to create it."
     exit 1
 fi
@@ -31,12 +31,12 @@ let MAX_GEN=H_SIZE*V_SIZE
 # Ideally, TMPDIR should point to a different disk than the one where data is being
 # read from / written to.
 
-if [ -z "$TMPDIR" ] ; then
+if [ -z "${TMPDIR}" ] ; then
     echo "Please set the environment variable TMPDIR for 'sort' temporary files."
     exit 1
 fi
 
-if [ -z "$DATADIR" ] ; then
+if [ -z "${DATADIR}" ] ; then
     echo "Please set the environment variable DATADIR to the directory where generated files go."
     exit 1
 fi
@@ -47,11 +47,11 @@ fi
 # The "SORTBUFx1" size is used when a solver pass involves two concurrent 'sort' processes;
 # The "SORTBUFx2" size is used when a solver pass involves only one 'sort' process.
 
-SORTBUFx1=30G
-SORTBUFx2=60G
+SORTBUFx1="40%"
+SORTBUFx2="80%"
 
 # Make sure the datadir exists.
-mkdir -p $DATADIR
+mkdir -p ${DATADIR}
 
 FILENAME_PREFIX=${DATADIR}/connect${CONNECT_Q}_${H_SIZE}x${V_SIZE}
 ABORT_REQUEST_FILENAME=${FILENAME_PREFIX}.abort-request
@@ -81,8 +81,8 @@ for ((curr=0; curr <= MAX_GEN - 1; ++curr)) do
         exit 1
     fi
     let next=curr+1
-    echo "  forward: $curr -> $next"
-    ${CONNECT4} --make-nodes ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUFx2} -u | tee ${FILENAME_PREFIX}_nodes_$next.dat | wc -l >> ${FILENAME_PREFIX}.log
+    echo "  forward: ${curr} -> ${next}"
+    ${CONNECT4} --make-nodes ${FILENAME_PREFIX}_nodes_${curr}.dat STDOUT | sort -S ${SORTBUFx2} -u | tee ${FILENAME_PREFIX}_nodes_${next}.dat | wc -l >> ${FILENAME_PREFIX}.log
 done
 
 # Backward stage: propagate finalized node evaluations backwards.
@@ -101,11 +101,11 @@ for ((curr=MAX_GEN - 1; curr >= 0; --curr)) do
         exit 1
     fi
     let next=curr+1
-    echo "  backward: $next -> $curr"
-    ${CONNECT4} --make-edges ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUFx1} |
-      ${CONNECT4} --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_$next.dat STDOUT | sort -S ${SORTBUFx1} -u |
-        ${CONNECT4} --make-nodes-with-score ${FILENAME_PREFIX}_nodes_$curr.dat STDIN ${FILENAME_PREFIX}_nodes_with_score_$curr.dat
-    rm ${FILENAME_PREFIX}_nodes_$curr.dat
+    echo "  backward: ${next} -> ${curr}"
+    ${CONNECT4} --make-edges ${FILENAME_PREFIX}_nodes_${curr}.dat STDOUT | sort -S ${SORTBUFx1} |
+      ${CONNECT4} --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_${next}.dat STDOUT | sort -S ${SORTBUFx1} -u |
+        ${CONNECT4} --make-nodes-with-score ${FILENAME_PREFIX}_nodes_${curr}.dat STDIN ${FILENAME_PREFIX}_nodes_with_score_${curr}.dat
+    rm ${FILENAME_PREFIX}_nodes_${curr}.dat
 done
 
 # Merge-sort the nodes_with_score files together.
