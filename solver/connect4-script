@@ -79,7 +79,7 @@ echo "Performing forward game-tree traversal ..."
 
 ${CONNECT4} --make-initial-node STDOUT | tee ${FILENAME_PREFIX}_nodes_0.dat | wc -l > ${FILENAME_PREFIX}.log
 
-# Forward stage: generate all nodes.
+# Generate all nodes.
 
 for ((curr=0; curr <= MAX_GEN - 1; ++curr)) do
     if [ -f ${ABORT_REQUEST_FILENAME} ] ; then
@@ -181,5 +181,5 @@ echo
 # xz --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x6.new     242105656233    ->     6373063076          37.98x
 #
 # xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=273,depth=0 connect4_7x4.new      10196347653    ->      217328488          46.92x
-# xz                                              ...                                     connect4_7x5.new     394905707413    ->          ...
-# xz                                              ...                                     connect4_7x6.new            ...      ->          ...
+# xz --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=273,depth=0 connect4_7x5.new     394905707413    ->    10753571804          36.72x
+# xz                                              ...                                     connect4_7x6.new   15867070466534    ->   ............          .....x
