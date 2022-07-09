@@ -16,21 +16,21 @@ class ColumnEncoder
     // Looking at a single column of height n, we find that not all length-n sequences of
     // {A, B, empty} are valid columns:
     //
-    //   * Player chips cannot float above empty positions, so the player chips are bunched up at
-    //     the bottom of the column.
+    //   * Player chips cannot float above empty positions, so the player chips must be bunched up
+    //     at the bottom of the column.
     //
-    //   * If a sequence of 'q' chips of either player A or B occur in the column, it must be in
-    //     the last 'q' non-empty positions, since the occurrence of 'q' identical non-empty chips
-    //     ends the game immediately with a win for the player with that color.
+    //   * If a sequence of 'q' chips of either player A or B occur in the column, they must be in
+    //     the top-most 'q' non-empty positions, since the occurrence of 'q' identical non-empty
+    //     chips ends the game immediately with a win for the player with that chip color.
     //
-    // We can use these rules to enumerate all possible columns, given the height n and win rule
-    // 'q-in-a-row'. For example, it turns out there are 111 valid columns in the standard connect-4
-    // game with n=6 and q=4.
+    // We can use these rules to enumerate all possible columns, given the height n and a win rule
+    // 'q-in-a-row'. For example, it turns out there are precisely 111 valid columns in the standard
+    // connect-4 game with n=6 and q=4.
     //
     // The `ColumnEncoder` class enumerates all valid column configurations in its constructor, and
     // provides 'encode' and 'decode' methods to convert between ternary-encoded columns and a compect
     // encoding as an unsigned integer. This latter representation allows for the compact storage of
-    // of the state of a board as a sequence of valid columns.
+    // the state of a board as a sequence of valid columns.
 
     public:
 
