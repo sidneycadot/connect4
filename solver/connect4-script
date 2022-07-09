@@ -3,11 +3,11 @@
 # Solve connect-4 using a combination of a C++ program ('connect4') and the
 # standard unix 'sort' tool.
 
-#set -e
+set -e
 
-CONNECT4=$PWD/connect4
+CONNECT4=${PWD}/connect4
 
-if [ ! -x "$CONNECT4" ] ; then
+if [ ! -x "${CONNECT4}" ] ; then
     echo "The 'connect4' executable is not available. Use 'make' to create it."
     exit 1
 fi
@@ -15,45 +15,52 @@ fi
 echo
 echo "Compile-time constants:"
 echo
-$CONNECT4 --print-constants | tee constants.tmp
+${CONNECT4} --print-constants | tee constants.tmp
 echo
 
 # Make the compile-time constants available in bash.
-# NOTE: using process redirection, i.e, source <($CONNECT4 --print-constants), doesn't work in
+# NOTE: using process redirection, i.e, source <(${CONNECT4} --print-constants), doesn't work in
 # bash version 3.2 as available in MacOS.
 source constants.tmp
 rm constants.tmp
 
 let MAX_GEN=H_SIZE*V_SIZE
 
-# Check that TMDIR is set. It is used by 'sort' to know where to put temporary files.
+# Check that TMPDIR is set. It is used by 'sort' to know where to put temporary files.
 # Note that these can be large, and there can be many of them!
 # Ideally, TMPDIR should point to a different disk than the one where data is being
 # read from / written to.
 
-if [ -z "$TMPDIR" ] ; then
+if [ -z "${TMPDIR}" ] ; then
     echo "Please set the environment variable TMPDIR for 'sort' temporary files."
     exit 1
 fi
 
-if [ -z "$DATADIR" ] ; then
+if [ -z "${DATADIR}" ] ; then
     echo "Please set the environment variable DATADIR to the directory where generated files go."
     exit 1
 fi
 
-# Tell sort that it can use a lot of RAM while sorting.
-# This reduces use of the disk for temporary data.
-#
-# The "SORTBUFx1" size is used when a solver pass involves two concurrent 'sort' processes;
-# The "SORTBUFx2" size is used when a solver pass involves only one 'sort' process.
+# The hard limit for number of open file descriptors in Linux is 1048576 files.
+# Increase the soft limit to that number, to accommodate big merge-sorts.
 
-SORTBUFx1=30G
-SORTBUFx2=60G
+ulimit -n 1048576
 
-# Make sure the datadir exists.
-mkdir -p $DATADIR
+# Tell sort that it should do its merge-sort stage on many files simultaneously, and that it can use a lot of RAM.
+# This reduces use of the disk for temporary data while sorting.
+
+SORTARGS_FORWARD=  "--parallel=1 --batch-size=1000000 --buffer-size=256M"
+SORTARGS_BACKWARD= "--parallel=1 --batch-size=1000000 --buffer-size=128M"
+SORTARGS_COMBINE=  "--parallel=1 --batch-size=1000000 --buffer-size=256M"
+
+# Make sure the data directory exists.
+
+mkdir -p ${DATADIR}
+
+# Define filename prefix and the name of an 'abort request' file.
 
 FILENAME_PREFIX=${DATADIR}/connect${CONNECT_Q}_${H_SIZE}x${V_SIZE}
+ABORT_REQUEST_FILENAME=${FILENAME_PREFIX}.abort-request
 
 # Make the sort tool stupid (sort by byte order).
 #
@@ -64,21 +71,31 @@ FILENAME_PREFIX=${DATADIR}/connect${CONNECT_Q}_${H_SIZE}x${V_SIZE}
 
 export LC_ALL=C
 
-# Forward stage: expand game tree starting at the initial (empty) board.
+# Forward stage: expand game tree starting from the initial (empty) board.
 
 echo "Performing forward game-tree traversal ..."
 
 # Write the initial node.
 
-$CONNECT4 --make-initial-node STDOUT | tee ${FILENAME_PREFIX}_nodes_0.dat | wc -l > ${FILENAME_PREFIX}.log
+${CONNECT4} --make-initial-node STDOUT | tee ${FILENAME_PREFIX}_nodes_0.dat | wc -l > ${FILENAME_PREFIX}.log
 
-# Forward stage: generate all nodes.
+# Generate all nodes.
 
 for ((curr=0; curr <= MAX_GEN - 1; ++curr)) do
+    if [ -f ${ABORT_REQUEST_FILENAME} ] ; then
+        echo "Aborting as requested."
+        exit 99
+    fi
     let next=curr+1
-    echo "  forward: $curr -> $next"
-    $CONNECT4 --make-nodes ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUFx2} -u | tee ${FILENAME_PREFIX}_nodes_$next.dat | wc -l >> ${FILENAME_PREFIX}.log
+    echo "  forward: ${curr} -> ${next}"
+    ${CONNECT4} --make-nodes ${FILENAME_PREFIX}_nodes_${curr}.dat STDOUT | sort ${SORTARGS_FORWARD} -u | tee ${FILENAME_PREFIX}_nodes_${next}.dat | wc -l >> ${FILENAME_PREFIX}.log
+    if [ ! -s ${FILENAME_PREFIX}_nodes_${next}.dat ] ; then
+	echo "Bad file created. Out of memory while sorting or resource limit exceeded?"
+	exit 2
+    fi
 done
+
+echo
 
 # Backward stage: propagate finalized node evaluations backwards.
 
@@ -91,24 +108,47 @@ mv ${FILENAME_PREFIX}_nodes_$((MAX_GEN)).dat ${FILENAME_PREFIX}_nodes_with_score
 # Loop backward to generate the nodes_with_score files; annotate each of the nodes with their score.
 
 for ((curr=MAX_GEN - 1; curr >= 0; --curr)) do
+    if [ -f ${ABORT_REQUEST_FILENAME} ] ; then
+        echo "Aborting as requested."
+        exit 99
+    fi
     let next=curr+1
-    echo "  backward: $next -> $curr"
-    $CONNECT4 --make-edges ${FILENAME_PREFIX}_nodes_$curr.dat STDOUT | sort -S ${SORTBUFx1} |
-      $CONNECT4 --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_$next.dat STDOUT | sort -S ${SORTBUFx1} -u |
-        $CONNECT4 --make-nodes-with-score ${FILENAME_PREFIX}_nodes_$curr.dat STDIN ${FILENAME_PREFIX}_nodes_with_score_$curr.dat
-    rm ${FILENAME_PREFIX}_nodes_$curr.dat
+    echo "  backward: ${next} -> ${curr}"
+    ${CONNECT4} --make-edges ${FILENAME_PREFIX}_nodes_${curr}.dat STDOUT | sort ${SORTARGS_BACKWARD} |
+      ${CONNECT4} --make-edges-with-score STDIN ${FILENAME_PREFIX}_nodes_with_score_${next}.dat STDOUT | sort ${SORTARGS_BACKWARD} -u |
+        ${CONNECT4} --make-nodes-with-score ${FILENAME_PREFIX}_nodes_${curr}.dat STDIN ${FILENAME_PREFIX}_nodes_with_score_${curr}.dat
+    if [ ! -s ${FILENAME_PREFIX}_nodes_with_score_${curr}.dat ] ; then
+	echo "Bad file created. Out of memory while sorting or resource limit exceeded?"
+	exit 2
+    fi
+    rm ${FILENAME_PREFIX}_nodes_${curr}.dat
 done
+
+echo
 
 # Merge-sort the nodes_with_score files together.
 # Note that we use the "new" extension to prevent confusion with the legacy "bin" format.
 
 echo "Merging all generated nodes_with_score files, converting to binary, and gathering summary data ..."
 
-sort -S ${SORTBUFx2} -m ${FILENAME_PREFIX}_nodes_with_score_*.dat |
-  $CONNECT4 --make-binary-file STDIN STDOUT | tee ${FILENAME_PREFIX}.new |
-    $CONNECT4 --print-info STDIN > ${FILENAME_PREFIX}.summary
+sort ${SORTARGS_COMBINE} -m ${FILENAME_PREFIX}_nodes_with_score_*.dat |
+  ${CONNECT4} --make-binary-file STDIN STDOUT | tee ${FILENAME_PREFIX}.new |
+    ${CONNECT4} --print-info STDIN > ${FILENAME_PREFIX}.summary
+
+if [ ! -s ${FILENAME_PREFIX}.new ] ; then
+    echo "Bad file created. Out of memory while sorting or resource limit exceeded?"
+    exit 2
+fi
+
+echo
+
+# We're done.
+
+ls -l ${FILENAME_PREFIX}.new
+echo
 
 echo "All done!"
+echo
 
 # After completion, we'd like to generate a compressed version of the generated 'new' file for archival and distribution purposes.
 # The go-to tool for that is 'xz' because of its generally superior compression performance.
@@ -126,8 +166,8 @@ echo "All done!"
 #
 # Some optimal flag choices for compression of different board size connect4 binary data files:
 #
-# xz command used to compress                                                                               uncompressed size  ->  compressed size  compression factor
-# --------------------------------------------------------------------------------------------------------  -----------------      ---------------  ------------------
+# xz command used to compress                                                                               uncompressed size  ->  compressed size  compression ratio
+# --------------------------------------------------------------------------------------------------------  -----------------      ---------------  -----------------
 # xz --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=117,depth=0 connect4_4x4.new           322164    ->          36688           8.78x
 # xz --delta=dist=4 --lzma2=dict=64MiB,lc=1,lp=2,pb=2,mf=bt2,mode=normal,nice=152,depth=0 connect4_4x5.new          3412740    ->         328396          10.39x
 # xz --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=255,depth=0 connect4_4x6.new         39589775    ->        2669540          14.83x
@@ -140,6 +180,6 @@ echo "All done!"
 # xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x5.new       8456931210    ->      300771484          28.12x
 # xz --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=273,depth=0 connect4_6x6.new     242105656233    ->     6373063076          37.98x
 #
-# xz                                                                                      connect4_7x4.new      10196347653    ->          ...
-# xz                                                                                      connect4_7x5.new            ...      ->          ...
-# xz                                                                                      connect4_7x6.new            ...      ->          ...
+# xz --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=273,depth=0 connect4_7x4.new      10196347653    ->      217328488          46.92x
+# xz --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=273,depth=0 connect4_7x5.new     394905707413    ->    10753571804          36.72x
+# xz                                              ...                                     connect4_7x6.new   15867070466534    ->   ............          .....x

@@ -1,5 +1,6 @@
 #! /usr/bin/env -S python3 -B
 
+import argparse
 import sys
 import functools
 from typing import Optional
@@ -10,10 +11,12 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QHBoxLay
 
 from simple_types import Player, Outcome
 from board import Board
-from lookup_table import LookupTable
+from game_info import GameInfo
 
 
 class MoveRecordModel(QAbstractTableModel):
+    """A table model for the move list."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.move_record = []
@@ -71,33 +74,70 @@ class MoveRecordModel(QAbstractTableModel):
 
 
 class Connect4Widget(QWidget):
+    """A widget for playing connect-4."""
 
+    BUTTON_DISABLED_TEXT_COLOR       = QColor("#bbbbbb")
+    BUTTON_DISABLED_BACKGROUND_COLOR = QColor("#cccccc")
+    BUTTON_ENABLED_BACKGROUND_COLOR  = QColor("#3399ff")
+
+    TITLE_BACKGROUND_COLOR = QColor("#99ccff")
+
+    BLUE_BACKGROUND_COLOR  = QColor("#3399ff")
     PLAYER_NONE_COLOR = Qt.white
     PLAYER_A_COLOR    = Qt.red
     PLAYER_B_COLOR    = Qt.yellow
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, info, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.info = info
 
         self.move_record_model = MoveRecordModel()
 
-        #palette = self.palette()
-        #palette.setColor(QPalette.ColorRole.Window, QColor("#66acd1"))
-        #self.setPalette(palette)
-        #self.setAutoFillBackground(True) 
-
         self.status_widget = QLabel()
-        self.status_widget.setAlignment(Qt.AlignCenter)
         font = self.status_widget.font()
-        font.setBold(True)
+        font.setPointSize(18)
         self.status_widget.setFont(font)
 
         grid_layout = QGridLayout()
 
+        #grid_layout.addWidget(self.status_widget, grid_row, 0, 1, info.h_size, Qt.AlignCenter)
+        #grid_row += 1
+
+        grid_row = 0
+
+        self.drop_labels = []
+
+        for x in range(info.h_size):
+            label = QLabel()
+            label.setAlignment(Qt.AlignCenter)
+            font = label.font()
+            font.setBold(True)
+            label.setFont(font)
+            grid_layout.addWidget(label, grid_row, x)
+            self.drop_labels.append(label)
+
+        grid_row += 1
+
+        self.drop_buttons = []
+
+        for x in range(info.h_size):
+            button = QPushButton("↓")
+
+            font = button.font()
+            font.setBold(True)
+            font.setPointSize(14)
+            button.setFont(font)
+            button.clicked.connect(functools.partial(self.drop, x))
+            grid_layout.addWidget(button, grid_row, x)
+            self.drop_buttons.append(button)
+
+        grid_row += 1
+
         self.rows = []
-        for y in range(Board.V_SIZE):
+        for y in range(info.v_size):
             row = []
-            for x in range(Board.H_SIZE):
+            for x in range(info.h_size):
                 label = QLabel("●")
                 font = label.font()
                 font.setPointSize(60)
@@ -106,34 +146,16 @@ class Connect4Widget(QWidget):
                 palette.setColor(QPalette.ColorRole.Foreground, self.PLAYER_NONE_COLOR)
                 label.setPalette(palette)
                 label.setAlignment(Qt.AlignCenter)
-                grid_layout.addWidget(label, y, x)
+                grid_layout.addWidget(label, grid_row, x)
                 row.append(label)
             self.rows.append(row)
+            grid_row += 1
 
-        self.drop_labels = []
-
-        for x in range(Board.H_SIZE):
-            label = QLabel()
-            label.setAlignment(Qt.AlignCenter)
-            font = label.font()
-            font.setBold(True)
-            label.setFont(font)
-            grid_layout.addWidget(label, Board.V_SIZE, x)
-            self.drop_labels.append(label)
-
-        self.drop_buttons = []
-
-        for x in range(Board.H_SIZE):
-            button = QPushButton("drop")
-            button.clicked.connect(functools.partial(self.drop, x))
-            grid_layout.addWidget(button, Board.V_SIZE + 1, x)
-            self.drop_buttons.append(button)
-
-        game_state_checkbox = QCheckBox("Show game state")
+        game_state_checkbox = QCheckBox("Show full game state")
         game_state_checkbox.setChecked(True)
         game_state_checkbox.stateChanged.connect(self.update_gui)
 
-        move_info_checkbox = QCheckBox("Show move info")
+        move_info_checkbox = QCheckBox("Show move consequences")
         move_info_checkbox.setChecked(True)
         move_info_checkbox.stateChanged.connect(self.update_gui)
 
@@ -144,9 +166,35 @@ class Connect4Widget(QWidget):
         left_checkbox_layout.addWidget(move_info_checkbox)
         left_checkbox_layout.addStretch()
 
+        blue_layout = QVBoxLayout()
+        blue_layout.addLayout(grid_layout)
+
+        blue_widget = QWidget()
+        blue_widget.setLayout(blue_layout)
+
+        palette = blue_widget.palette()
+        palette.setColor(QPalette.ColorRole.Window, self.BLUE_BACKGROUND_COLOR)
+        blue_widget.setPalette(palette)
+        blue_widget.setAutoFillBackground(True) 
+
         left_layout = QVBoxLayout()
-        left_layout.addWidget(self.status_widget)
-        left_layout.addLayout(grid_layout)
+
+        title_layout = QHBoxLayout()
+        title_layout.addWidget(self.status_widget, 1, Qt.AlignCenter)
+
+        title_widget = QWidget()
+        title_widget.setLayout(title_layout)
+
+        palette = title_widget.palette()
+        palette.setColor(QPalette.ColorRole.Background, self.TITLE_BACKGROUND_COLOR)
+        title_widget.setPalette(palette)
+        title_widget.setAutoFillBackground(True)
+
+
+        left_layout.addWidget(title_widget)
+        left_layout.addStretch()
+        left_layout.addWidget(blue_widget)
+        left_layout.addStretch()
         left_layout.addLayout(left_checkbox_layout)
 
         self.move_record_widget = QTableView()
@@ -170,8 +218,11 @@ class Connect4Widget(QWidget):
         right_layout.addLayout(right_button_layout)
 
         h_layout = QHBoxLayout()
+        h_layout.addStretch()
         h_layout.addLayout(left_layout)
+        h_layout.addStretch()
         h_layout.addLayout(right_layout)
+        h_layout.addStretch()
 
         self.setLayout(h_layout)
 
@@ -194,7 +245,6 @@ class Connect4Widget(QWidget):
             return Player.B
         raise RuntimeError("Bad entry.")
 
-
     def set_field(self, i, j, player) -> None:
         label = self.rows[i][j]
         palette = label.palette()
@@ -207,25 +257,28 @@ class Connect4Widget(QWidget):
         label.setPalette(palette)
 
     def reset(self) -> None:
-        for i in range(Board.V_SIZE):
-            for j in range(Board.H_SIZE):
+        info = self.info
+        for i in range(info.v_size):
+            for j in range(info.h_size):
                 self.set_field(i, j, Player.NONE)
         self.move_record_model.reset()
         self.update_gui()
 
     def takeback(self) -> None:
+        info = self.info
         col = self.move_record_model.takeback()
         if col is not None:
-            for row in range(Board.V_SIZE):
+            for row in range(info.v_size):
                 if self.get_field(row, col) != Player.NONE:
                     self.set_field(row, col, Player.NONE)
                     self.update_gui()
                     break
 
     def drop(self, col: int) -> None:
+        info = self.info
         board = self.make_board()
         mover = board.mover()
-        for row in reversed(range(Board.V_SIZE)):
+        for row in reversed(range(info.v_size)):
             if self.get_field(row, col) == Player.NONE:
                 self.set_field(row, col, mover)
                 self.move_record_model.append(col)
@@ -233,116 +286,131 @@ class Connect4Widget(QWidget):
                 break
 
     def make_board(self) -> Board:
+        info = self.info
         entries = []
-        for i in range(Board.V_SIZE - 1, -1, -1):
-            for j in range(Board.H_SIZE):
+        for i in reversed(range(info.v_size)):
+            for j in range(info.h_size):
                 entries.append(self.get_field(i, j))
 
-        return Board(entries)
+        return Board(self.info, entries)
 
     def update_gui(self) -> None:
 
-        board = self.make_board()
-        #board.print()
+        info = self.info
 
-        app = QApplication.instance()
+        board = self.make_board()
 
         mover = board.mover()
 
         status_messages = []
 
         moves_available = False
-        for col in range(Board.H_SIZE):
+        for col in range(info.h_size):
             drop_board = board.drop(col)
+
+
             if drop_board is None:
+
+                palette = self.drop_buttons[col].palette()
+                palette.setColor(QPalette.ColorRole.Button, self.BUTTON_DISABLED_BACKGROUND_COLOR)
+                palette.setColor(QPalette.ColorRole.ButtonText, self.BUTTON_DISABLED_TEXT_COLOR)
+                self.drop_buttons[col].setPalette(palette)
+
                 self.drop_buttons[col].setEnabled(False)
                 self.drop_labels[col].setText("n/a")
             else:
                 moves_available = True
                 self.drop_buttons[col].setEnabled(True)
-                drop_board_score = app.lookup(drop_board)
+
+                palette = self.drop_buttons[col].palette()
+                palette.setColor(QPalette.ColorRole.Button, self.BUTTON_ENABLED_BACKGROUND_COLOR)
+                if mover == Player.A:
+                    palette.setColor(QPalette.ColorRole.ButtonText, self.PLAYER_A_COLOR)
+                elif mover == Player.B:
+                    palette.setColor(QPalette.ColorRole.ButtonText, self.PLAYER_B_COLOR)
+                self.drop_buttons[col].setPalette(palette)
+
+                drop_board_score = info.lookup_table.lookup(drop_board)
                 if drop_board_score.outcome == Outcome.DRAW:
-                    self.drop_labels[col].setText("draw\n({})".format(drop_board_score.ply))
+                    self.drop_labels[col].setText("draw\n({})".format(drop_board_score.ply + 1))
                 elif drop_board_score.outcome == Outcome.A_WINS:
-                    self.drop_labels[col].setText("<font color=\"red\">red win<br>({})</font>".format(drop_board_score.ply))
+                    self.drop_labels[col].setText("<font color=\"red\">red win<br>({})</font>".format(drop_board_score.ply + 1))
                 elif drop_board_score.outcome == Outcome.B_WINS:
-                    self.drop_labels[col].setText("<font color=\"yellow\">yellow win<br>({})</font>".format(drop_board_score.ply))
+                    self.drop_labels[col].setText("<font color=\"yellow\">yellow win<br>({})</font>".format(drop_board_score.ply + 1))
                 else:
                     self.drop_labels[col].setText("indeterminate")
 
-                self.drop_labels[col].setVisible(self.move_info_checkbox.isChecked())
+            self.drop_labels[col].setVisible(self.move_info_checkbox.isChecked())
 
-        score = app.lookup(board)
+        score = info.lookup_table.lookup(board)
 
         if not moves_available:
             if score.outcome == Outcome.A_WINS:
-                status_message = "game over; <font color=\"red\">red</font> wins."
+                status_message = "game over; <font color=\"red\">red</font> wins"
             elif score.outcome == Outcome.B_WINS:
-                status_message = "game over; <font color=\"yellow\">yellow</font> wins."
+                status_message = "game over; <font color=\"yellow\">yellow</font> wins"
             else:
                 status_message = "game over; draw."
         else:
             if self.game_state_checkbox.isChecked():
                 if mover == Player.A:
                     if score.outcome == Outcome.A_WINS:
-                        status_message = "<font color=\"red\">red</font> to move and has a {}-ply win.".format(score.ply)
+                        status_message = "<font color=\"red\">red</font> to move and has a {}-ply win".format(score.ply)
                     elif score.outcome == Outcome.B_WINS:
-                        status_message = "<font color=\"red\">red</font> to move but <font color=\"yellow\">yellow</font> has a {}-ply win.".format(score.ply)
+                        status_message = "<font color=\"red\">red</font> to move but <font color=\"yellow\">yellow</font> has a {}-ply win".format(score.ply)
                     else:
-                        status_message = "<font color=\"red\">red</font> to move and can reach a {}-ply draw.".format(score.ply)
+                        status_message = "<font color=\"red\">red</font> to move and can reach a {}-ply draw".format(score.ply)
                 elif mover == Player.B:
                     if score.outcome == Outcome.B_WINS:
-                        status_message = "<font color=\"yellow\">yellow</font> to move and has a {}-ply win.".format(score.ply)
+                        status_message = "<font color=\"yellow\">yellow</font> to move and has a {}-ply win".format(score.ply)
                     elif score.outcome == Outcome.A_WINS:
-                        status_message = "<font color=\"yellow\">yellow</font> to move but <font color=\"red\">red</font> has a {}-ply win.".format(score.ply)
+                        status_message = "<font color=\"yellow\">yellow</font> to move but <font color=\"red\">red</font> has a {}-ply win".format(score.ply)
                     else:
-                        status_message = "<font color=\"yellow\">yellow</font> to move and can reach a {}-ply draw.".format(score.ply)
+                        status_message = "<font color=\"yellow\">yellow</font> to move and can reach a {}-ply draw".format(score.ply)
             else:
                 if mover == Player.A:
-                    status_message = "<font color=\"red\">red</font> to move."
+                    status_message = "<font color=\"red\">red</font> to move"
                 elif mover == Player.B:
-                    status_message = "<font color=\"yellow\">yellow</font> to move."
+                    status_message = "<font color=\"yellow\">yellow</font> to move"
 
         self.status_widget.setText(status_message)
 
         self.takeback_button.setEnabled(len(self.move_record_model) != 0)
         self.reset_button.setEnabled(len(self.move_record_model) != 0)
 
+
 class MyMainWindow(QMainWindow):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, info: GameInfo, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setWindowTitle("Connect-4")
-        connect4_widget = Connect4Widget()
+        self.setWindowTitle(info.basename)
+        connect4_widget = Connect4Widget(info)
         self.setCentralWidget(connect4_widget)
 
 
 class MyApplication(QApplication):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, info: GameInfo, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._lookup_table = LookupTable("connect4_6x5.new", 6)
-        self._lookup_table.open()
-
-        self.main_window = MyMainWindow()
+        self.main_window = MyMainWindow(info)
         self.main_window.show()
-
-        self.aboutToQuit.connect(self.done)
-
-    def done(self):
-        self._lookup_table.close()
-
-    def lookup(self, board: Board):
-        return self._lookup_table.lookup(board)
 
 
 def main():
-    app = MyApplication(sys.argv)
-    exitcode = app.exec_()
+
+    default_database_filename = "connect4_7x5.new"
+    parser = argparse.ArgumentParser(description="GUI for Connect-4 and related games.")
+    parser.add_argument("-f", "--filename", default="connect4_7x5.new", help="database filename (default: {!r})".format(default_database_filename))
+
+    args = parser.parse_args()
+
+    with GameInfo(args.filename) as info:
+        app = MyApplication(info, sys.argv)
+        exitcode = app.exec_()
+
     if exitcode != 0:
         sys.exit(exitcode)
-
 
 if __name__ == "__main__":
     main()

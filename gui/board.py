@@ -1,55 +1,19 @@
 
 from __future__ import annotations
 
-from typing import Optional, Dict, Tuple, List
-
 from simple_types import Player
-
-def _make_column_ternary_to_column_encoded(v_size, q) -> Dict[int, int]:
-
-    to_be_processed: List[Tuple[Player, ...]] = [tuple()]
-    columns = []
-    while to_be_processed:
-        tup = to_be_processed.pop()
-
-        ternary = 0
-        for digit in reversed(tup):
-            ternary *= 3
-            if digit == Player.A:
-                ternary += 1
-            elif digit == Player.B:
-                ternary += 2
-
-        columns.append(ternary)
-
-        if len(tup) < v_size:
-            # check if the last q entries are winning.
-            if len(tup) >= q:
-                if len(set(tup[-q:])) == 1:
-                    continue
-
-            # We can still add a chip.
-            to_be_processed.append(tup + (Player.A, ))
-            to_be_processed.append(tup + (Player.B, ))
-
-    columns.sort()
-
-    return dict((ternary, encoded) for (encoded, ternary) in enumerate(columns))
 
 
 class Board:
 
-    H_SIZE = 6
-    V_SIZE = 5
-    Q = 4
+    def __init__(self, info, entries):
 
-    def __init__(self, entries):
         entries_tuple = tuple(entry for entry in entries)
-        if len(entries_tuple) != Board.H_SIZE * Board.V_SIZE:
+        if len(entries_tuple) != info.h_size * info.v_size:
             raise RuntimeError("Bad number of entries.")
 
+        self.info = info
         self.entries = entries_tuple
-        self.column_ternary_to_column_encoded = _make_column_ternary_to_column_encoded(Board.V_SIZE, Board.Q)
 
     def mover(self) -> Player:
         a_min_b = 0
@@ -64,23 +28,27 @@ class Board:
             return Player.B
         raise RuntimeError("Bad mover")
 
-    @staticmethod
-    def is_valid_coordinate(x: int, y: int) -> bool:
-        return (0 <= x < Board.H_SIZE) and (0 <= y < Board.V_SIZE)
+    def is_valid_coordinate(self, x: int, y: int) -> bool:
+        info = self.info
+        return (0 <= x < info.h_size) and (0 <= y < info.v_size)
 
     def get(self, x: int, y: int) -> Player:
-        if not Board.is_valid_coordinate(x, y):
+        if not self.is_valid_coordinate(x, y):
             raise RuntimeError("Bad get")
-        return self.entries[y * Board.H_SIZE + x]
+        info = self.info
+        return self.entries[y * info.h_size + x]
 
     def winner(self) -> Player:
+
+        info = self.info
+
         player_a_wins = False
         player_b_wins = False
 
-        for y in range(Board.V_SIZE):
-            for x in range(Board.H_SIZE):
+        for y in range(info.v_size):
+            for x in range(info.h_size):
 
-                player = self.entries[y * Board.H_SIZE + x]
+                player = self.entries[y * info.h_size + x]
 
                 if player != Player.NONE:
 
@@ -88,11 +56,11 @@ class Board:
 
                     for (dx, dy) in directions:
 
-                        if Board.is_valid_coordinate(x + dx * (Board.Q - 1), y + dy * (Board.Q - 1)):
+                        if self.is_valid_coordinate(x + dx * (info.connect_q - 1), y + dy * (info.connect_q - 1)):
 
                             found_win = True
 
-                            for i in range(1, Board.Q):
+                            for i in range(1, info.connect_q):
 
                                 if self.get(x + dx * i, y + dy * i) != player:
                                     found_win = False
@@ -115,37 +83,40 @@ class Board:
         return Player.NONE
 
     def print(self) -> None:
-        for y in reversed(range(Board.V_SIZE)):
-            for x in range(Board.H_SIZE):
-                print(self.entries[y * Board.H_SIZE + x], end='')
+        for y in reversed(range(self.v_size)):
+            for x in range(self.h_size):
+                print(self.entries[y * self.h_size + x], end='')
             print()
         print()
 
     def encode(self) -> int:
+        info = self.info
         encoding = 0
-        for x in range(Board.H_SIZE):
+        for x in range(info.h_size):
             ternary = 0
-            for y in reversed(range(Board.V_SIZE)):
+            for y in reversed(range(info.v_size)):
                 ternary *= 3
                 player = self.get(x, y)
                 if player == Player.A:
                     ternary += 1
                 elif player == Player.B:
                     ternary += 2
-            encoding *= len(self.column_ternary_to_column_encoded)
-            encoding += self.column_ternary_to_column_encoded[ternary]
+            encoding *= len(info.column_ternary_to_column_encoded)
+            encoding += info.column_ternary_to_column_encoded[ternary]
 
         return encoding
 
     def normalize(self) -> Board:
 
+        info = self.info
+
         entries = []
-        for y in range(Board.V_SIZE):
-            for x in range(Board.H_SIZE):
-                x_mirrored = (Board.H_SIZE -1) - x
+        for y in range(info.v_size):
+            for x in range(info.h_size):
+                x_mirrored = (info.h_size -1) - x
                 entries.append(self.get(x_mirrored, y))
 
-        horizontal_mirror = Board(entries)
+        horizontal_mirror = Board(info, entries)
 
         return min(self, horizontal_mirror)
 
@@ -158,11 +129,13 @@ class Board:
         if winner != Player.NONE:
             return None
 
-        for y in range(Board.V_SIZE):
+        info = self.info
+
+        for y in range(info.v_size):
             if self.get(col, y) == Player.NONE:
                 entries = list(self.entries)
-                entries[y * Board.H_SIZE + col] = self.mover()
-                drop_board = Board(entries)
+                entries[y * info.h_size + col] = self.mover()
+                drop_board = Board(info, entries)
                 return drop_board
 
         return None

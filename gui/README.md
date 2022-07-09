@@ -8,8 +8,8 @@ You can either generate this file yourself by running the solver, or download a 
 
 https://data.jigsaw.nl/connect4/connect4_6x5.new.xz
 
-Assuming your Python has the PyQt5 package installed, and you have the "connect4_6x5.new" file accessible in uncompressed form,
-you can now start the GUI by running the "connect4-gui.py" program.
+Assuming your Python has the PyQt5 package installed, and you have the "connect4_6x5.new" file accessible in uncompressed
+form, you can now start the GUI by running the "connect4-gui.py" program.
 
 File integrity
 --------------

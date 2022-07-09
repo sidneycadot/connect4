@@ -1,4 +1,4 @@
-"""Implement a lookup table for connect-4."""
+"""A lookup table for connect-4 new-style binary databases."""
 
 import os
 import mmap
@@ -9,9 +9,9 @@ from simple_types import Outcome, Score
 
 class LookupTable:
 
-    def __init__(self, filename: str, num_octets_per_entry: int):
+    def __init__(self, filename: str, number_of_octets_per_entry: int):
         self.filename = filename
-        self.num_octets_per_entry = num_octets_per_entry
+        self.number_of_octets_per_entry = number_of_octets_per_entry
         self.fd = None
         self.mm = None
         self.size = None
@@ -22,7 +22,7 @@ class LookupTable:
         stat_result = os.fstat(self.fd)
         self.size = stat_result.st_size
 
-        assert self.size % self.num_octets_per_entry == 0
+        assert self.size % self.number_of_octets_per_entry == 0
 
         self.mm = mmap.mmap(self.fd, self.size, mmap.MAP_SHARED, prot = mmap.PROT_READ)
 
@@ -34,12 +34,12 @@ class LookupTable:
         self.size = None
 
     def num_entries(self):
-        return self.size // self.num_octets_per_entry
+        return self.size // self.number_of_octets_per_entry
 
     def get_entry(self, index):
-        return self.mm[index * self.num_octets_per_entry: (index + 1) * self.num_octets_per_entry]
+        return self.mm[index * self.number_of_octets_per_entry: (index + 1) * self.number_of_octets_per_entry]
 
-    def _lookup_raw_value(self, key: int) -> int:
+    def _lookup_score_octet(self, key: int) -> int:
         a = 0
         b = self.num_entries() - 1
 
@@ -47,10 +47,7 @@ class LookupTable:
 
             mid = (a + b) // 2
 
-            #print(a, b, mid)
-
             mid_entry = self.get_entry(mid)
-            #print(" ".join("0x{:02x}".format(x) for x in mid_entry))
 
             mid_key = 0
             for digit in mid_entry[:-1]:
@@ -69,8 +66,8 @@ class LookupTable:
 
         raise KeyError()
 
-    def lookup(self, board: Board):
-        score_octet = self._lookup_raw_value(board.normalize().encode())
+    def lookup(self, board: Board) -> Score:
+        score_octet = self._lookup_score_octet(board.normalize().encode())
         score_octet_outcome_bits = score_octet & 0xc0
         ply = score_octet & 0x3f
         if score_octet_outcome_bits == 0x40:
@@ -80,6 +77,8 @@ class LookupTable:
         elif score_octet_outcome_bits == 0x00:
             outcome = Outcome.DRAW
         else:
+            # This shouldn't happen.
             outcome = Outcome.INDETERMINATE
+            raise RuntimeError("Unexpected outcome INDETERMINATE")
 
         return Score(outcome, ply)
