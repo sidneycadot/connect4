@@ -49,9 +49,9 @@ ulimit -n 1048576
 # Tell sort that it should do its merge-sort stage on many files simultaneously, and that it can use a lot of RAM.
 # This reduces use of the disk for temporary data while sorting.
 
-SORTARGS_FORWARD="--batch-size=1000000 --buffer-size=80%"
-SORTARGS_BACKWARD="--batch-size=1000000 --buffer-size=40%"
-SORTARGS_COMBINE="--batch-size=1000000 --buffer-size=80%"
+SORTARGS_FORWARD=  "--parallel=1 --batch-size=1000000 --buffer-size=256M"
+SORTARGS_BACKWARD= "--parallel=1 --batch-size=1000000 --buffer-size=128M"
+SORTARGS_COMBINE=  "--parallel=1 --batch-size=1000000 --buffer-size=256M"
 
 # Make sure the data directory exists.
 
