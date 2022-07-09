@@ -13,6 +13,7 @@ from simple_types import Player, Outcome
 from board import Board
 from game_info import GameInfo
 
+
 class MoveRecordModel(QAbstractTableModel):
     """A table model for the move list."""
 
@@ -77,7 +78,9 @@ class Connect4Widget(QWidget):
 
     BUTTON_DISABLED_TEXT_COLOR       = QColor("#bbbbbb")
     BUTTON_DISABLED_BACKGROUND_COLOR = QColor("#cccccc")
-    BUTTON_ENABLED_BACKGROUND_COLOR  = QColor("#6699ff")
+    BUTTON_ENABLED_BACKGROUND_COLOR  = QColor("#3399ff")
+
+    TITLE_BACKGROUND_COLOR = QColor("#99ccff")
 
     BLUE_BACKGROUND_COLOR  = QColor("#3399ff")
     PLAYER_NONE_COLOR = Qt.white
@@ -92,13 +95,29 @@ class Connect4Widget(QWidget):
         self.move_record_model = MoveRecordModel()
 
         self.status_widget = QLabel()
-        #self.status_widget.setAlignment(Qt.AlignCenter)
         font = self.status_widget.font()
-        #font.setBold(True)
         font.setPointSize(18)
         self.status_widget.setFont(font)
 
         grid_layout = QGridLayout()
+
+        #grid_layout.addWidget(self.status_widget, grid_row, 0, 1, info.h_size, Qt.AlignCenter)
+        #grid_row += 1
+
+        grid_row = 0
+
+        self.drop_labels = []
+
+        for x in range(info.h_size):
+            label = QLabel()
+            label.setAlignment(Qt.AlignCenter)
+            font = label.font()
+            font.setBold(True)
+            label.setFont(font)
+            grid_layout.addWidget(label, grid_row, x)
+            self.drop_labels.append(label)
+
+        grid_row += 1
 
         self.drop_buttons = []
 
@@ -110,8 +129,10 @@ class Connect4Widget(QWidget):
             font.setPointSize(14)
             button.setFont(font)
             button.clicked.connect(functools.partial(self.drop, x))
-            grid_layout.addWidget(button, 0, x)
+            grid_layout.addWidget(button, grid_row, x)
             self.drop_buttons.append(button)
+
+        grid_row += 1
 
         self.rows = []
         for y in range(info.v_size):
@@ -125,23 +146,10 @@ class Connect4Widget(QWidget):
                 palette.setColor(QPalette.ColorRole.Foreground, self.PLAYER_NONE_COLOR)
                 label.setPalette(palette)
                 label.setAlignment(Qt.AlignCenter)
-                grid_layout.addWidget(label, 1 + y, x)
+                grid_layout.addWidget(label, grid_row, x)
                 row.append(label)
             self.rows.append(row)
-
-        self.drop_labels = []
-
-        for x in range(info.h_size):
-            label = QLabel()
-            label.setAlignment(Qt.AlignCenter)
-            font = label.font()
-            font.setBold(True)
-            label.setFont(font)
-            grid_layout.addWidget(label, info.v_size + 1, x)
-            self.drop_labels.append(label)
-
-        grid_layout.addWidget(self.status_widget, info.v_size + 2, 0, 1, info.h_size, Qt.AlignCenter)
-
+            grid_row += 1
 
         game_state_checkbox = QCheckBox("Show full game state")
         game_state_checkbox.setChecked(True)
@@ -170,6 +178,20 @@ class Connect4Widget(QWidget):
         blue_widget.setAutoFillBackground(True) 
 
         left_layout = QVBoxLayout()
+
+        title_layout = QHBoxLayout()
+        title_layout.addWidget(self.status_widget, 1, Qt.AlignCenter)
+
+        title_widget = QWidget()
+        title_widget.setLayout(title_layout)
+
+        palette = title_widget.palette()
+        palette.setColor(QPalette.ColorRole.Background, self.TITLE_BACKGROUND_COLOR)
+        title_widget.setPalette(palette)
+        title_widget.setAutoFillBackground(True)
+
+
+        left_layout.addWidget(title_widget)
         left_layout.addStretch()
         left_layout.addWidget(blue_widget)
         left_layout.addStretch()
@@ -310,15 +332,15 @@ class Connect4Widget(QWidget):
 
                 drop_board_score = info.lookup_table.lookup(drop_board)
                 if drop_board_score.outcome == Outcome.DRAW:
-                    self.drop_labels[col].setText("draw\n({})".format(drop_board_score.ply))
+                    self.drop_labels[col].setText("draw\n({})".format(drop_board_score.ply + 1))
                 elif drop_board_score.outcome == Outcome.A_WINS:
-                    self.drop_labels[col].setText("<font color=\"red\">red win<br>({})</font>".format(drop_board_score.ply))
+                    self.drop_labels[col].setText("<font color=\"red\">red win<br>({})</font>".format(drop_board_score.ply + 1))
                 elif drop_board_score.outcome == Outcome.B_WINS:
-                    self.drop_labels[col].setText("<font color=\"yellow\">yellow win<br>({})</font>".format(drop_board_score.ply))
+                    self.drop_labels[col].setText("<font color=\"yellow\">yellow win<br>({})</font>".format(drop_board_score.ply + 1))
                 else:
                     self.drop_labels[col].setText("indeterminate")
 
-                self.drop_labels[col].setVisible(self.move_info_checkbox.isChecked())
+            self.drop_labels[col].setVisible(self.move_info_checkbox.isChecked())
 
         score = info.lookup_table.lookup(board)
 
@@ -384,7 +406,6 @@ def main():
     args = parser.parse_args()
 
     with GameInfo(args.filename) as info:
-
         app = MyApplication(info, sys.argv)
         exitcode = app.exec_()
 
