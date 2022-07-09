@@ -11,7 +11,7 @@
 #include <memory>
 #include <iostream>
 
-// We want to provide the ability to specify filenames on the commandline for both in- and output files,
+// We want to provide the ability to specify filenames on the command line for both in- and output files,
 // with the added feature of being able to specify that an input file should be read from stdin, and/or
 // an output file should we written to stdout. Classes `InputFile` and `OutputFile` implement this.
 
