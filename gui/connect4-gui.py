@@ -75,7 +75,11 @@ class MoveRecordModel(QAbstractTableModel):
 class Connect4Widget(QWidget):
     """A widget for playing connect-4."""
 
-    BACKGROUND_COLOR  = QColor("#3399ff")
+    BUTTON_DISABLED_TEXT_COLOR       = QColor("#bbbbbb")
+    BUTTON_DISABLED_BACKGROUND_COLOR = QColor("#cccccc")
+    BUTTON_ENABLED_BACKGROUND_COLOR  = QColor("#6699ff")
+
+    BLUE_BACKGROUND_COLOR  = QColor("#3399ff")
     PLAYER_NONE_COLOR = Qt.white
     PLAYER_A_COLOR    = Qt.red
     PLAYER_B_COLOR    = Qt.yellow
@@ -88,12 +92,26 @@ class Connect4Widget(QWidget):
         self.move_record_model = MoveRecordModel()
 
         self.status_widget = QLabel()
-        self.status_widget.setAlignment(Qt.AlignCenter)
+        #self.status_widget.setAlignment(Qt.AlignCenter)
         font = self.status_widget.font()
-        font.setBold(True)
+        #font.setBold(True)
+        font.setPointSize(18)
         self.status_widget.setFont(font)
 
         grid_layout = QGridLayout()
+
+        self.drop_buttons = []
+
+        for x in range(info.h_size):
+            button = QPushButton("↓")
+
+            font = button.font()
+            font.setBold(True)
+            font.setPointSize(14)
+            button.setFont(font)
+            button.clicked.connect(functools.partial(self.drop, x))
+            grid_layout.addWidget(button, 0, x)
+            self.drop_buttons.append(button)
 
         self.rows = []
         for y in range(info.v_size):
@@ -107,7 +125,7 @@ class Connect4Widget(QWidget):
                 palette.setColor(QPalette.ColorRole.Foreground, self.PLAYER_NONE_COLOR)
                 label.setPalette(palette)
                 label.setAlignment(Qt.AlignCenter)
-                grid_layout.addWidget(label, y, x)
+                grid_layout.addWidget(label, 1 + y, x)
                 row.append(label)
             self.rows.append(row)
 
@@ -119,16 +137,11 @@ class Connect4Widget(QWidget):
             font = label.font()
             font.setBold(True)
             label.setFont(font)
-            grid_layout.addWidget(label, info.v_size, x)
+            grid_layout.addWidget(label, info.v_size + 1, x)
             self.drop_labels.append(label)
 
-        self.drop_buttons = []
+        grid_layout.addWidget(self.status_widget, info.v_size + 2, 0, 1, info.h_size, Qt.AlignCenter)
 
-        for x in range(info.h_size):
-            button = QPushButton("drop")
-            button.clicked.connect(functools.partial(self.drop, x))
-            grid_layout.addWidget(button, info.v_size + 1, x)
-            self.drop_buttons.append(button)
 
         game_state_checkbox = QCheckBox("Show full game state")
         game_state_checkbox.setChecked(True)
@@ -145,16 +158,14 @@ class Connect4Widget(QWidget):
         left_checkbox_layout.addWidget(move_info_checkbox)
         left_checkbox_layout.addStretch()
 
-
         blue_layout = QVBoxLayout()
-        blue_layout.addWidget(self.status_widget)
         blue_layout.addLayout(grid_layout)
 
         blue_widget = QWidget()
         blue_widget.setLayout(blue_layout)
 
         palette = blue_widget.palette()
-        palette.setColor(QPalette.ColorRole.Window, self.BACKGROUND_COLOR)
+        palette.setColor(QPalette.ColorRole.Window, self.BLUE_BACKGROUND_COLOR)
         blue_widget.setPalette(palette)
         blue_widget.setAutoFillBackground(True) 
 
@@ -185,8 +196,11 @@ class Connect4Widget(QWidget):
         right_layout.addLayout(right_button_layout)
 
         h_layout = QHBoxLayout()
+        h_layout.addStretch()
         h_layout.addLayout(left_layout)
+        h_layout.addStretch()
         h_layout.addLayout(right_layout)
+        h_layout.addStretch()
 
         self.setLayout(h_layout)
 
@@ -263,7 +277,6 @@ class Connect4Widget(QWidget):
         info = self.info
 
         board = self.make_board()
-        #board.print()
 
         mover = board.mover()
 
@@ -272,12 +285,29 @@ class Connect4Widget(QWidget):
         moves_available = False
         for col in range(info.h_size):
             drop_board = board.drop(col)
+
+
             if drop_board is None:
+
+                palette = self.drop_buttons[col].palette()
+                palette.setColor(QPalette.ColorRole.Button, self.BUTTON_DISABLED_BACKGROUND_COLOR)
+                palette.setColor(QPalette.ColorRole.ButtonText, self.BUTTON_DISABLED_TEXT_COLOR)
+                self.drop_buttons[col].setPalette(palette)
+
                 self.drop_buttons[col].setEnabled(False)
                 self.drop_labels[col].setText("n/a")
             else:
                 moves_available = True
                 self.drop_buttons[col].setEnabled(True)
+
+                palette = self.drop_buttons[col].palette()
+                palette.setColor(QPalette.ColorRole.Button, self.BUTTON_ENABLED_BACKGROUND_COLOR)
+                if mover == Player.A:
+                    palette.setColor(QPalette.ColorRole.ButtonText, self.PLAYER_A_COLOR)
+                elif mover == Player.B:
+                    palette.setColor(QPalette.ColorRole.ButtonText, self.PLAYER_B_COLOR)
+                self.drop_buttons[col].setPalette(palette)
+
                 drop_board_score = info.lookup_table.lookup(drop_board)
                 if drop_board_score.outcome == Outcome.DRAW:
                     self.drop_labels[col].setText("draw\n({})".format(drop_board_score.ply))
@@ -294,32 +324,32 @@ class Connect4Widget(QWidget):
 
         if not moves_available:
             if score.outcome == Outcome.A_WINS:
-                status_message = "game over; <font color=\"red\">red</font> wins."
+                status_message = "game over; <font color=\"red\">red</font> wins"
             elif score.outcome == Outcome.B_WINS:
-                status_message = "game over; <font color=\"yellow\">yellow</font> wins."
+                status_message = "game over; <font color=\"yellow\">yellow</font> wins"
             else:
                 status_message = "game over; draw."
         else:
             if self.game_state_checkbox.isChecked():
                 if mover == Player.A:
                     if score.outcome == Outcome.A_WINS:
-                        status_message = "<font color=\"red\">red</font> to move and has a {}-ply win.".format(score.ply)
+                        status_message = "<font color=\"red\">red</font> to move and has a {}-ply win".format(score.ply)
                     elif score.outcome == Outcome.B_WINS:
-                        status_message = "<font color=\"red\">red</font> to move but <font color=\"yellow\">yellow</font> has a {}-ply win.".format(score.ply)
+                        status_message = "<font color=\"red\">red</font> to move but <font color=\"yellow\">yellow</font> has a {}-ply win".format(score.ply)
                     else:
-                        status_message = "<font color=\"red\">red</font> to move and can reach a {}-ply draw.".format(score.ply)
+                        status_message = "<font color=\"red\">red</font> to move and can reach a {}-ply draw".format(score.ply)
                 elif mover == Player.B:
                     if score.outcome == Outcome.B_WINS:
-                        status_message = "<font color=\"yellow\">yellow</font> to move and has a {}-ply win.".format(score.ply)
+                        status_message = "<font color=\"yellow\">yellow</font> to move and has a {}-ply win".format(score.ply)
                     elif score.outcome == Outcome.A_WINS:
-                        status_message = "<font color=\"yellow\">yellow</font> to move but <font color=\"red\">red</font> has a {}-ply win.".format(score.ply)
+                        status_message = "<font color=\"yellow\">yellow</font> to move but <font color=\"red\">red</font> has a {}-ply win".format(score.ply)
                     else:
-                        status_message = "<font color=\"yellow\">yellow</font> to move and can reach a {}-ply draw.".format(score.ply)
+                        status_message = "<font color=\"yellow\">yellow</font> to move and can reach a {}-ply draw".format(score.ply)
             else:
                 if mover == Player.A:
-                    status_message = "<font color=\"red\">red</font> to move."
+                    status_message = "<font color=\"red\">red</font> to move"
                 elif mover == Player.B:
-                    status_message = "<font color=\"yellow\">yellow</font> to move."
+                    status_message = "<font color=\"yellow\">yellow</font> to move"
 
         self.status_widget.setText(status_message)
 
