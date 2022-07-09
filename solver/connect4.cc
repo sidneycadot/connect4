@@ -23,9 +23,8 @@ using namespace std;
 static void write_node_with_trivial_outcome(ostream & out_stream, const Board & board)
 {
     // During the inital and forward steps, we mark boards that we can determine by immediate
-    // inspection as won-in-0 (i.e., one of the players has a four-in-a-row): "A0" or "B0",
-    // or draw in zero: "-0".
-    // If we cannot determine the node evaluation, we write "unknown" which is marked as "?0".
+    // inspection as won-in-0 (i.e., one of the players has a four-in-a-row), or draw-in-0.
+    // If we cannot trivially determine the node evaluation, we mark its outcome as INDETERMINATE.
 
     out_stream << board << Score(board.trivial_outcome(), 0) << '\n';
 }
@@ -46,8 +45,8 @@ static void make_nodes(const string & in_nodes_filename,
                        const string & out_nodes_filename)
 {
     // Given an input file of nodes, write a file with the possible nodes that
-    // can be reached by starting at a node found in the input file, and making
-    // a single move.
+    // can be reached by starting at any of the nodes found in the input file,
+    // and making a single move.
     //
     // The output is unsorted and may contain duplicates;
     // it should therefore be piped through 'sort -u'.
@@ -76,13 +75,14 @@ static void make_edges(const string & in_nodes_filename,
                        const string & out_edges_filename)
 {
     // Given an input file of nodes, write a file with the possible edges that
-    // can be traversed by starting at a node found in the input file, and
-    // making 1 move.
+    // can be traversed by starting at any of the nodes node found in the input file,
+    // and making a single move.
     //
     // Each edge is written starting with the destination node followed
     // by the source node. This is done so that a sorted version of the
     // output can be used to determine the value of each edge, by combining
-    // the file with a file containing node evaluations of the destination node.
+    // the file that results from this step with a file containing node
+    // evaluations of the destination node.
     //
     // The output is unsorted but will not contain duplicates;
     // it should therefore be piped through 'sort'.
