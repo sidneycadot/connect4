@@ -4,6 +4,7 @@ import argparse
 import sys
 import functools
 from typing import Optional
+import random
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
 from PyQt5.QtGui import QPalette, QColor
@@ -76,6 +77,8 @@ class MoveRecordModel(QAbstractTableModel):
 class Connect4Widget(QWidget):
     """A widget for playing connect-4."""
 
+    CHIP_SIZE = 80
+
     BUTTON_DISABLED_TEXT_COLOR       = QColor("#bbbbbb")
     BUTTON_DISABLED_BACKGROUND_COLOR = QColor("#cccccc")
     BUTTON_ENABLED_BACKGROUND_COLOR  = QColor("#3399ff")
@@ -140,7 +143,7 @@ class Connect4Widget(QWidget):
             for x in range(info.h_size):
                 label = QLabel("●")
                 font = label.font()
-                font.setPointSize(60)
+                font.setPointSize(self.CHIP_SIZE)
                 label.setFont(font)
                 palette = label.palette()
                 palette.setColor(QPalette.ColorRole.Foreground, self.PLAYER_NONE_COLOR)
@@ -206,7 +209,12 @@ class Connect4Widget(QWidget):
         takeback_button = QPushButton("Takeback")
         takeback_button.clicked.connect(self.takeback)
 
+        move_button = QPushButton("Move!")
+        move_button.clicked.connect(self.move)
+
         right_button_layout = QHBoxLayout()
+        right_button_layout.addStretch()
+        right_button_layout.addWidget(move_button)
         right_button_layout.addStretch()
         right_button_layout.addWidget(reset_button)
         right_button_layout.addStretch()
@@ -228,6 +236,7 @@ class Connect4Widget(QWidget):
 
         self.game_state_checkbox = game_state_checkbox
         self.move_info_checkbox = move_info_checkbox
+        self.move_button = move_button
         self.takeback_button = takeback_button
         self.reset_button = reset_button
 
@@ -273,6 +282,74 @@ class Connect4Widget(QWidget):
                     self.set_field(row, col, Player.NONE)
                     self.update_gui()
                     break
+
+    def move(self) -> None:
+
+        info = self.info
+
+        board = self.make_board()
+        mover = board.mover()
+
+        best_score = None
+        best_moves = []
+        
+        for col in range(info.h_size):
+            drop_board = board.drop(col)
+            if drop_board is None:
+                continue
+
+            drop_board_score = info.lookup_table.lookup(drop_board)
+
+            if len(best_moves) == 0:
+                best_score = drop_board_score
+                best_moves.append(col)
+                continue
+
+            if (mover == Player.A and drop_board_score.outcome == Outcome.A_WINS) or (mover == Player.B and drop_board_score.outcome == Outcome.B_WINS):
+                # This column wins!
+                if best_score.outcome != drop_board_score.outcome:
+                    # Replace non-winning best score.
+                    best_score = drop_board_score
+                    best_moves = [col]                    
+                elif drop_board_score.ply < best_score.ply:
+                    # Replace winning score that's worse.
+                    best_score = drop_board_score
+                    best_moves = [col]
+                elif drop_board_score.ply == best_score.ply:
+                    best_moves.append(col)
+                else:
+                    pass  # no improvement.
+            elif drop_board_score.outcome == Outcome.DRAW:
+                if (mover == Player.A and best_score.outcome == Outcome.A_WINS) or (mover == Player.B and best_score.outcome == Outcome.B_WINS):
+                    pass # There is already a winning move; no improvement.
+                elif best_score.outcome == Outcome.DRAW:
+                    if drop_board_score.ply > best_score.ply:
+                        best_score = drop_board_score
+                        best_moves = [col]
+                    elif drop_board_score.ply == best_score.ply:
+                        best_moves.append(col)
+                    else:
+                        pass  # No improvement.
+                else:
+                    # The best score so far is losing; repace it with this draw.
+                    best_score = drop_board_score
+                    best_moves = [col]
+            else:
+                # This column loses.
+                if (mover == Player.A and best_score.outcome == Outcome.B_WINS) or (mover == Player.B and best_score.outcome == Outcome.A_WINS):
+                    # best move found so far also loses.
+                    if drop_board_score.ply > best_score.ply:
+                        # Slower loss (give opponent rope to make mistakes).
+                        best_score = drop_board_score
+                        best_moves = [col]
+                    elif drop_board_score.ply > best_score.ply:
+                        best_moves.append(col)
+                    else:
+                        pass # No improvement.
+
+        # Now we select a column and make the move.
+        col = random.choice(best_moves)
+        self.drop(col)
 
     def drop(self, col: int) -> None:
         info = self.info
@@ -343,6 +420,8 @@ class Connect4Widget(QWidget):
             self.drop_labels[col].setVisible(self.move_info_checkbox.isChecked())
 
         score = info.lookup_table.lookup(board)
+
+        self.move_button.setEnabled(moves_available)
 
         if not moves_available:
             if score.outcome == Outcome.A_WINS:
