@@ -77,7 +77,7 @@ class MoveRecordModel(QAbstractTableModel):
 class Connect4Widget(QWidget):
     """A widget for playing connect-4."""
 
-    CHIP_SIZE = 80
+    CHIP_SIZE = 60
 
     BUTTON_DISABLED_TEXT_COLOR       = QColor("#bbbbbb")
     BUTTON_DISABLED_BACKGROUND_COLOR = QColor("#cccccc")
@@ -478,7 +478,7 @@ class MyApplication(QApplication):
 
 def main():
 
-    default_database_filename = "connect4_7x5.new"
+    default_database_filename = "connect4_7x6.dat"
     parser = argparse.ArgumentParser(description="GUI for Connect-4 and related games.")
     parser.add_argument("-f", "--filename", default="connect4_7x5.new", help="database filename (default: {!r})".format(default_database_filename))
 
