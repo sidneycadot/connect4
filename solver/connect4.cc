@@ -348,54 +348,6 @@ static void make_binary_file(const string & in_nodes_filename,
     }
 }
 
-static void upgrade_binary_file(const string & in_nodes_filename,
-                                const string & out_nodes_filename)
-{
-    // Convert an old-style binary file to a new-style binary file.
-
-    const InputFile  in_nodes_file(in_nodes_filename);
-    const OutputFile out_nodes_file(out_nodes_filename);
-
-    istream & in_nodes  = in_nodes_file.get_istream_reference();
-    ostream & out_nodes = out_nodes_file.get_ostream_reference();
-
-    uint8_t octets[NUM_BASE256_BOARD_DIGITS + 1];
-
-    while (in_nodes.read(reinterpret_cast<char *>(octets), NUM_BASE256_BOARD_DIGITS + 1))
-    {
-        uint64_t n = 0;
-        for (unsigned i = 0; i < NUM_BASE256_BOARD_DIGITS; ++i)
-        {
-            n *= 256;
-            n += octets[i];
-        }
-
-        const Board board = Board::from_uint64(n);
-
-        const uint8_t old_style_score = octets[NUM_BASE256_BOARD_DIGITS];
-        Score new_style_score;
-
-        if (old_style_score > 0 && old_style_score <= 127)
-        {
-            // Player A wins in (old_style_score - 1) moves.
-            new_style_score = Score(Outcome::A_WINS, old_style_score - 1);
-        }
-        else if (old_style_score >= 128)
-        {
-            // Player B wins in (255 - old_style_score) moves.
-            new_style_score = Score(Outcome::B_WINS, 255 - old_style_score);
-        }
-        else
-        {
-            new_style_score = Score(Outcome::DRAW, V_SIZE * H_SIZE - board.count());
-        }
-
-        octets[NUM_BASE256_BOARD_DIGITS] = new_style_score.to_uint8();
-
-        out_nodes.write(reinterpret_cast<char *>(octets), NUM_BASE256_BOARD_DIGITS + 1);
-    }
-}
-
 static void print_info(const string & in_nodes_filename)
 {
     const InputFile in_nodes_file(in_nodes_filename);
@@ -512,11 +464,6 @@ int main(int argc, char **argv)
     else if (args.size() == 2 && args[0] == "--print-info")
     {
         print_info(args[1]);
-    }
-    else if (args.size() == 3 && args[0] == "--upgrade-binary-file")
-    {
-        // Change from old-style score to new-style score.
-        upgrade_binary_file(args[1], args[2]);
     }
     else if (args.size() == 1 && args[0] == "--print-constants")
     {
