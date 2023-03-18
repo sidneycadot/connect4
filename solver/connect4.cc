@@ -385,7 +385,7 @@ static void print_info(const string & in_nodes_filename)
         {
             const Score score = Score::from_uint8(index % 256);
             const bool is_symmetric = (index & 256) != 0;
-            cout << "moves " << setw(2) << (index / 512) << " symmetric " << is_symmetric << " outcome " << score.outcome << " ply " << setw(2) << score.ply << " count " << setw(10) << occurrences[index] << endl;
+            cout << "moves " << setw(2) << (index / 512) << " symmetric " << is_symmetric << " outcome " << score.outcome << " ply " << setw(2) << score.ply << " count " << setw(12) << occurrences[index] << endl;
         }
     }
 }
@@ -413,9 +413,8 @@ static void print_usage()
     cerr << "    connect4 --make-edges            <in:nodes-without-score(n)>                            <out:edges-without-score(n)>"       << endl;
     cerr << "    connect4 --make-edges-with-score <in:edges-without-score(n)> <in:nodes-with-score(n+1)> <out:edges-with-score(n)>"          << endl;
     cerr << "    connect4 --make-nodes-with-score <in:nodes-without-score(n)> <in:edges-with-score(n)>   <out:nodes-with-score(n)>"          << endl;
-    cerr << "    connect4 --make-binary-file      <in:nodes-file>                                        <out:nodes-file-binary-new>"        << endl;
-    cerr << "    connect4 --print-info            <in:nodes-file-binary-new>"                                                                << endl;
-    cerr << "    connect4 --upgrade-binary-file   <in:nodes-file-binary-old>                             <out:nodes-file-binary-new>"        << endl;
+    cerr << "    connect4 --make-binary-file      <in:nodes-file>                                        <out:nodes-file-binary>"            << endl;
+    cerr << "    connect4 --print-info            <in:nodes-file-binary>"                                                                    << endl;
     cerr                                                                                                                                     << endl;
     cerr << "    Note: "                                                                                                                     << endl;
     cerr                                                                                                                                     << endl;
