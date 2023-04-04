@@ -1,0 +1,322 @@
+{
+    // The default is a pretty exhaustive parameter search.
+    //
+    "default" : {
+        "delta.dist"        : [null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // 1-256
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [0, 1, 2, 3, 4],
+        "lzma2.lp"          : [0, 1, 2, 3, 4],
+        "lzma2.pb"          : [0, 1, 2, 3, 4],
+        "lzma2.mf"          : ["hc3", "hc4", "bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["fast", "normal"],
+        "lzma2.nice.minmax" : [2, 273],
+        "lzma2.depth"       : [0]
+    },
+
+    ///////////////////////////
+    //                       //
+    // Files for H_SIZE == 2 //
+    //                       //
+    ///////////////////////////
+    
+    "connect4_2x6.new" : {
+        "delta.dist"        : [3],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [0],
+        "lzma2.lp"          : [0],
+        "lzma2.pb"          : [0],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [2, 273],
+        "lzma2.depth"       : [0]
+
+        // 684  --delta=dist=3 --lzma2=dict=64MiB,lc=0,lp=0,pb=0,mf=bt2,mode=normal,nice=23,depth=0
+        // 684  --delta=dist=3 --lzma2=dict=64MiB,lc=0,lp=0,pb=0,mf=bt2,mode=normal,nice=24,depth=0
+        // 684  --delta=dist=3 --lzma2=dict=64MiB,lc=0,lp=0,pb=0,mf=bt2,mode=normal,nice=25,depth=0
+        // 684  --delta=dist=3 --lzma2=dict=64MiB,lc=0,lp=0,pb=0,mf=bt2,mode=normal,nice=26,depth=0
+        // 684  --delta=dist=3 --lzma2=dict=64MiB,lc=0,lp=0,pb=0,mf=bt2,mode=normal,nice=27,depth=0
+        // 684  --delta=dist=3 --lzma2=dict=64MiB,lc=0,lp=0,pb=0,mf=bt2,mode=normal,nice=28,depth=0
+        // 684  --delta=dist=3 --lzma2=dict=64MiB,lc=0,lp=0,pb=0,mf=bt2,mode=normal,nice=29,depth=0
+    },
+
+    ///////////////////////////
+    //                       //
+    // Files for H_SIZE == 3 //
+    //                       //
+    ///////////////////////////
+    
+    "connect4_3x6.new" : {
+        "delta.dist"        : [4],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [0, 1, 2, 3, 4],
+        "lzma2.lp"          : [2],
+        "lzma2.pb"          : [2],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [150, 273],
+        "lzma2.depth"       : [0]
+
+        // 21268  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt2,mode=normal,nice=238,depth=0
+        // 21268  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=217,depth=0
+        // 21268  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=242,depth=0
+        // 21272  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt2,mode=normal,nice=217,depth=0
+        // 21272  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt2,mode=normal,nice=230,depth=0
+        // 21272  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt4,mode=normal,nice=224,depth=0
+        // 21272  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt4,mode=normal,nice=238,depth=0
+        // 21272  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt4,mode=normal,nice=242,depth=0
+        // 21272  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt4,mode=normal,nice=249,depth=0
+        // 21276  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt2,mode=normal,nice=216,depth=0
+    },
+
+    ///////////////////////////
+    //                       //
+    // Files for H_SIZE == 4 //
+    //                       //
+    ///////////////////////////
+    
+    "connect4_4x4.new" : {
+        "delta.dist"        : [4],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [0],
+        "lzma2.lp"          : [2],
+        "lzma2.pb"          : [2],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [2, 273],
+        "lzma2.depth"       : [0]
+
+        // 36688  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt3,mode=normal,nice=117,depth=0
+        // 36688  --delta=dist=4 --lzma2=dict=64MiB,lc=0,lp=2,pb=2,mf=bt4,mode=normal,nice=117,depth=0
+    },
+
+    "connect4_4x5.new" : {
+        "delta.dist"        : [4],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [0, 1, 2, 3, 4],
+        "lzma2.lp"          : [2],
+        "lzma2.pb"          : [2],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [100, 273],
+        "lzma2.depth"       : [0]
+
+        // 328396  --delta=dist=4 --lzma2=dict=64MiB,lc=1,lp=2,pb=2,mf=bt2,mode=normal,nice=152,depth=0
+    },
+
+    "connect4_4x6.new" : {
+        "delta.dist"        : [5],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [4],
+        "lzma2.lp"          : [0],
+        "lzma2.pb"          : [0],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [200, 273],
+        "lzma2.depth"       : [0]
+
+        // 2669540  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=255,depth=0
+        // 2669564  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=256,depth=0
+        // 2669568  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=253,depth=0
+        // 2669568  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=256,depth=0
+        // 2669588  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=265,depth=0
+    },
+
+    ///////////////////////////
+    //                       //
+    // Files for H_SIZE == 5 //
+    //                       //
+    ///////////////////////////
+
+    "connect4_5x4.new" : {
+        "delta.dist"        : [5],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [0, 1, 2],
+        "lzma2.lp"          : [0],
+        "lzma2.pb"          : [0],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [140, 273],
+        "lzma2.depth"       : [0]
+
+        // 790120  --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt3,mode=normal,nice=235,depth=0
+        // 790120  --delta=dist=5 --lzma2=dict=64MiB,lc=2,lp=0,pb=0,mf=bt4,mode=normal,nice=235,depth=0
+    },
+
+    "connect4_5x5.new" : {
+        "delta.dist"        : [5],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [4],
+        "lzma2.lp"          : [0],
+        "lzma2.pb"          : [0],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [200, 273],
+        "lzma2.depth"       : [0]
+
+        // 10899820  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=266,depth=0
+    },
+
+    "connect4_5x6.new" : {
+        "delta.dist"        : [6],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [3],
+        "lzma2.lp"          : [1],
+        "lzma2.pb"          : [1],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [265, 273],
+        "lzma2.depth"       : [0]
+
+        // 116887316  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=272,depth=0
+        // 116887368  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=273,depth=0
+        // 116888480  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0
+        // 116889236  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=272,depth=0
+        // 116893032  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=273,depth=0
+        // 116894748  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=272,depth=0
+        // 116895464  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=271,depth=0
+        // 116896504  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=271,depth=0
+        // 116902840  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=271,depth=0
+    },
+
+    ///////////////////////////
+    //                       //
+    // Files for H_SIZE == 6 //
+    //                       //
+    ///////////////////////////
+
+    "connect4_6x4.new" : {
+        "delta.dist"        : [5],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [0, 1, 2, 3, 4],
+        "lzma2.lp"          : [0],
+        "lzma2.pb"          : [0],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [200, 273],
+        "lzma2.depth"       : [0]
+
+        // 12895108  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=270,depth=0
+        // 12895416  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=272,depth=0
+        // 12895672  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=271,depth=0
+        // 12895796  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=270,depth=0
+        // 12895996  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=272,depth=0
+        // 12896084  --delta=dist=5 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=271,depth=0
+    },
+
+    "connect4_6x5.new" : {
+        "delta.dist"        : [6],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [0, 1, 2, 3],
+        "lzma2.lp"          : [1],
+        "lzma2.pb"          : [1],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [264, 273],
+        "lzma2.depth"       : [0]
+
+        // 300771484  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0
+        // 300774140  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=273,depth=0
+        // 300788288  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=273,depth=0
+        // 300796012  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=272,depth=0
+        // 300804616  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=272,depth=0
+        // 300810568  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=272,depth=0
+        // 300820788  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=271,depth=0
+    },
+
+    "connect4_6x6.new" : {
+        "delta.dist"        : [7],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [4],
+        "lzma2.lp"          : [0],
+        "lzma2.pb"          : [0],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [272, 273],
+        "lzma2.depth"       : [0]
+
+        // 6373063076  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=273,depth=0
+        // 6373066564  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=273,depth=0
+        // 6373110716  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=273,depth=0
+        // 6380779700  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=272,depth=0
+        // 6380807616  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=272,depth=0
+        // 6380818296  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=272,depth=0
+    },
+
+    ///////////////////////////
+    //                       //
+    // Files for H_SIZE == 7 //
+    //                       //
+    ///////////////////////////
+
+    "connect4_7x4.new" : {
+        "delta.dist"        : [6],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [0, 1, 2, 3, 4],
+        "lzma2.lp"          : [1],
+        "lzma2.pb"          : [1],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [250, 273],
+        "lzma2.depth"       : [0]
+
+        // 217328488  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=273,depth=0
+        // 217340032  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=273,depth=0
+        // 217350980  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=273,depth=0
+        // 217351176  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=272,depth=0
+        // 217363896  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=272,depth=0
+        // 217367068  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=272,depth=0
+        // 217380460  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=271,depth=0
+        // 217390712  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=271,depth=0
+        // 217393204  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=271,depth=0
+        // 217419372  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=270,depth=0
+        // 217424636  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=270,depth=0
+        // 217427692  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=270,depth=0
+        // 217539196  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt2,mode=normal,nice=269,depth=0
+        // 217540024  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt4,mode=normal,nice=269,depth=0
+        // 217541564  --delta=dist=6 --lzma2=dict=64MiB,lc=3,lp=1,pb=1,mf=bt3,mode=normal,nice=269,depth=0
+    },
+
+    "connect4_7x5.new" : {
+        "delta.dist"        : [7],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [4],
+        "lzma2.lp"          : [0],
+        "lzma2.pb"          : [0],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [272, 273],
+        "lzma2.depth"       : [0]
+
+        // 10753571804  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=273,depth=0
+        // 10753628964  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=273,depth=0
+        // 10753645428  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=273,depth=0
+        // 10766488084  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt3,mode=normal,nice=272,depth=0
+        // 10766502840  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt4,mode=normal,nice=272,depth=0
+        // 10766519648  --delta=dist=7 --lzma2=dict=64MiB,lc=4,lp=0,pb=0,mf=bt2,mode=normal,nice=272,depth=0
+    },
+
+    "connect4_7x6.new" : {
+        "delta.dist"        : [7],
+        "lzma2.dict"        : ["64MiB"],
+        "lzma2.lc"          : [4],
+        "lzma2.lp"          : [0],
+        "lzma2.pb"          : [0],
+        "lzma2.mf"          : ["bt2", "bt3", "bt4"],
+        "lzma2.mode"        : ["normal"],
+        "lzma2.nice.minmax" : [272, 273],
+        "lzma2.depth"       : [0]
+    }
+
+    ////////////////////////////
+    //                        //
+    // Files for H_SIZE == 10 //
+    //                        //
+    ////////////////////////////
+    
+    ////////////////////////////
+    //                        //
+    // Files for H_SIZE == 20 //
+    //                        //
+    ////////////////////////////
+    
+}

@@ -1,4 +1,3 @@
+Assorted misc stuff.
 
-Miscellaneous info
-==================
-
+To be sorted out.
