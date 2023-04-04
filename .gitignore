@@ -5,3 +5,4 @@ connect4
 *.dat.xz
 *.bin
 *.bin.xz
+.idea

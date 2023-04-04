@@ -1,7 +1,8 @@
-"""Simple support types."""
+"""Simple types for connect-4."""
 
 from enum import Enum
 from typing import NamedTuple
+
 
 class Player(Enum):
     """Represents a player."""
@@ -11,7 +12,7 @@ class Player(Enum):
 
 
 class Outcome(Enum):
-    """Represents the outcome of a game, assuming perfect play by both players."""
+    """Represents the outcome of a game."""
     A_WINS = 0
     B_WINS = 1
     DRAW = 2

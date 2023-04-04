@@ -1,22 +1,23 @@
-"""Game information."""
+"""Game information and "get board score" functionality."""
 
 import os
 import re
-from typing import Dict
+from typing import List, Tuple, Dict
 
-from simple_types import Player
-from lookup_table import LookupTable
+from .simple_types import Player, Score
+from .board import Board
+from .lookup_table import LookupTable
 
 
-def number_of_digits_required(base, count):
+def _number_of_digits_required(base, count):
     """Find the smallest value 'digits' such that power(base, digits) >= count."""
     if count <= 1:
         return 0
     else:
-        return 1 + number_of_digits_required(base, (count + base - 1) // base)
+        return 1 + _number_of_digits_required(base, (count + base - 1) // base)
 
 
-def make_column_ternary_to_column_encoded(n, q) -> Dict[int, int]:
+def _make_column_ternary_to_column_encoded(n, q) -> Dict[int, int]:
 
     to_be_processed: List[Tuple[Player, ...]] = [tuple()]
     columns = []
@@ -49,6 +50,11 @@ def make_column_ternary_to_column_encoded(n, q) -> Dict[int, int]:
 
 
 class GameInfo:
+    """The GameInfo class provides access to the basic parameters of the game, and provides score lookups.
+
+    The game board size and the 'q' parameter ('connect-q') are determined based on the filename of the
+    lookup table.
+    """
 
     def __init__(self, filename: str):
         self._filename = filename
@@ -72,7 +78,7 @@ class GameInfo:
         if self._is_open:
             raise RuntimeError("Attempt to open a GameInfo instance that is already open.")
 
-        regexp = "^connect([0-9]+)_([0-9]+)x([0-9]+).new$"
+        regexp = "^connect([0-9]+)_([0-9]+)x([0-9]+).dat$"
         match = re.match(regexp, self.basename)
 
         if match is None:
@@ -80,12 +86,12 @@ class GameInfo:
 
         (connect_q, h_size, v_size) = map(int, match.groups())
 
-        column_ternary_to_column_encoded = make_column_ternary_to_column_encoded(v_size, connect_q)
+        column_ternary_to_column_encoded = _make_column_ternary_to_column_encoded(v_size, connect_q)
 
         number_of_possible_columns = len(column_ternary_to_column_encoded)
-        board_representation_octets = number_of_digits_required(256, number_of_possible_columns ** h_size)
+        lookup_table_key_octets = _number_of_digits_required(256, number_of_possible_columns ** h_size)
 
-        octets_per_lut_entry = board_representation_octets + 1
+        octets_per_lut_entry = lookup_table_key_octets + 1
 
         lookup_table = LookupTable(self._filename, octets_per_lut_entry)
         lookup_table.open()
@@ -106,3 +112,6 @@ class GameInfo:
         self.lookup_table.close()
 
         self._is_open = False
+
+    def lookup(self, board: Board) -> Score:
+        return self.lookup_table.lookup(board)
