@@ -14,6 +14,6 @@ The "7x6" directory contains information specifically about the solution
 of the 7x6 board, in particular it documents the the database storage
 format, and how to to obtain a premade version of the database.
 
-The "cients" subdirectory contains a command-line interface program that
+The "clients" subdirectory contains a command-line interface program that
 allows play against the perfect-play database, with the ability to show
 the consequence of each move.
