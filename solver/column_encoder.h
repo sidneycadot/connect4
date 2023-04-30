@@ -28,7 +28,7 @@ class ColumnEncoder
     // connect-4 game with n=6 and q=4.
     //
     // The `ColumnEncoder` class enumerates all valid column configurations in its constructor, and
-    // provides 'encode' and 'decode' methods to convert between ternary-encoded columns and a compect
+    // provides 'encode' and 'decode' methods to convert between ternary-encoded columns and a compact
     // encoding as an unsigned integer. This latter representation allows for the compact storage of
     // the state of a board as a sequence of valid columns.
 
